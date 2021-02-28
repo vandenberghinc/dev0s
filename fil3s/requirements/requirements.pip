@@ -1,0 +1,7 @@
+
+# pip requirements.
+requests
+pathlib
+
+# inc requirements.
+
