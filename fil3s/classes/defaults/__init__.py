@@ -742,7 +742,20 @@ class Formats():
 				owner = pwd.getpwuid(os.stat(path).st_uid).pw_name
 				group = grp.getgrgid(os.stat(path).st_gid).gr_name
 				return owner, group
-			def set(self, owner=None, group=None, sudo=False, recursive=False, silent=False, path=None):
+			def set(self, 
+				# the permission (str) (#1).
+				owner=None, 
+				# the group (str) (optional) (#2).
+				group=None, 
+				# the path (optional) (overwrites self.path) (#3).
+				path=None,
+				# root permission required.
+				sudo=False, 
+				# recursive.
+				recursive=False, 
+				# silent.
+				silent=False, 
+			):
 				if path == None: path = self.path
 				if group == None:
 					if OS in ["macos"]: group = "wheel"
@@ -791,7 +804,18 @@ class Formats():
 				status = os.stat(path) 
 				permission = oct(status.st_mode)[-3:]
 				return permission
-			def set(self, permission=None, sudo=False, recursive=False, silent=False, path=None):
+			def set(self, 
+				# the permission (int) (#1).
+				permission=None, 
+				# the path (optional) (overwrites self.path) (#2).
+				path=None,
+				# root permission required.
+				sudo=False, 
+				# recursive.
+				recursive=False, 
+				# silent.
+				silent=False, 
+			): 
 				if path == None: path = self.path
 				silent_option = ""
 				if silent: silent_option = ' 2> /dev/null'
@@ -1869,7 +1893,7 @@ class Files():
 			type = "." + type
 		if os.path.exists(path) and os.path.isdir(path) and path[len(path)-1] != "/": path += '/'
 		return gfp.clean("{}{}{}".format(path, name, type), remove_double_slash=True, remove_last_slash=False)
-	def load(path, data="not to be used", format="str", raw=False): # keep data as second param to prevent save load errors.
+	def load(path, data="not to be used", format="str", raw=False, sudo=False): # keep data as second param to prevent save load errors.
 		# correct format.
 		if format in [str, String, "String", "string", "file"]: format = "str"
 		if format in [dict, Dictionary, "Dictionary", "dict", "array"]: format = "json"
@@ -1878,23 +1902,40 @@ class Files():
 		# match format.
 		path = str(path)
 		data = None
+
+		# sudo.
+		if sudo:
+			data = utils.__execute__(["sudo", "cat", path])
+			if "No such file or directory" in data: raise FileNotFoundError(f"File [{path}] does not exist.")
+
+		# proceed.
 		if format == "str":
-			file = open(path,mode='rb')
-			data = file.read().decode()
-			file.close()
+			if not sudo:
+				file = open(path,mode='rb')
+				data = file.read().decode()
+				file.close()
 		elif format == "json":
-			try: 
-				with open(path, 'r+') as json_file:
-					data = json.load(json_file)
-			except PermissionError:
-				with open(path, 'r') as json_file:
-					data = json.load(json_file)
-			except json.decoder.JSONDecodeError as e:
-				e = f"Unable to decode file [{path}]. {e}."
-				raise exceptions.JSONDecodeError(e)
+			if not sudo:
+				try: 
+					with open(path, 'r+') as json_file:
+						data = json.load(json_file)
+				except PermissionError:
+					with open(path, 'r') as json_file:
+						data = json.load(json_file)
+				except json.decoder.JSONDecodeError as e:
+					e = f"Unable to decode file [{path}]. {e}."
+					raise exceptions.JSONDecodeError(e)
+			else:
+				try: 
+					data = json.loads(data)
+				except:
+					data = ast.literal_eval(data)
 		elif format == "bytes":
-			with open(path, "rb") as file:
-				data = file.read()
+			if not sudo:
+				with open(path, "rb") as file:
+					data = file.read()
+			else:
+				data = data.encode()
 		else: raise ValueError(f"Unknown format {format}.")
 		if raw: return data
 		else: return Formats.initialize(data)
@@ -1936,7 +1977,12 @@ class Files():
 			if os.path.isdir(path) and path[len(path)-1] != "/": 
 				path += "/"
 				if real_path[len(real_path)-1] != "/": real_path += "/"
-			os.system(f"sudo rsync -aq {path} {real_path} && rm -fr {tmp_path}")
+			os.system(f"sudo rsync -aq {gfp.clean(path)} {gfp.clean(real_path)} && rm -fr {tmp_path}")
+			#print(f"sudo mv {gfp.clean(path)} {gfp.clean(real_path)}")
+			#os.system(f"sudo mv {gfp.clean(path)} {gfp.clean(real_path)}")
+			#	os.system(f"sudo rsync -aq {gfp.clean(path)} {gfp.clean(real_path)} && rm -fr {tmp_path}")
+			#else:
+			#	os.system(f"sudo rsync -ogq {gfp.clean(path)} {gfp.clean(real_path)} && rm -fr {tmp_path}")
 	def delete(
 		# the path (param #1).
 		path=None, 
@@ -2003,17 +2049,17 @@ class Files():
 				self.save(data=default)
 			if load: self.load()
 			# can be filled with executing [self.x = x()]:
-		def load(self, default=None):
+		def load(self, default=None, sudo=False):
 			utils.__check_memory_only__(str(self.file_path.path))
 			if not os.path.exists(str(self.file_path.path)) and default != None: 
-				self.save(data=default)
-			self.data = Files.load(self.file_path.path, format=str)
+				self.save(data=default, sudo=sudo)
+			self.data = Files.load(self.file_path.path, format=str, sudo=sudo)
 			return self.data
-		def load_line(self, line_number, default=None):
+		def load_line(self, line_number, default=None, sudo=False):
 			utils.__check_memory_only__(self.file_path.path)
 			if not os.path.exists(self.file_path.path) and default != None: 
-				self.save(str(default), self.file_path.path)
-			data = Files.load(self.file_path.path, format=str)
+				self.save(str(default), self.file_path.path, sudo=sudo)
+			data = Files.load(self.file_path.path, format=str, sudo=sudo)
 			return data.split('\n')[line_number]
 		def save(self, data=None, path=None, overwrite_duplicates=True, sudo=False):
 			if path == None: path = self.file_path.path
@@ -2146,11 +2192,11 @@ class Files():
 			utils.__check_memory_only__(path)
 			self.array = array
 			return Files.save(path, array, format="json", indent=indent, ensure_ascii=ensure_ascii, sudo=sudo)
-		def load(self, default=None):
+		def load(self, default=None, sudo=False):
 			utils.__check_memory_only__(self.file_path.path)
 			if not os.path.exists(self.file_path.path) and default != None: 
-				self.save(default)
-			self.array = Files.load(self.file_path.path, format="json")
+				self.save(default, sudo=sudo)
+			self.array = Files.load(self.file_path.path, format="json", sudo=sudo)
 			return self.array
 		def string(self, joiner=" ", sum_first=False):
 			string = ""
@@ -2550,15 +2596,15 @@ class Files():
 			if path == None: path = self.file_path.path
 			self.dictionary = dictionary
 			return Files.save(path, dictionary, format="json", indent=indent, ensure_ascii=ensure_ascii, sudo=sudo)
-		def load(self, default=None):
+		def load(self, default=None, sudo=False):
 			utils.__check_memory_only__(self.file_path.path)
 			if not os.path.exists(self.file_path.path) and default != None: 
-				self.save(default)
-			self.dictionary = Files.load(self.file_path.path, format="json")
+				self.save(default, sudo=sudo)
+			self.dictionary = Files.load(self.file_path.path, format="json", sudo=sudo)
 			return self.dictionary
-		def load_line(self, line_number):
+		def load_line(self, line_number, sudo=False):
 			utils.__check_memory_only__(self.file_path.path)
-			data = Files.load(str(self.file_path.path))
+			data = Files.load(str(self.file_path.path, sudo=sudo))
 			return data.split('\n')[line_number]
 		def check(self, 
 			#   Option 1:
@@ -3653,8 +3699,8 @@ class Files():
 			self.bytes = bytes  
 			
 			#
-		def load(self):
-			bytes = Files.load(self.file_path.path, format="bytes")
+		def load(self, sudo=False):
+			bytes = Files.load(self.file_path.path, format="bytes", sudo=sudo)
 			self.bytes = bytes
 			return bytes
 		def save(self, bytes=None, sudo=False):
