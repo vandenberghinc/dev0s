@@ -724,6 +724,9 @@ class Formats():
 			self.ownership = self.Ownership(path=self.path, load=load)
 			self.permission = self.Permission(path=self.path, load=load)
 			return self
+		# return raw data.
+		def raw(self):
+			return self.path
 		#   -   objects:
 		class Ownership(object):
 			def __init__(self, path=None, load=False):
@@ -1362,6 +1365,9 @@ class Formats():
 				raise exceptions.FormatError(f"Can not assign object {self.__class__} & {string.__class__}.")
 			self.string = string
 			return self
+		# return raw data.
+		def raw(self):
+			return self.str
 		#
 	#
 	# the boolean object class.
@@ -1447,6 +1453,9 @@ class Formats():
 				raise exceptions.FormatError(f"Can not assign object {self.__class__} & {boolean.__class__}.")
 			self.bool = boolean
 			return self
+		# return raw data.
+		def raw(self):
+			return self.bool
 		#
 	#
 	# the integer object class.
@@ -1747,6 +1756,9 @@ class Formats():
 				raise exceptions.FormatError(f"Can not assign object {self.__class__} & {value.__class__}.")
 			self.value = value
 			return self
+		# return raw data.
+		def raw(self):
+			return self.value
 		#
 	#
 	# the date object class.
@@ -1891,6 +1903,7 @@ class Files():
 	def join(path=None, name=None, type=""):
 		if type not in ["", "/"] and "." not in type:
 			type = "." + type
+		path = str(path)
 		if os.path.exists(path) and os.path.isdir(path) and path[len(path)-1] != "/": path += '/'
 		return gfp.clean("{}{}{}".format(path, name, type), remove_double_slash=True, remove_last_slash=False)
 	def load(path, data="not to be used", format="str", raw=False, sudo=False): # keep data as second param to prevent save load errors.
@@ -1994,6 +2007,7 @@ class Files():
 		silent=False,
 	):
 		if path == None: raise exceptions.InvalidUsage("Define parameter: path.")
+		path = str(path)
 		return gfp.delete(path=path, forced=forced, sudo=sudo, silent=silent)
 	def chmod(
 		# the path (param #1).
@@ -2007,6 +2021,7 @@ class Files():
 	):
 		if path == None: raise exceptions.InvalidUsage("Define parameter: path.")
 		if permission == None: raise exceptions.InvalidUsage("Define parameter: permission.")
+		path = str(path)
 		return gfp.permission.set(path=path, permission=permission, recursive=recursive, sudo=sudo)
 	def chown(
 		# the path (param #1).
@@ -2022,6 +2037,7 @@ class Files():
 	):
 		if path == None: raise exceptions.InvalidUsage("Define parameter: path.")
 		if owner == None: raise exceptions.InvalidUsage("Define parameter: owner.")
+		path = str(path)
 		return gfp.ownership.set(path=path, owner=owner, group=group, recursive=recursive, sudo=sudo)
 	def exists(path=None, sudo=False):
 		if path == None: raise exceptions.InvalidUsage("Define parameter: path.")
@@ -2032,8 +2048,43 @@ class Files():
 		path=None,
 	):
 		path = gfp.clean(path=path, remove_double_slash=True, remove_last_slash=True)
+		path = str(path)
 		return os.path.isdir(path)
 		#
+	def create(self,
+		# the path to the file (str) (REQUIRED) (#1).
+		path=None,
+		# the data (str) (optional).
+		data=None,
+		# path is directory (bool).
+		directory=False,
+		# the owner (str) (optional).
+		owner=None,
+		# the group (str) (optional).
+		group=None,
+		# the permission (int) (optional).
+		permission=None,
+		# root permission required.
+		sudo=False,
+	):
+		if Files.exists(path, sudo=sudo):
+			raise ValueError(f"Path [{path}] already exists.")
+		sudo_str = Boolean(sudo).string(true="sudo ", false="")
+		if directory:
+			os.system(f"{sudo_str}mkdir -p {path}")
+		else:
+			if isinstance(data, (list, Array, dict, Dictionary)):
+				if isinstance(data, (Dictionary,Array)):
+					data = data.raw()
+				Files.save(path=path, data=data, format="json", sudo=sudo, )
+			else:
+				Files.save(path=path, data=str(data), sudo=sudo)
+		if not Files.exists(path, sudo=sudo):
+			raise ValueError(f"Unable to create {Boolean(directory).string(true='directory', false='file')} [{path}] (sudo: {sudo}).")
+		if permission != None:
+			Files.chmod(path=path, permission=permission, sudo=sudo)
+		if owner != None:
+			Files.chown(path=path, owner=owner, group=group, sudo=sudo)
 	#
 	# the file object class.
 	class File(object):
@@ -2153,6 +2204,9 @@ class Files():
 				data = data.data
 			self.data = data
 			return self
+		# return raw data.
+		def raw(self):
+			return self.data
 	#
 	# the array object class.
 	class Array(object):
@@ -2536,6 +2590,9 @@ class Files():
 			self.array = array
 			if save: self.save()
 			return self
+		# return raw data.
+		def raw(self):
+			return self.array
 	#
 	# the dictionary object class.
 	class Dictionary(object):
@@ -2703,6 +2760,59 @@ class Files():
 				self.dictionary = dictionary_
 				self.save()
 			return dictionary_
+		# edit.
+		def edit(self, 
+			# the dictionary (leave None to use self.dictionary).
+			dictionary=None,
+			# the edits (dict).
+			# 	adds / replaces the current (except the exceptions).
+			edits={},
+			# the edits key exceptions.
+			exceptions=[],
+			# the edits value exceptions.
+			value_exceptions=[None],
+			# the instances to combine (list[str]) (dict is always recursive).
+			combine=["int", "float", "Integer", "list", "Array"],
+			# save the edits.
+			save=True,
+			# the log level.
+			log_level=-1,
+		):
+			def edit_dict(dictionary={}, edits={}):
+				c = 0
+				for key, value in edits.items():
+					found = True
+					try: dictionary[key]
+					except KeyError: found = False
+					# recursive.
+					if key not in exceptions and value not in value_exceptions and isinstance(value, (dict, Dictionary)):
+						if isinstance(value, (Dictionary)):
+							value = value.dictionary
+						if found:
+							dictionary[key], lc = edit_dict(dictionary=dictionary[key], edits=value)
+							c += lc
+						else:
+							if log_level >= 0:
+								print(f"Editing {alias} config {key}: {value}.")
+							dictionary[key] = value
+							c += 1
+					elif key not in exceptions and value not in value_exceptions and not found:
+						if log_level >= 0:
+							print(f"Editing {alias} config {key}: {value}.")
+						dictionary[key] = value
+						c += 1
+					elif key not in exceptions and value not in value_exceptions and found and value.__class__.__name__ in combine:
+						dictionary[key] = dictionary[key] + value
+						c += 1
+				return dictionary, c
+			
+			# check specific.
+			if dictionary == None: dictionary = self.dictionary
+			dictionary, c = edit_dict(dictionary=dictionary, edits=edits)
+			if (edit_count > 0 or c > 0) and save:
+				self.dictionary = dictionary
+				if self.fp != None: self.save()
+			return dictionary
 		# unpack attribute(s).
 		def unpack(self, 
 			# the key / keys / defaults parameter (#1).
@@ -3067,6 +3177,9 @@ class Files():
 			self.dictionary = dictionary
 			if save: self.save()
 			return self
+		# return raw data.
+		def raw(self):
+			return self.dictionary
 		#  
 	#
 	# the directory object class.
@@ -3395,6 +3508,59 @@ class Files():
 			return self.file_path.clean(path=fullpath.replace(self.path, ""), remove_double_slash=True)
 		def fullpath(self, subpath):
 			return self.file_path.clean(path=f"{self.path}/{subpath}", remove_double_slash=True)
+		# set the icon.
+		def set_icon(self, 
+			# the path to the .png / .jpg icon.
+			icon=None, 
+			# the directory path (leave None to use self.fp.path).
+			path=None,
+		):
+			if icon == None: raise exceptions.InvalidUsage("Define parameter: icon.")
+			if path == None: path = self.fp.path
+			if OS in ["osx", "macos"]:
+				utils.__execute_script__(f"""
+					#!/bin/bash
+
+					# settings.
+					icon="{icon}"
+					dest="{path}"
+
+					# check inputs
+					if [ ! -f $icon ]; then 
+						echo "ERROR: File $1 does not exists"
+						exit 1
+					elif [[ ! $icon =~ .*\.(png|PNG|jpg|JPG) ]]; then
+						echo "ERROR: Icon must be a .png|.jpg file"
+						exit 1
+					elif [ -f $dest ]; then
+						folder=false
+					elif [ -d $dest ]; then
+						folder=true
+					else
+						echo 'ERROR: File|Folder destination does not exists'
+						exit 1
+					fi
+
+					# create icns icon
+					sips -i $icon > /dev/null
+					DeRez -only icns $icon > /tmp/tmpicns.rsrc
+
+					# set icon
+					if [ "$folder" = true ]; then
+						Rez -append /tmp/tmpicns.rsrc -o $dest$'/Icon\r'
+						SetFile -a C $dest
+						SetFile -a V $dest$'/Icon\r'
+					else
+						Rez -append /tmp/tmpicns.rsrc -o $dest
+						SetFile -a C $dest
+					fi
+
+					# clean up
+					rm /tmp/tmpicns.rsrc
+					exit 0
+					""")
+			else:
+				raise OSError("Unsupported operating system.")
 		# index the content.
 		def index(self, 
 			# the wanted options.
@@ -3444,7 +3610,6 @@ class Files():
 					indexed[_path_] = process(_path_)
 					ids.append(_path_)
 			return indexed.sort(alphabetical=True)
-
 		# return references of each file that includes one of the matches.
 		def find(self, matches:list, path=None, recursive=False, log_level=0):
 			if path == None: path = self.path
@@ -3567,6 +3732,9 @@ class Files():
 		@property
 		def __name__(self):
 			return self.instance()
+		# return raw data.
+		def raw(self):
+			return self.fp.path
 	#
 	# the image object class.
 	class Image(object):
@@ -3593,6 +3761,9 @@ class Files():
 		@property
 		def __name__(self):
 			return self.instance()
+		# return raw data.
+		def raw(self):
+			return self.fp.path
 		#
 	#
 	# the zip object class.
@@ -3675,7 +3846,9 @@ class Files():
 		@property
 		def __name__(self):
 			return self.instance()
-		#
+		# return raw data.
+		def raw(self):
+			return self.fp.path
 		#
 	#
 	# the bytes object class.
@@ -3760,6 +3933,9 @@ class Files():
 				b = b.bytes
 			self.bytes = b
 			return self
+		# return raw data.
+		def raw(self):
+			return self.bytes
 		#
 		#
 	#
