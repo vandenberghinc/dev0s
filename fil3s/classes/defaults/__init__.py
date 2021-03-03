@@ -1383,7 +1383,7 @@ class Formats():
 			if self.bool in ["true", "True", "TRUE", True]: self.bool = True
 			else: self.bool = False
 			# can be filled with executing [self.x = x()]:
-		def convert(self, true="True", false="False"):
+		def string(self, true="True", false="False"):
 			if self.bool:
 				return true
 			else:
