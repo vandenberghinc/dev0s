@@ -2044,14 +2044,15 @@ class Files():
 		return gfp.exists(path=path, sudo=sudo)
 		#
 	def directory( 
-		# the path (leave None to use self.path) (#1).
+		# the path (#1).
 		path=None,
 	):
+		if path == None: raise exceptions.InvalidUsage("Define parameter: path.")
 		path = gfp.clean(path=path, remove_double_slash=True, remove_last_slash=True)
 		path = str(path)
 		return os.path.isdir(path)
 		#
-	def create(self,
+	def create(
 		# the path to the file (str) (REQUIRED) (#1).
 		path=None,
 		# the data (str) (optional).
@@ -2067,8 +2068,8 @@ class Files():
 		# root permission required.
 		sudo=False,
 	):
-		if Files.exists(path, sudo=sudo):
-			raise ValueError(f"Path [{path}] already exists.")
+		if path == None: raise exceptions.InvalidUsage("Define parameter: path.")
+		elif Files.exists(path, sudo=sudo): exceptions.DuplicateError(f"Path [{path}] already exists.")
 		sudo_str = Boolean(sudo).string(true="sudo ", false="")
 		if directory:
 			os.system(f"{sudo_str}mkdir -p {path}")
@@ -2771,6 +2772,8 @@ class Files():
 			exceptions=[],
 			# the edits value exceptions.
 			value_exceptions=[None],
+			# the instances to overwrite (list[str]) (missing stands for the keys that are missing in the dictionary).
+			overwite=["missing"],
 			# the instances to combine (list[str]) (dict is always recursive).
 			combine=["int", "float", "Integer", "list", "Array"],
 			# save the edits.
@@ -2796,12 +2799,14 @@ class Files():
 								print(f"Editing {alias} config {key}: {value}.")
 							dictionary[key] = value
 							c += 1
-					elif key not in exceptions and value not in value_exceptions and not found:
+					elif key not in exceptions and value not in value_exceptions and not found and "missing" in overwrite:
 						if log_level >= 0:
 							print(f"Editing {alias} config {key}: {value}.")
 						dictionary[key] = value
 						c += 1
 					elif key not in exceptions and value not in value_exceptions and found and value.__class__.__name__ in combine:
+						if log_level >= 0:
+							print(f"Editing {alias} config {key}: {value}.")
 						dictionary[key] = dictionary[key] + value
 						c += 1
 				return dictionary, c

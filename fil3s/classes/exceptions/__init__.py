@@ -4,6 +4,8 @@
 # exceptionns.
 class JSONDecodeError(Exception):
 	pass
+class DuplicateError(Exception):
+	pass
 class InstanceError(Exception):
 	pass
 class FormatError(Exception):
