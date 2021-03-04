@@ -2686,12 +2686,14 @@ class Files():
 			def __iterate_dict__(dictionary, default):
 				#print("\niterating new dictionary: [{}] & default [{}]\n".format(dictionary, default))
 				for identifier, item in default.items():
-					if isinstance(item, dict):
+					if isinstance(item, (dict,Dictionary)):
 						try: dictionary[identifier] = __iterate_dict__(dictionary[identifier], item)
 						except KeyError: dictionary[identifier] = dict(item)
-					elif isinstance(item, list):
+					elif isinstance(item, (list,Array)):
+						if isinstance(item, (list)): item = list(item)
+						elif isinstance(item, (Array)): item = item.array
 						try: dictionary[identifier]
-						except KeyError: dictionary[identifier] = list(item)
+						except KeyError: dictionary[identifier] = item
 					else:
 						try: dictionary[identifier]
 						except KeyError: dictionary[identifier] = item
