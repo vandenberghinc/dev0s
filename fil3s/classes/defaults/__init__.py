@@ -242,7 +242,7 @@ class Formats():
 			path = self.path
 			if path[len(path)-1] != "/": path += '/'
 			return "{}{}{}".format(path, name, type)
-		def name(self, remove_extension=False, path=None):
+		def name(self, path=None, remove_extension=False,):
 			if path == None: path = self.path
 			if path in [False, None]: return None
 			x = 1
@@ -2052,6 +2052,15 @@ class Files():
 		path = str(path)
 		return os.path.isdir(path)
 		#
+	def mounted( 
+		# the path (#1).
+		path=None,
+	):
+		if path == None: raise exceptions.InvalidUsage("Define parameter: path.")
+		path = gfp.clean(path=path, remove_double_slash=True, remove_last_slash=True)
+		path = str(path)
+		return os.path.ismount(path)
+		#
 	def create(
 		# the path to the file (str) (REQUIRED) (#1).
 		path=None,
@@ -3615,6 +3624,16 @@ class Files():
 					indexed[_path_] = process(_path_)
 					ids.append(_path_)
 			return indexed.sort(alphabetical=True)
+		# open for desktop.
+		def open(self, path=None, sudo=False):
+			if path == None: path = self.fp.path
+			if sudo: sudo = "sudo "
+			else: sudo = ""
+			if OS in ["macos"]: 
+				os.system(f"{sudo}open {path}")
+			elif OS in ["linux"]: 
+				os.system(f"{sudo}nautulis {path}")
+			else: utils.__invalid_os__(OS)
 		# return references of each file that includes one of the matches.
 		def find(self, matches:list, path=None, recursive=False, log_level=0):
 			if path == None: path = self.path
