@@ -3417,6 +3417,7 @@ class Files():
 		def paths(self, dirs_only=False, files_only=False, empty_dirs=True, recursive=False, path=None, banned=[], banned_names=[".DS_Store"], banned_basenames=["__pycache__"], extensions=["*"]):
 			if dirs_only and files_only: raise ValueError("Both parameters dirs_only & piles_only are True.")
 			if path == None: path = self.file_path.path
+			if not Files.exists(path): return []
 			if isinstance(extensions, str): extensions = [extensions]
 			if len(banned) > 0:
 				l_banned = []
