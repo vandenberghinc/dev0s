@@ -7,7 +7,7 @@
 from setuptools import setup, find_packages
 setup(
 	name='fil3s',
-	version='2.13.1',
+	version='2.13.2',
 	description='Some description.',
 	url='http://github.com/vandenberghinc/fil3s',
 	author='Daan van den Bergh',
