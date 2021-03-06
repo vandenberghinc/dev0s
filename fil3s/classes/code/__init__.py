@@ -859,6 +859,8 @@ class Code():
 			examples=None,
 			# the log level.
 			log_level=LOG_LEVEL,
+			# the post readme replacements.
+			replacements={},
 		):
 			
 			# header.
@@ -972,6 +974,11 @@ class Code():
 			# normalize.
 			_readme_ = _readme_.replace("\n\n\n","\n\n").replace("\n\n\n","\n\n").replace("\n\n\n","\n\n").replace("\n\n\n","\n\n")
 			_code_examples_ = _code_examples_.replace("\n\n\n","\n\n").replace("\n\n\n","\n\n").replace("\n\n\n","\n\n").replace("\n\n\n","\n\n")
+
+			# replacements must be at the end so the user can test and add replacements.
+			for from_, to_ in replacements.items():
+				_readme_ = _readme_.replace(from_, to_)
+				_code_examples_ = _code_examples_.replace(from_, to_)
 
 			# readme export.
 			if readme != None:
