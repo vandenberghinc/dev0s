@@ -10,6 +10,7 @@ FilePath = Formats.FilePath
 String = Formats.String 
 Boolean = Formats.Boolean 
 Integer = Formats.Integer 
+Version = Formats.Version 
 Date = Formats.Date
 File = Files.File
 Directory = Files.Directory

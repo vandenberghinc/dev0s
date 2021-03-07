@@ -217,6 +217,9 @@ class Formats():
 	class FilePath(object):
 		def __init__(self, path, default=False, check=False, load=False):
 
+			# defaults.
+			#self.__class__.__name__ = "FilePath"
+
 			# check self instance.
 			#str.__init__(self)
 			if isinstance(path, Formats.FilePath):
@@ -546,8 +549,8 @@ class Formats():
 
 			#   -   option 1:
 			if directory: 
-				if sudo: os.system('sudo mkdir '+self.path)
-				else: os.system('mkdir '+self.path)
+				if sudo: os.system('sudo mkdir -p '+self.path)
+				else: os.system('mkdir -p '+self.path)
 			
 			#   -   option 2:
 			elif data != None: 
@@ -730,6 +733,10 @@ class Formats():
 		#   -   objects:
 		class Ownership(object):
 			def __init__(self, path=None, load=False):
+
+				# defaults.
+				#self.__class__.__name__ = "Ownership"
+
 				# init.
 				self.path = path
 				self.owner = None
@@ -796,6 +803,10 @@ class Formats():
 							file_path.ownership.check(owner=owner, group=group, sudo=sudo, silent=silent)                           
 		class Permission(object):
 			def __init__(self, path=None, load=False):
+
+				# defaults.
+				#self.__class__.__name__ = "Permission"
+
 			   # init.
 				self.path = path
 				self.permission = None
@@ -850,6 +861,9 @@ class Formats():
 	# the string object class.
 	class String(object):
 		def __init__(self, string=""):
+
+			# defaults.
+			#self.__class__.__name__ = "String"
 
 			# check self instance.
 			#str.__init__(self)
@@ -1374,6 +1388,9 @@ class Formats():
 	class Boolean(object):
 		def __init__(self, boolean=False):
 
+			# defaults.
+			#self.__class__.__name__ = "Boolean"
+
 			# check self instance.
 			if isinstance(boolean, Formats.Boolean):
 				boolean = boolean.bool
@@ -1461,6 +1478,9 @@ class Formats():
 	# the integer object class.
 	class Integer(object):
 		def __init__(self, value=0, format="auto"):
+
+			# defaults.
+			#self.__class__.__name__ = "Integer"
 
 			# check self instance.
 			if isinstance(value, Formats.Integer):
@@ -1706,11 +1726,11 @@ class Formats():
 		def __contains__(self, integer):
 			if isinstance(integer, (list, Files.Array)):
 				for i in integer:
-					if i == self.value:
+					if str(integer) in str(self.value):
 						return True
 				return False
 			else:
-				return string in self.string
+				return str(value) in str(self.value)
 			#
 		# representation.
 		def __repr__(self):
@@ -1760,10 +1780,217 @@ class Formats():
 		def raw(self):
 			return self.value
 		#
+
+	# the version object class.
+	class Version(object):
+		def __init__(self, 
+			# the version value (#1).
+			value="1.0.00",
+		):
+
+			# defaults.
+			#self.__class__.__name__ = "Version"
+
+			# check self instance.
+			if isinstance(value, Formats.Version):
+				self.value = value.value
+
+			# init.
+			self.value = str(value)
+			self.int = int(str(self.value).replace(".",""))
+
+			#
+		def increase(self, value=None, count=1):
+			if value == None: value = self.value
+
+			# version 2.
+			path = "/tmp/increase_version"
+			Files.save(path, """version=''$1'' && echo $version | awk -F. -v OFS=. 'NF==1{print ++$NF}; NF>1{if(length($NF+1)>length($NF))$(NF-1)++; $NF=sprintf("%0*d", length($NF), ($NF+1)%(10^length($NF))); print}'""")
+			for i in range(int(count)):
+				value = subprocess.check_output([f"bash", path, str(value)]).decode().replace("\n","")
+			self.assign(value=value)
+			return value
+
+			# version 1.
+			#
+			old_version = value
+			base, _base_= [], old_version.split(".")
+			increase = True
+			for i in _base_:
+				base.append(int(i))
+			count = len(base)-1
+			for i in range(len(base)):
+				if increase:
+					if base[count] >= 9:
+						if count > 0:
+							base[count-1] += 1
+							base[count] = 0
+							increase = False
+						else:
+							base[count] += 1
+							break
+					else:
+						base[count] += 1
+						break
+				else:
+					if count > 0 and int(base[count]) >= 10:
+						base[count-1] += 1
+						base[count] = 0
+						increase = False
+					elif count == 0: break
+				count -= 1
+			version = ""
+			for i in base:
+				if version == "": version = str(i)
+				else: version += "."+str(i) 
+			return version
+			#
+		# int format.
+		def __index__(self):
+			return self.int
+		# support "+, -, +=, -=" .
+		def __add__(self, count):
+			if isinstance(count, (int, float)):
+				a=1
+			elif isinstance(count, Integer):
+				count = int(count.value)
+			else:
+				raise exceptions.FormatError(f"Can not add object {self.__class__} & {count.__class__}, a version should be incremented with a count (example: 1).")
+			value = self.increase(value=self.value, count=count)
+			return Formats.Version(value)
+		def __concat__(self, count):
+			if isinstance(vercount, (int, float)):
+				a=1
+			elif isinstance(count, Integer):
+				count = int(count.value)
+			else:
+				raise exceptions.FormatError(f"Can not concat object {self.__class__} & {count.__class__}, a version should be incremented with a count (example: 1).")
+			value = self.increase(value=self.value, count=count)
+			return Formats.Version(value)
+		def __pos__(self, count):
+			if isinstance(count, (int, float)):
+				a=1
+			elif isinstance(count, Integer):
+				count = int(count.value)
+			else:
+				raise exceptions.FormatError(f"Can not pos object {self.__class__} & {count.__class__}, a version should be incremented with a count (example: 1).")
+			value = self.increase(value=self.value, count=count)
+			return Formats.Version(value)
+		def __iadd__(self, count):
+			if isinstance(count, (int, float)):
+				a=1
+			elif isinstance(count, Integer):
+				count = int(count.value)
+			else:
+				raise exceptions.FormatError(f"Can not add object {self.__class__} & {count.__class__}, a version should be incremented with a count (example: 1).")
+			self.assign(self.increase(value=self.value, count=count))
+			return self
+		def __sub__(self, count):
+			raise exceptions.InvalidUsage("A version can not be decremented.")
+		def __isub__(self, count):
+			raise exceptions.InvalidUsage("A version can not be decremented.")
+
+		# support default iteration.
+		def __iter__(self):
+			return iter(self.value.split("."))
+		
+		# support '>=' & '>' & '<=' & '<' operator.
+		def __gt__(self, version):
+			if not isinstance(version, self.__class__):
+				raise exceptions.FormatError(f"Can not compare object {self.__class__} & {version.__class__}.")
+			else:
+				version = version.int
+			return self.int > version
+		def __ge__(self, version):
+			if not isinstance(version, self.__class__):
+				raise exceptions.FormatError(f"Can not compare object {self.__class__} & {version.__class__}.")
+			else:
+				version = version.int
+			return self.int >= version
+		def __lt__(self, version):
+			if not isinstance(version, self.__class__):
+				raise exceptions.FormatError(f"Can not compare object {self.__class__} & {version.__class__}.")
+			else:
+				version = version.int
+			return self.int < version
+		def __le__(self, version):
+			if not isinstance(version, self.__class__):
+				raise exceptions.FormatError(f"Can not compare object {self.__class__} & {version.__class__}.")
+			else:
+				version = version.int
+			return self.int <= version
+		
+		# support '==' & '!=' operator.
+		def __eq__(self, version):
+			if isinstance(version, None.__class__):
+				return False
+			elif not isinstance(version, self.__class__):
+				raise exceptions.FormatError(f"Can not compare object {self.__class__} & {version.__class__}.")
+			return self.int == version.int
+		def __ne__(self, version):
+			if isinstance(version, None.__class__):
+				return False
+			elif not isinstance(version, self.__class__):
+				raise exceptions.FormatError(f"Can not compare object {self.__class__} & {version.__class__}.")
+			return self.int != version.int
+		
+		# support 'in' operator.
+		def __contains__(self, string):
+			if isinstance(string, (list, Files.Array)):
+				for i in string:
+					if i in str(self.value):
+						return True
+				return False
+			else:
+				return str(string) in str(self.value)
+			#
+		# representation.
+		def __repr__(self):
+			return str(self)
+			#
+		# str representation.
+		def __str__(self):
+			return str(self.value)
+		# int representation.
+		def __int__(self):
+			return self.int
+		# float representation.
+		def __float__(self):
+			return float(self.int)
+		# content count.
+		def __len__(self):
+			return len(str(self.value))
+		# object id.
+		def __id__(self):
+			return f"({self.instance()}:{str(self)})"
+		# object instance.
+		def instance(self):
+			return "Version"
+			#
+		# support self assignment.
+		def assign(self, value):
+			if isinstance(value, (str, String)):
+				a=1
+			elif isinstance(value, self.__class__):
+				value = value.value
+			elif not isinstance(value, self.__class__):
+				raise exceptions.FormatError(f"Can not assign object {self.__class__} & {value.__class__}.")
+			self.value = value
+			self.int = int(str(self.value).replace(".",""))
+			return self
+		# return raw data.
+		def raw(self):
+			return self.value
+		#
 	#
 	# the date object class.
 	class Date(object):
 		def __init__(self):
+
+			# defaults.
+			#self.__class__.__name__ = "Date"
+
+			# attributes.
 			today = datetime.today()
 			self.seconds_format = '%S'
 			self.seconds = str(today.strftime(self.seconds_format))
@@ -1936,13 +2163,27 @@ class Files():
 					with open(path, 'r') as json_file:
 						data = json.load(json_file)
 				except json.decoder.JSONDecodeError as e:
-					e = f"Unable to decode file [{path}]. {e}."
-					raise exceptions.JSONDecodeError(e)
+					e = f"Unable to decode file [{path}], error: {e}."
+					try:
+						data = Files.load(path=path, format="str")
+						if data == "":
+							data = {}
+					except:
+						raise exceptions.JSONDecodeError(e)
 			else:
 				try: 
-					data = json.loads(data)
-				except:
-					data = ast.literal_eval(data)
+					try: 
+						data = json.loads(data)
+					except:
+						data = ast.literal_eval(data)
+				except json.decoder.JSONDecodeError as e:
+					e = f"Unable to decode file [{path}] (sudo: {sudo}), error: {e}."
+					try:
+						data = Files.load(path=path, format="str", sudo=sudo)
+						if data == "":
+							data = {}
+					except:
+						raise exceptions.JSONDecodeError(e)
 		elif format == "bytes":
 			if not sudo:
 				with open(path, "rb") as file:
@@ -2099,6 +2340,10 @@ class Files():
 	# the file object class.
 	class File(object):
 		def __init__(self, path=None, data=None, load=False, default=None):
+
+			# defaults.
+			#self.__class__.__name__ = "File"
+
 			# check self instance.
 			if isinstance(data, Files.File):
 				data = data.data
@@ -2231,11 +2476,14 @@ class Files():
 			default=None,
 		):
 
+			# defaults.
+			#self.__class__.__name__ = "Array"
+
 			# check self instance.
 			if isinstance(array, Files.Array):
 				array = array.array
 			elif not isinstance(array, list):
-				raise exceptions.InstanceError(f"Parameter [{self.__name__}.array] must be a [Array] or [list], not [{array.__class__.__name__}].")
+				raise exceptions.InstanceError(f"Parameter [{self.__class__.__name__}.array] must be a [Array] or [list], not [{array.__class__.__name__}].")
 
 			# initialize dictionary recursive.
 			#new = []
@@ -2617,6 +2865,9 @@ class Files():
 			default=None, 
 		):
 
+			# defaults.
+			#self.__class__.__name__ = "Dictionary"
+
 			# check self instance.
 			if isinstance(dictionary, Files.Dictionary):
 				dictionary = dictionary.dictionary
@@ -2632,7 +2883,7 @@ class Files():
 							break
 					except:
 						if 1+attempt >= max_attempts:
-							raise exceptions.InstanceError(f"Parameter [{self.__name__}.dictionary] must be a [Dictionary] or [dict], not [{dictionary.__class__.__name__}].")
+							raise exceptions.InstanceError(f"Parameter [{self.__class__.__name__}.dictionary] must be a [Dictionary] or [dict], not [{dictionary.__class__.__name__}].")
 
 			# initialize dictionary recursive.
 			#for key in list(dictionary.keys()): 
@@ -3211,6 +3462,9 @@ class Files():
 			#recursive=False,
 		):
 			
+			# defaults.
+			#self.__class__.__name__ = "Directory"
+
 			# check self instance.
 			if isinstance(path, Files.Directory):
 				path = path.fp.path
@@ -3239,8 +3493,8 @@ class Files():
 
 			#   -   create dir:
 			if not os.path.exists(path): 
-				if sudo: os.system('sudo mkdir '+path)
-				else: os.system('mkdir '+path)
+				if sudo: os.system('sudo mkdir -p '+path)
+				else: os.system('mkdir -p '+path)
 
 			#   -   copy files:
 			commands = []
@@ -3766,11 +4020,17 @@ class Files():
 	# the image object class.
 	class Image(object):
 		def __init__(self, path=None, image=None, load=False):
+
+			# defaults.
+			#self.__class__.__name__ = "Image"
+
 			# init.
 			if path == False: self.file_path = self.fp = None # used in local memory (not fysical)
 			else: self.file_path = self.fp = Formats.FilePath(path)
 			self.image = image
 			if load: self.load()
+
+			#
 		def load(self, path=None):
 			if path == None: path = self.file_path.path
 			self.image = Image.open(path)
@@ -3797,6 +4057,9 @@ class Files():
 	class Zip(object):
 		def __init__(self, path=None, check=False):
 			
+			# defaults.
+			#self.__class__.__name__ = "Zip"	
+
 			# init.
 			self.file_path = self.fp = Formats.FilePath(path, check=check)
 
@@ -3816,7 +4079,7 @@ class Files():
 			tmp_content = Formats.FilePath(tmp.join(name, ""))
 			if tmp.exists(): tmp.delete(forced=True)
 			if os.path.exists(tmp.path):os.system(f"rm -fr {tmp.path}")
-			os.system(f"mkdir {tmp.path}")
+			os.system(f"mkdir -p {tmp.path}")
 			if isinstance(source, str):
 				target = Formats.FilePath(source)
 				name = target.name().replace('.encrypted.zip','').replace("."+target.extension(),'')
@@ -3886,6 +4149,9 @@ class Files():
 			# the file path.
 			path=None,
 		):
+
+			# defaults.
+			#self.__class__.__name__ = "Bytes"
 		   
 		   # check self instance.
 			if isinstance(data, Files.Bytes):
@@ -3973,6 +4239,7 @@ FilePath = Formats.FilePath
 String = Formats.String 
 Boolean = Formats.Boolean 
 Integer = Formats.Integer 
+Version = Formats.Version 
 Date = Formats.Date
 File = Files.File
 Directory = Files.Directory
@@ -3985,5 +4252,6 @@ Array = Files.Array
 # initialized objects.
 gfp = Formats.FilePath("") # is required (do not remove).
 gd = gdate = Formats.Date()
+
 
 #
