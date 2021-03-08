@@ -65,3 +65,9 @@ if OS in ["macos"]:
 	GROUP = "wheel"
 	HOME = f"/Users/{OWNER}/"
 
+# options.
+ERROR_TRACEBACK = os.environ.get("R3SPONSE_ERROR_TRACEBACK")
+if str(ERROR_TRACEBACK) in ["True", "true", True]: ERROR_TRACEBACK = True
+else: ERROR_TRACEBACK = False
+
+

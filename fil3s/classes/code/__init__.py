@@ -2,53 +2,316 @@
 # -*- coding: utf-8 -*-
 
 # imports.
-from fil3s.classes.defaults import *
+from fil3s.classes.exceptions import Exceptions
+from fil3s.classes.files import *
+from fil3s.classes import defaults
+from fil3s.classes.utils import copycats
+from fil3s.classes.code import execute
+
 
 # the code classes.
 class Code():
+
+	# include execute functions & classes.
+	Spawn = execute.Spawn
+	OutputObject = execute.OutputObject
+	execute = execute.execute
+
 	#
-	# execute code.
-	def execute(self, 
-		# the script data (str) (leave none to use default self.data).
-		data=None,
-		# the script executive (leave none to use default self.executive).
-		executive=None,
+
+	# kill pids.
+	def kill(
+		# option 1:
+		# the process id.
+		pid=None, 
+		# option 2:
+		# all processes that includes.
+		includes=None,
+		# root permission required.
+		sudo=False,
+		# loader.
+		log_level=0,
 	):
-		if executive == None: executive = self.executive
-		if data != None and not isinstance(data, list):
-			raise ValueError("Invalid usage, parameter script / self.data requires to be a str.")
-		if data == None or self.fp == None or self.fp.path == None:
-			if data == None:
-				data = self.data
-			path = f"/tmp/tmp_script_{Formats.String('').generate()}"
-			Files.save(path, data)
-			delete = True
+		# kill includes.
+		loader = None
+		if includes != None:
+			response = processes(includes=includes, sudo=sudo)
+			if not response.success: return response
+			c = 0
+			for pid, info in response.processes.items():
+				response = kill(sudo=sudo, pid=pid, loader=loader)
+				if not response.success: return response
+				c += 1
+			if c == 0:
+				return Response.error(f"No processes found.")
+			elif c == 1:
+				return Response.success(f"Successfully killed {c} process.")
+			else:
+				return Response.success(f"Successfully killed {c} processes.")
+
+		# kill pid.
 		else:
-			delete = False
-			path = self.fp.path
-		try:
-			proc = subprocess.run(
-				[executive, path],
-				check=True,
-				capture_output=True,
-				text=True,
-			)
-		except subprocess.CalledProcessError as error:
-			error_, output = error.stderr, error.output
-			if isinstance(error_, bytes): error_ = error_.decode()
-			if isinstance(output, bytes): output = error_.decode()
-			return r3sponse.error(f"Failed to execute script ({data}), (output: {output}), (error: {error_}).")
-		error_, output = proc.stderr, proc.stdout
-		if isinstance(error_, bytes): error_ = error_.decode()
-		if isinstance(output, bytes): output = error_.decode()
-		if error_ != "":
-			return r3sponse.error(f"Failed to execute script ({data}), (output: {output}), (error: {error_}).")
-		if len(output) > 0 and output[len(output)-1] == "\n": output = output[:-1]
-		if delete: Files.delete(path)
-		return r3sponse.success(f"Succesfully executed script ({data}), (output: {output}), (error: {error_}).", {
-			"output":output,
-			"process":proc,
+			if log_level >= 0:
+				loader = copycats.Loader(f"Killing process {pid}.")
+			_sudo_ = Boolean(sudo).string(true="sudo ", false="")
+			output = utils.__execute_script__(f"{_sudo_}kill {pid}")
+			if output in ["terminated",""]:
+				if output in [""]:
+					response = processes(includes=pid)
+					if not response.success: response
+					try: 
+						response.processes[pid]
+						if log_level >= 0: loader.stop(success=False)
+						return Response.error(f"Failed to stop process {pid}.", log_level=log_level)
+					except KeyError: a=1
+				if log_level >= 0: loader.stop()
+				return Response.success(f"Successfully killed process {pid}.")
+			else:
+				if log_level >= 0: loader.stop(success=False)
+				return Response.error(f"Failed to stop process {pid}, error: {output}", log_level=log_level)
+
+	# list all processes.
+	def processes(
+		# root permission.
+		sudo=False,
+		# all processes that include a str.
+		includes=None,
+		# banned process names.
+		banned=["grep"],
+	):
+		_sudo_ = Boolean(sudo).string(true="sudo ", false="")
+		if isinstance(includes, str):
+			command = f"""{_sudo_}ps -ax | grep "{includes}" | """
+		else:
+			command = f"""{_sudo_}ps -ax | """
+		#output = utils.__execute_script__(command + """awk '{print $1"|"$2"|"$3"|"$4"}' """)
+		output = utils.__execute_script__(command + """awk '{$3="";print $0}' """)
+		processes = {}
+		for line in output.split("\n"):
+			if line not in ["", " "]:
+				array = line.split(" ")
+				pid = array.pop(0)
+				tty = array.pop(0)
+				for i in array:
+					process = array[0]
+					if process not in ["", " "]: break
+					else: array.pop(0)
+				command = Array(array).string(joiner=" ")
+				#try:
+				#	pid,tty,_,process,command = line.split("|")
+				#except ValueError: raise ValueError(f"Unable to unpack process line: [{line}], expected format: [4] seperator: [|].")
+				if process not in banned:
+					processes[pid] = {
+						"pid":pid,
+						"tty":tty,
+						"process":process,
+						"command":command,
+					}
+		return Response.success(f"Successfully listed {len(processes)} processes.", {
+			"processes":processes,
 		})
+
+	# the version object class.
+	class Version(object):
+		def __init__(self, 
+			# the version value (#1).
+			value="1.0.00",
+		):
+
+			# defaults.
+			#self.__class__.__name__ = "Version"
+
+			# check self instance.
+			if isinstance(value, Formats.Version):
+				self.value = value.value
+
+			# init.
+			self.value = str(value).replace(" ","").replace("\n","").replace("\r","")
+			self.int = int(str(self.value).replace(".",""))
+
+			#
+		def increase(self, value=None, count=1):
+			if value == None: value = self.value
+
+			# version 2.
+			path = "/tmp/increase_version"
+			Files.save(path, """version=''$1'' && echo $version | awk -F. -v OFS=. 'NF==1{print ++$NF}; NF>1{if(length($NF+1)>length($NF))$(NF-1)++; $NF=sprintf("%0*d", length($NF), ($NF+1)%(10^length($NF))); print}'""")
+			for i in range(int(count)):
+				value = subprocess.check_output([f"bash", path, str(value)]).decode().replace("\n","")
+			self.assign(value=value)
+			return value
+
+			# version 1.
+			#
+			old_version = value
+			base, _base_= [], old_version.split(".")
+			increase = True
+			for i in _base_:
+				base.append(int(i))
+			count = len(base)-1
+			for i in range(len(base)):
+				if increase:
+					if base[count] >= 9:
+						if count > 0:
+							base[count-1] += 1
+							base[count] = 0
+							increase = False
+						else:
+							base[count] += 1
+							break
+					else:
+						base[count] += 1
+						break
+				else:
+					if count > 0 and int(base[count]) >= 10:
+						base[count-1] += 1
+						base[count] = 0
+						increase = False
+					elif count == 0: break
+				count -= 1
+			version = ""
+			for i in base:
+				if version == "": version = str(i)
+				else: version += "."+str(i) 
+			return version
+			#
+		# int format.
+		def __index__(self):
+			return self.int
+		# support "+, -, +=, -=" .
+		def __add__(self, count):
+			if isinstance(count, (int, float)):
+				a=1
+			elif isinstance(count, Integer):
+				count = int(count.value)
+			else:
+				raise Exceptions.FormatError(f"Can not add object {self.__class__} & {count.__class__}, a version should be incremented with a count (example: 1).")
+			value = self.increase(value=self.value, count=count)
+			return Formats.Version(value)
+		def __concat__(self, count):
+			if isinstance(vercount, (int, float)):
+				a=1
+			elif isinstance(count, Integer):
+				count = int(count.value)
+			else:
+				raise Exceptions.FormatError(f"Can not concat object {self.__class__} & {count.__class__}, a version should be incremented with a count (example: 1).")
+			value = self.increase(value=self.value, count=count)
+			return Formats.Version(value)
+		def __pos__(self, count):
+			if isinstance(count, (int, float)):
+				a=1
+			elif isinstance(count, Integer):
+				count = int(count.value)
+			else:
+				raise Exceptions.FormatError(f"Can not pos object {self.__class__} & {count.__class__}, a version should be incremented with a count (example: 1).")
+			value = self.increase(value=self.value, count=count)
+			return Formats.Version(value)
+		def __iadd__(self, count):
+			if isinstance(count, (int, float)):
+				a=1
+			elif isinstance(count, Integer):
+				count = int(count.value)
+			else:
+				raise Exceptions.FormatError(f"Can not add object {self.__class__} & {count.__class__}, a version should be incremented with a count (example: 1).")
+			self.assign(self.increase(value=self.value, count=count))
+			return self
+		def __sub__(self, count):
+			raise Exceptions.InvalidUsage("A version can not be decremented.")
+		def __isub__(self, count):
+			raise Exceptions.InvalidUsage("A version can not be decremented.")
+
+		# support default iteration.
+		def __iter__(self):
+			return iter(self.value.split("."))
+		
+		# support '>=' & '>' & '<=' & '<' operator.
+		def __gt__(self, version):
+			if not isinstance(version, self.__class__):
+				raise Exceptions.FormatError(f"Can not compare object {self.__class__} & {version.__class__}.")
+			else:
+				version = version.int
+			return self.int > version
+		def __ge__(self, version):
+			if not isinstance(version, self.__class__):
+				raise Exceptions.FormatError(f"Can not compare object {self.__class__} & {version.__class__}.")
+			else:
+				version = version.int
+			return self.int >= version
+		def __lt__(self, version):
+			if not isinstance(version, self.__class__):
+				raise Exceptions.FormatError(f"Can not compare object {self.__class__} & {version.__class__}.")
+			else:
+				version = version.int
+			return self.int < version
+		def __le__(self, version):
+			if not isinstance(version, self.__class__):
+				raise Exceptions.FormatError(f"Can not compare object {self.__class__} & {version.__class__}.")
+			else:
+				version = version.int
+			return self.int <= version
+		
+		# support '==' & '!=' operator.
+		def __eq__(self, version):
+			if isinstance(version, None.__class__):
+				return False
+			elif not isinstance(version, self.__class__):
+				raise Exceptions.FormatError(f"Can not compare object {self.__class__} & {version.__class__}.")
+			return self.int == version.int
+		def __ne__(self, version):
+			if isinstance(version, None.__class__):
+				return False
+			elif not isinstance(version, self.__class__):
+				raise Exceptions.FormatError(f"Can not compare object {self.__class__} & {version.__class__}.")
+			return self.int != version.int
+		
+		# support 'in' operator.
+		def __contains__(self, string):
+			if isinstance(string, (list, Files.Array)):
+				for i in string:
+					if i in str(self.value):
+						return True
+				return False
+			else:
+				return str(string) in str(self.value)
+			#
+		# representation.
+		def __repr__(self):
+			return str(self)
+			#
+		# str representation.
+		def __str__(self):
+			return str(self.value)
+		# int representation.
+		def __int__(self):
+			return self.int
+		# float representation.
+		def __float__(self):
+			return float(self.int)
+		# content count.
+		def __len__(self):
+			return len(str(self.value))
+		# object id.
+		def __id__(self):
+			return f"({self.instance()}:{str(self)})"
+		# object instance.
+		def instance(self):
+			return "Version"
+			#
+		# support self assignment.
+		def assign(self, value):
+			if isinstance(value, (str, String)):
+				a=1
+			elif isinstance(value, self.__class__):
+				value = value.value
+			elif not isinstance(value, self.__class__):
+				raise Exceptions.FormatError(f"Can not assign object {self.__class__} & {value.__class__}.")
+			self.value = value
+			self.int = int(str(self.value).replace(".",""))
+			return self
+		# return raw data.
+		def raw(self):
+			return self.value
+		#
 
 	# the script object class.
 	class Script(Files.File):
@@ -64,6 +327,7 @@ class Code():
 			# the default data (create if path does not exist).
 			default=None,
 		):
+			
 			# check self instance.
 			if isinstance(data, (Files.File, Code.Script)):
 				data = data.data
@@ -75,15 +339,22 @@ class Code():
 				default=default,
 			)
 			self.executive = executive
+
+			#
+
+		# execute.
 		def execute(self, 
-			# the script data (str) (leave None to use default self.data).
-			data=None,
-			# the script executive (leave None to use deafult self.executive).
+			# the script executive (leave None to use deafult self.executive) (#1).
 			executive=None,
+			# the script path (str) (leave None to use default self.path) (#2).
+			path=None,
 		):
-			if executive == None: executive = self.executive
 			if data == None: data = self.data
-			return Code.execute(data=data, executive=executive)
+			if executive == None: executive = self.executive
+			return Code.execute(path=data, executive=executive)
+
+			#
+
 		# object instance.
 		def instance(self):
 			return "Script"
@@ -100,10 +371,11 @@ class Code():
 			elif isinstance(data, self.__class__):
 				data = data.data
 			elif not isinstance(data, self.__class__):
-				raise exceptions.FormatError(f"Can not assign object {self.__class__} & {data.__class__}.")
+				raise Exceptions.FormatError(f"Can not assign object {self.__class__} & {data.__class__}.")
 			self.data = str(data)
 			return self
-	#
+		#
+
 	# the python object class.
 	class Python(Files.File):
 		def __init__(self, 
@@ -133,12 +405,20 @@ class Code():
 				default=default,
 			)
 			self.executive = executive
+		
+		# execute.
 		def execute(self, 
-			# the script data (str) (leave none to use default self.data).
-			data=None,
+			# the script executive (leave None to use defult self.executive) (#1).
+			executive=None,
+			# the script path (str) (leave None to use default self.path) (#2).
+			path=None,
 		):
 			if data == None: data = self.data
-			return Code.execute(data=data, executive=self.executive)
+			if executive == None: executive = self.executive
+			return Code.execute(path=data, executive=executive)
+
+			#
+			
 		# slice classes.
 		def slice_classes(self,
 			# the data (str).
@@ -151,7 +431,7 @@ class Code():
 			banned_classes=[],
 			# the banned functions.
 			banned_functions=[],
-			# the module name to use before the classes (optional) (syst3m.defaults.Traceback always overwrites).
+			# the module name to use before the classes (optional) (DefaultsTraceback always overwrites).
 			module=None,
 			# get inside classes.
 			inside_classes=True,
@@ -163,7 +443,7 @@ class Code():
 			keep_indent=False,
 		):
 			if data == None: data = self.data
-			if data == None: raise exceptions.InvalidUsage("Define parameter: [data].")
+			if data == None: raise Exceptions.InvalidUsage("Define parameter: [data].")
 			data = data.replace("	","    ")
 			if not keep_indent: before="\n"
 			else: before = " "
@@ -369,8 +649,8 @@ class Code():
 							["Boolean", "Boolean"],
 							["Array", "Array"],
 							["Dictionary", "Dictionary"],
-							["r3sponse.success", "response"],
-							["r3sponse.error", "response"],
+							["Response.success", "response"],
+							["Response.error", "response"],
 						]:
 							if len(value) >= len(i) and value[:len(i)] == i:
 								return return_
@@ -441,7 +721,7 @@ class Code():
 			# vars.
 			functions = []
 			if data == None: data = self.data
-			if data == None: raise exceptions.InvalidUsage("Define parameter: [data].")
+			if data == None: raise Exceptions.InvalidUsage("Define parameter: [data].")
 			
 			# normalize.
 			data = data.replace("	","    ")
@@ -538,7 +818,7 @@ class Code():
 									full_inside_class = f"{i['init_line'].split('(')[0]}{i['parameters']}:\n{i['raw_code']}"
 									class_code = class_code.replace("):  \n","):\n").replace("):   \n","):\n").replace("):    \n","):\n").replace("):     \n","):\n").replace("):	\n","):\n").replace(full_inside_class, "")
 							return_ = None
-							if " return r3sponse" in str(raw_class_code) or "\nreturn r3sponse" in str(raw_class_code):
+							if " return Response" in str(raw_class_code) or "\nreturn Response" in str(raw_class_code):
 								return_ = "response"
 							elif " return " not in str(raw_class_code) or "\nreturn " not in str(raw_class_code):
 								return_ = "_"
@@ -742,7 +1022,7 @@ class Code():
 
 				# load.
 				if log_level >= 0:
-					loader = utils.Loader(f"Building code examples for [{_path_}].")
+					loader = copycats.Loader(f"Building code examples for [{_path_}].")
 				data = Files.load(_path_)
 				module = None
 				if root != None: 
@@ -982,14 +1262,14 @@ class Code():
 
 			# readme export.
 			if readme != None:
-				if log_level >= 0: loader = utils.Loader(f"Saving created readme to [{readme}]")
+				if log_level >= 0: loader = copycats.Loader(f"Saving created readme to [{readme}]")
 				if not os.path.exists(gfp.base(path=readme)): os.system(f"mkdir -p {gfp.base(path=readme)}")
 				Files.save(readme, _readme_)
 				if log_level >= 0: loader.stop()
 
 			# examples export.
 			if examples != None:
-				if log_level >= 0: loader = utils.Loader(f"Saving created code examples to [{examples}]")
+				if log_level >= 0: loader = copycats.Loader(f"Saving created code examples to [{examples}]")
 				if not os.path.exists(gfp.base(path=examples)): os.system(f"mkdir -p {gfp.base(path=examples)}")
 				Files.save(examples, _code_examples_)
 				if log_level >= 0: loader.stop()
@@ -1014,12 +1294,9 @@ class Code():
 			elif isinstance(data, self.__class__):
 				data = data.data
 			elif not isinstance(data, self.__class__):
-				raise exceptions.FormatError(f"Can not assign object {self.__class__} & {data.__class__}.")
+				raise Exceptions.FormatError(f"Can not assign object {self.__class__} & {data.__class__}.")
 			self.data = str(data)
 			return self
+		#
+	
 	#
-	#
-
-# shortcuts.
-Script = Code.Script
-Python = Code.Python

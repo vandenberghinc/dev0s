@@ -7,7 +7,7 @@
 from setuptools import setup, find_packages
 setup(
 	name='fil3s',
-	version='2.15.7',
+	version='2.15.8',
 	description='Some description.',
 	url='http://github.com/vandenberghinc/fil3s',
 	author='Daan van den Bergh',
@@ -17,6 +17,8 @@ setup(
 	zip_safe=False,
 	include_package_data=True,
 	install_requires=[
+            'django',
             'requests',
             'pathlib',
+            'pexpect',
         ])
