@@ -914,9 +914,9 @@ class Code():
 						if "__init__" in func["name"]:
 							set = False
 							for test in [
-								"syst3m.objects.Traceback",
-								"syst3m.objects.Object",
-								"syst3m.objects.Thread",
+								"Traceback",
+								"Object",
+								"Thread",
 							]:
 								if f"{test}.__init__(" in func["code"]:
 									params = clean_params(func["code"].split(f"{test}.__init__(")[1].split(")")[0])

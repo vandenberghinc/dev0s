@@ -13,7 +13,7 @@ JSON = "-j" in sys.argv or "--json" in sys.argv
 class Traceback(object):
 	def __init__(self,
 		# the imported traceback (#1).
-		traceback="syst3m.objects.Traceback",
+		traceback="Traceback",
 		# the raw traceback (#2).
 		raw_traceback="syst3m.classes.objects.Object",
 	):
@@ -58,7 +58,7 @@ class Object(Traceback):
 		# attributes (dict) (#1)
 		attributes={},
 		# the imported traceback.
-		traceback="syst3m.objects.Object",
+		traceback="Object",
 		# the raw traceback.
 		raw_traceback="syst3m.classes.objects.Object",
 	):
@@ -209,7 +209,7 @@ class Thread(Object, threading.Thread):
 		# the threads id (#1).
 		id="Thread",
 		# the imported traceback.
-		traceback="syst3m.objects.Thread",
+		traceback="Thread",
 		# the raw traceback.
 		raw_traceback="syst3m.classes.objects.Thread",
 		# the threads log level.

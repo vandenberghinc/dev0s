@@ -25,3 +25,5 @@ class Exceptions():
 		pass
 	class UnkownArgumentError(Exception):
 		pass
+	class NetworkError(Exception):
+		pass

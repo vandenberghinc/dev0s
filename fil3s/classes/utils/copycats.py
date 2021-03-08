@@ -163,7 +163,7 @@ class Loader(threading.Thread):
 		for i in range(length): s += " "
 		return s
 
-# the syst3m.env.Env object class (exact copy).
+# the Environment.Env object class (exact copy).
 class Env(object):
 	def __init__(self):
 		a=1
