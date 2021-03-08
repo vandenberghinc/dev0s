@@ -7,7 +7,7 @@
 from setuptools import setup, find_packages
 setup(
 	name='fil3s',
-	version='2.15.4',
+	version='2.15.7',
 	description='Some description.',
 	url='http://github.com/vandenberghinc/fil3s',
 	author='Daan van den Bergh',
@@ -15,6 +15,7 @@ setup(
 	license='MIT',
 	packages=find_packages(),
 	zip_safe=False,
+	include_package_data=True,
 	install_requires=[
             'requests',
             'pathlib',

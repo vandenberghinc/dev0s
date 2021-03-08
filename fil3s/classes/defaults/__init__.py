@@ -1182,6 +1182,41 @@ class Formats():
 					else:
 						d += 1
 			return s
+		
+		# get the first / last n characters of the string.
+		def first(self, count):
+			if isinstance(count, (int, float, Float, Integer)):
+				count = int(count)
+			else:
+				count = len(count)
+			return self.string[:count]
+		def last(self, count):
+			if isinstance(count, (int, float, Float, Integer)):
+				count = int(count)
+			else:
+				count = len(count)
+			return self.string[count:]
+			#
+		
+		# remove first / last n characters of the string.
+		def remove_first(self, count):
+			if isinstance(count, (int, float, Float, Integer)):
+				count = int(count)
+			else:
+				count = len(count)
+			removed = self.first(count)
+			self.string = self.string[:count]
+			return removed
+		def remove_last(self, count):
+			if isinstance(count, (int, float, Float, Integer)):
+				count = int(count)
+			else:
+				count = len(count)
+			removed = self.last(count)
+			self.string = self.string[count:]
+			return removed
+			#
+
 		# support default str functions.
 		def split(self, string):
 			if isinstance(string, (list, Array)):
@@ -1213,7 +1248,6 @@ class Formats():
 				return new
 			else:
 				return Files.Array(self.string.split(str(string)))
-
 		def count(self, string):
 			return Formats.Integer(self.string.count(str(string)))
 		def replace(self, from_, to_):
@@ -1796,7 +1830,7 @@ class Formats():
 				self.value = value.value
 
 			# init.
-			self.value = str(value)
+			self.value = str(value).replace(" ","").replace("\n","").replace("\r","")
 			self.int = int(str(self.value).replace(".",""))
 
 			#
@@ -3669,6 +3703,11 @@ class Files():
 					raise ValueError("Invalid hierarchy item [{} : {}]. Either [directory] must be enabled, or [default_data / default] must be specified.".format(identifier, dictionary["path"]))
 
 				#
+		# load & save sub paths.
+		def load(self, path=None, format=str, default=None, sudo=False):
+			return Files.load(path=self.fullpath(path), format=format, sudo=sudo)
+		def save(self, path=None, data=None, format=str, sudo=False):
+			return Files.save(path=self.fullpath(path), data=data, format=format, sudo=sudo)
 		# returnable functions.
 		def paths(self, dirs_only=False, files_only=False, empty_dirs=True, recursive=False, path=None, banned=[], banned_names=[".DS_Store"], banned_basenames=["__pycache__"], extensions=["*"]):
 			if dirs_only and files_only: raise ValueError("Both parameters dirs_only & piles_only are True.")
@@ -3770,8 +3809,6 @@ class Files():
 				alph_dir = base + name + type
 				return alph_dir
 			else: raise ValueError("Invalid usage, parameter structure [{}], valid options: {}".format(structure, ["alphabetical"]))
-		def join(self, name=None, type=""):
-			return self.file_path.join(name, type)
 		def contains(self, name=None, type="/", recursive=False):
 			return self.join(name, type) in self.paths(recursive=recursive)
 			#
@@ -3953,6 +3990,15 @@ class Files():
 							updates.append(path)
 							c += 1
 			return updates
+		# filepath shortcuts.
+		def join(self, name=None, type=""):
+			return self.file_path.join(name, type)
+		def name(self):
+			return self.file_path.name()
+		def base(self):
+			return self.file_path.base()
+		def basename(self):
+			return self.file_path.basename()
 		# support default iteration.
 		def __iter__(self):
 			return iter(self.paths())

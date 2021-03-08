@@ -1,1 +1,3 @@
 include fil3s/.version.py
+include fil3s/js/*.html
+include fil3s/js/*.js

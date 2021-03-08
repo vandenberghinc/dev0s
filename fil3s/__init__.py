@@ -23,6 +23,7 @@ Script = Code.Script
 Python = Code.Python
 
 # source path & version.
-source_path = gfp.base(__file__)
-try: version = Files.load(source_path+".version.py").replace("\n","").replace(" ","")
+source = Directory(gfp.base(__file__))
+base = Directory(source.fp.base())
+try: version = Version(Files.load(source.join(".version.py")))
 except: version = None
