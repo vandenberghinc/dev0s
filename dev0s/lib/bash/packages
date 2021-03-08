@@ -1,0 +1,389 @@
+#!/usr/bin/env bash
+
+# get the requirements dir from an installer script (requirements/installer).
+function requirements-path() {
+    program="requirements-requirements"
+    executive=$1
+    if [[ "$executive" == "" ]] || [[ "$executive" == "none" ]] ; then
+        error "Error: Specify the executive (#1) parameter: $ $program \$0" $@ ; return
+    fi
+    requirements_dir=$(dirname "$executive")
+    requirements_dir=$(clean-path $requirements_dir)
+    echo $requirements_dir
+}
+
+# get the source path from an the requirements dir.
+function source-path() {
+    program="source-path"
+    requirements_dir=$1
+    if [[ "$requirements_dir" == "" ]] || [[ "$requirements_dir" == "none" ]] ; then
+        error "Error: Specify the requirements (#1) parameter: $ $program /path/to/requirements" $@ ; return
+    fi
+    source=${requirements_dir///requirements/}
+    if [[ "$(get-argument --pypi-package $@)" == "true" ]] ; then
+        pypi_name=$(get-argument --pypi-name $@)
+        if [[ "$pypi_name" != "" ]] && [[ "$pypi_name" != "none" ]] ; then
+            source=${source///$pypi_name/}"/" 
+        fi
+    fi
+    source=$(clean-path $source)
+    echo $source
+}
+
+# install library.
+function install-library() {
+    program="install-library"
+    source=$(get-argument --source $@)
+    lib=$(get-argument --lib $@)
+    error_exit=$(argument-present --error-exit $@)
+    if [[ "$lib" == "" ]] || [[ "$lib" == "none" ]] ; then
+        error "Error: Specify the lib parameter: $ $program --lib /usr/local/lib/mylibrary --source /path/to/source" $@ ; return
+    elif [[ "$source" == "" ]] || [[ "$source" == "none" ]] ; then
+        error "Error: Specify the source parameter: $ $program --lib /usr/local/lib/mylibrary --source /path/to/source" $@ ; return
+    fi
+    if [[ "$(clean-path "$source/")" != "$(clean-path "$lib/")" ]] ; then
+        sudo rm -fr $lib
+        sudo mkdir $lib
+        sudo chmod 770 $lib
+        sudo chown -R $user:$group $lib
+        if [[ ! "$LOG_LEVEL" =~ "" ]] && [[ ! "$LOG_LEVEL" =~ "-1" ]] && [[ ! "$LOG_LEVEL" =~ "0" ]] ; then
+            echo "Installing ["$(clean-path $source/)"] to "[$(clean-path $lib/)"]."
+        fi
+        rsync -azq --delete $(clean-path $source/) $(clean-path $lib/)
+        sudo chmod 770 $lib
+        sudo chown -R $user:$group $lib
+    else 
+        sudo chmod 770 $lib
+        sudo chown -R $user:$group $lib
+    fi
+    if [[ ! -d "$lib" ]] ; then
+        error "Error: failed to install $source to $library." $@ ; return
+    else
+        echo "Successfully installed $lib"
+        return
+    fi
+}
+
+# install database.
+function install-database() {
+    program="install-database"
+    etc=$(get-argument --etc $@)
+    error_exit=$(argument-present --error-exit $@)
+    if [[ "$etc" == "" ]] || [[ "$etc" == "none" ]] ; then
+        error "Error: Specify the etc parameter: $ $program --etc /etc/mydatabase" $@ ; return
+    elif [[ "$source" == "" ]] || [[ "$source" == "none" ]] ; then
+        error "Error: Specify the source parameter: $ $program --etc /etc/mydatabase" $@ ; return
+    fi
+    if [[ ! -d "$etc" ]] ; then
+        sudo mkdir $etc
+        sudo chmod 770 $etc
+        sudo chown $user:$group $etc
+    fi
+    if [[ ! -d "$lib" ]] ; then
+        error "Error: failed to create database $etc." $@ ; return
+    else
+        echo "Successfully created databse $databse"
+        return
+    fi
+}
+
+# install apt requirements.
+function install-apt-requirements() {
+    program="install-apt-requirements"
+    requirements=$1
+    error_exit=$(argument-present --error-exit $@)
+    if [[ "$requirements" == "" ]] || [[ "$requirements" == "none" ]] ; then
+        error "Error: Specify the requirements (#1) parameter: $ $program /path/to/requirements.txt" $@ ; return
+    fi
+
+    # update.
+    sudo apt-get -y update
+    sudo apt-get -y upgrade
+    
+    # iterate requirements.
+    echo "Installing requirements file $requirements."
+    requirements_str=""
+    cat $requirements | while read requirement ; do
+        if [[ "$requirement" != "" ]] && [[ ${requirement:0:1} != "#" ]] && [[ "$requirement" != "\n" ]] && [[ "$requirement" != " " ]] ; then
+            requirement=$(replace-str $requirement " " "" --except )
+            requirements_str="$requirements_str $requirement"
+        fi
+    done
+
+    # install.
+    sudo apt-get -y install $requirements_str
+    
+}
+
+# install brew requirements.
+function install-brew-requirements() {
+    program="install-brew-requirements"
+
+    # options.
+    requirements=$1
+
+    # checks.
+    error_exit=$(argument-present --error-exit $@)
+    if [[ "$requirements" == "" ]] || [[ "$requirements" == "none" ]] ; then
+        error "Error: Specify the requirements (#1) parameter: $ $program /path/to/requirements.txt" $@ ; return
+    fi
+
+    # sudo option.
+    sudo_option=$(argument-present --sudo $@)
+    if [[ "$sudo_option" == "true" ]] ; then
+        sudo_option="sudo "
+    else
+        sudo_option=""
+    fi
+
+    # iterate requirements.
+    echo "Installing requirements file $requirements."
+    cat $requirements | while read requirement ; do
+        if [[ "$requirement" != "" ]] && [[ ${requirement:0:1} != "#" ]] && [[ "$requirement" != "\n" ]] && [[ "$requirement" != " " ]] ; then
+            requirement=$(replace-str $requirement " " "" --except )
+            cask=""
+            if [[ ${requirement:0:5} == "cask:" ]] ; then
+                cask="--cask"
+                requirement=${requirement:5}
+            fi
+            $sudo_option brew $cask install $requirement -q
+        fi
+    done
+}
+
+# install pip requirements.
+function install-pip-requirements() {
+    program="install-pip-requirements"
+    requirements=$1
+    error_exit=$(argument-present --error-exit $@)
+    venv=$(get-argument --venv $@)
+    if [[ "$(empty $requirements)" == "true" ]] ; then
+        error "Error: Specify the requirements (#1) parameter: $ $program /path/to/requirements.txt" $@ ; return
+    fi
+    if [[ "$(argument-present --user $@)" == "true" ]] ; then
+        user_option="--user $(get-argument --user $@)"
+    else
+        user_option=""
+    fi
+    echo "Installing requirements file $requirements."
+    if [[ "$(empty $venv)" == "false" ]] ; then
+        executive=$venv/bin/python3
+    elif [[ "$OS" == "macos" ]] && [[ -f "/usr/bin/python3" ]] ; then
+        executive=/usr/bin/python3
+    else
+        executive=python3
+    fi
+    if [[ $(argument-present --silent $@) == "true" ]] ; then
+        if [[ $(argument-present --sudo $@) == "true" ]] ; then
+            sudo $executive -m pip install -r $requirements $user_option 2> /dev/null
+        else
+            $executive -m pip install -r $requirements $user_option 2> /dev/null
+        fi
+    else
+        if [[ "$sudo_option" == "true" ]] ; then
+            sudo $executive -m pip install -r $requirements $user_option
+        else
+            $executive -m pip install -r $requirements $user_option
+        fi
+    fi
+}
+
+# remote install package.
+function remote-install-package() {
+    program="remote-install-package"
+
+    # options.
+    alias=$(get-argument --alias $@)
+    pypi_name=$(get-argument --pypi-name $@)
+    pypi_package=$(get-argument --pypi-package $@)
+    if [ $(get-argument "--user" $@) != "none" ] ; then
+        user=$(get-argument "--user" $@)
+    fi
+
+    # check str options.
+    error_exit="true"
+    error_exit_str=" --error-exit"
+    if [[ "$alias" == "" ]] || [[ "$alias" == "none" ]] ; then
+        error "Error: Specify the alias (str) parameter: $ $program --alias mypackage ..." $@ ; return
+    elif [[ "$pypi_name" == "" ]] || [[ "$pypi_name" == "none" ]] ; then
+        error "Error: Specify the pypi name (str) parameter: $ $program --pypi-name mypackage ..." $@ ; return
+
+    # check boolean options.
+    elif [[ "$pypi_package" != "true" ]] && [[ "$pypi_package" != "false" ]] ; then
+        error "Error: Specify the pypi name (bool) parameter: $ $program --pypi-package false ..." $@ ; return
+    fi
+
+    # libs.
+    if [[ "$OS" == "macos"* ]] ; then
+        a=1
+    elif [[ "$OS" == "linux"* ]] ; then
+        sudo apt-get -y install git
+    else 
+        error "Error: unsupported operating system $OSTYPE." $@ ; return
+    fi
+
+    # remote install.
+    rm -fr /tmp/$alias
+    git clone -q https://github.com/vandenberghinc/$alias /tmp/$alias
+    if [[ "$pypi_package" == "true" ]] ; then
+        chmod +x /tmp/$alias/$pypi_name/requirements/installer
+        bash /tmp/$alias/$pypi_name/requirements/installer
+    else
+        chmod +x /tmp/$alias/requirements/installer
+        bash /tmp/$alias/requirements/installer
+    fi
+    rm -fr /tmp/$alias/
+}
+
+# install package.
+function install-package() {
+    program="install-package"
+
+    # options.
+    alias=$(get-argument --alias $@)
+    source=$(get-argument --source $@)
+    source_name=$(get-argument --source-name $@)
+    pypi_name=$(get-argument --pypi-name $@)
+    pypi_package=$(get-argument --pypi-package $@)
+    create_alias=$(get-argument --create-alias $@)
+    pip_requirements=$(get-argument --pip-requirements $@)
+    apt_requirements=$(get-argument --apt-requirements $@)
+    brew_requirements=$(get-argument --brew-requirements $@)
+    lib=$(get-argument --lib $@)
+    database=$(get-argument --database $@)
+    venv=$(get-argument --venv $@)
+    supported_os=$(get-argument --os $@)
+    if [[ "$(get-argument "--user" $@)" != "none" ]] ; then
+        user=$(get-argument "--user" $@)
+    fi
+
+    # reset optionals.
+    if [[ "$(empty $pip_requirements)" == "true" ]] ; then
+        pip_requirements=""
+    fi
+    if [[ "$(empty $apt_requirements)" == "true" ]] ; then
+        apt_requirements=""
+    fi
+    if [[ "$(empty $brew_requirements)" == "true" ]] ; then
+        brew_requirements=""
+    fi
+    if [[ "$(empty $lib)" == "true" ]] ; then
+        lib=""
+    fi
+    if [[ "$(empty $database)" == "true" ]] ; then
+        database=""
+    fi
+    
+    # check os.
+    if [[ "$(empty $supported_os)" == "false" ]] && [[ ! "$OS" == *"$supported_os"* ]] ; then
+        error "Error: unsupported operating system $OS." $@ ; return
+    fi
+
+    # check str options.
+    error_exit="true"
+    error_exit_str=" --error-exit"
+    if [[ "$alias" == "" ]] || [[ "$alias" == "none" ]] ; then
+        error "Error: Specify the alias (str) parameter: $ $program --alias mypackage ..." $@ ; return
+    elif [[ "$source" == "" ]] || [[ "$source" == "none" ]] ; then
+        error "Error: Specify the source (str) parameter: $ $program --source /path/to/mypackage ..." $@ ; return
+    elif [[ "$source_name" == "" ]] || [[ "$source_name" == "none" ]] ; then
+        error "Error: Specify the source name (str) parameter: $ $program --source-name mypackage ..." $@ ; return
+    elif [[ "$pypi_name" == "" ]] || [[ "$pypi_name" == "none" ]] ; then
+        error "Error: Specify the pypi name (str) parameter: $ $program --pypi-name mypackage ..." $@ ; return
+
+    # check boolean options.
+    elif [[ "$pypi_package" != "true" ]] && [[ "$pypi_package" != "false" ]] ; then
+        error "Error: Specify the pypi package (bool) parameter: $ $program --pypi-package false ..." $@ ; return
+    elif [[ "$create_alias" != "true" ]] && [[ "$create_alias" != "false" ]] ; then
+        error "Error: Specify the create alias (bool) parameter: $ $program --create-alias false ..." $@ ; return
+    fi
+
+    # check paths.
+    if [[ "$pip_requirements" != "" ]] && [[ ! -f "$source/$pip_requirements" ]] ; then
+        error "Error: Specified pip requirements file $source/$pip_requirements does not exist." $@ ; return
+    elif [[ "$apt_requirements" != "" ]] && [[ ! -f "$source/$apt_requirements" ]] ; then
+        error "Error: Specified apt requirements file $source/$apt_requirements does not exist." $@ ; return
+    elif [[ "$brew_requirements" != "" ]] && [[ ! -f "$source/$brew_requirements" ]] ; then
+        error "Error: Specified brew requirements file $source/$brew_requirements does not exist." $@ ; return
+    fi
+
+    # help.
+    # do not show function docs but installer script docs.
+    if [[ "$(argument-present "--help" $@)" == "true" ]]  || [[ "$(argument-present "-h" $@)" == "true" ]] ; then
+        echo """Description: $alias installer script.
+    Usage: ./installer <mode> <options> 
+    Modes:
+        *** Select no mode to use the default installer. ***
+        -h / --help         Show the documentaton.
+    Options:
+        --user <user>       Install with the specified user.
+    Author: Daan van den Bergh. 
+    Copyright: © Daan van den Bergh 2020 - 2021. All rights reserved."""
+        exit 0
+    fi
+    
+    echo "Installing library $alias."
+    echo "Source: $source."
+
+    # requirements path & source path.
+    requirements="$source/requirements/"
+    if [[ ! "$requirements" =~ "/$pypi_name/requirements" ]] ; then
+        error "Error: Invalid installer path $requirements. The installer requires to be located at: /path/to/source/$pypi_name/requirements/installer. Current requirements path: $requirements" $@ ; return
+    elif [[ "$alias" == "" ]] || [[ "$alias" == "none" ]] ; then
+        error "Error: Specify the alias variable in installer script: $source/requirements/installer." $@ ; return
+    fi
+
+    # install source code.
+    if [[ "$lib" != "" ]] ; then
+        echo "Installing source into library $lib."
+        install-library --lib $lib --source $source $error_exit_str
+    fi
+
+    # install database.
+    if [[ "$database" != "" ]] ; then
+        echo "Checking database $database."
+        install-database --etc $database $error_exit_str
+    fi
+
+    # brew requirements.
+    if [[ "$os" == "macos" ]] && [[ "$brew_requirements" != "" ]] ; then
+        echo "Installing macos requirements."
+        install-brew-requirements $source/$brew_requirements $error_exit_str
+    fi
+
+    # apt requirements.
+    if [[ "$os" == "linux" ]] && [[ "$apt_requirements" != "" ]] ; then
+        echo "Installing linux requirements."
+        install-apt-requirements $source/$apt_requirements $error_exit_str
+    fi
+
+    # python venv.
+    if [[ "$(empty $venv)" == "false" ]] ; then
+        if [[ ! -d "$venv" ]] ; then
+            python3 -m venv $venv
+        fi
+        install-pip-requirements $source/$pip_requirements --silent $error_exit_str --venv $venv
+    fi
+
+    # python requirements.
+    if [[ "$pip_requirements" != "" ]] ; then
+        echo "Installing pip requirements."
+        install-pip-requirements $source/$pip_requirements --silent $error_exit_str
+    fi
+
+    # install pypi package.
+    if [[ "$pypi_package" == "true" ]] ; then
+        echo "Installing pypi library $pypi_name."
+        pip3 install $(dirname $source) 2> /dev/null 
+    fi
+
+    # install alias.
+    if [[ "$create_alias" == "true" ]] ; then
+        echo "Creating alias $alias..."
+        python-alias $lib $alias
+    fi
+
+    # regular log for confirmation:
+    echo "Successfully installed $alias."
+}
+

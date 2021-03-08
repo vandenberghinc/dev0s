@@ -6,10 +6,10 @@
 # setup.
 from setuptools import setup, find_packages
 setup(
-	name='fil3s',
-	version='2.15.9',
+	name='dev0s',
+	version='2.16.1',
 	description='Some description.',
-	url='http://github.com/vandenberghinc/fil3s',
+	url='http://github.com/vandenberghinc/dev0s',
 	author='Daan van den Bergh',
 	author_email='vandenberghinc.contact@gmail.com',
 	license='MIT',

@@ -1,0 +1,84 @@
+#!/usr/bin/env python3
+
+# imports.
+import os,sys
+import syst3m, cl1
+from dev0s import *
+from r3sponse import r3sponse
+
+# cl1.
+class CLI(cl1.CLI):
+	def __init__(self):
+		self.version = "1.0.0"
+		cl1.CLI.__init__(self,
+			modes={
+				"Do not specify a mode to use the default mode":"",
+				"-v / --version":"Print the library version.",
+				"-h / --help":"Show the library documenation.",
+			},
+			options={
+				"--path /path/to/dir":"Specify the path to the directory.",
+				"--from 'Hello World'":"Specify the from string.",
+				"--to 'hello_world'":"Specify the to string.",
+				"--recursive true":"Specify the recursive boolean (default is true).",
+				"-j / --json":"Print the response object in json format.",
+			},
+			alias="replace-str-in-dir",)
+	def start(self):
+
+		# check arguments.
+		self.options["json"] = self.arguments.present(["--json", "-j"])
+		self.arguments.check(json=self.options["json"])
+
+		# help.
+		if self.arguments.present(['-h', '--help']):
+			self.docs(success=True, chapter=None, json=self.options["json"])
+
+		# version.
+		elif self.arguments.present(['-v', '--version']):
+			self.stop(message=f"{self.alias}=={self.version}")
+
+		# default mode.
+		else:
+
+			# replace.
+			path = syst3m.env.fill(self.arguments.get("--path"))
+			from_ = self.arguments.get("--from")
+			to = self.arguments.get("--to")
+			recursive = self.arguments.get("--recursive", required=False, default=True)
+			dir, gfp = Files.Directory(path), FilePath("")
+			if not dir.file_path.exists():
+				self.stop(error=f"Path {path} does not exist.", json=self.options["json"])
+			elif not dir.file_path.directory():
+				self.stop(error=f"Path {path} is not a directory.", json=self.options["json"])
+			c, updates = 0, []
+			for path in dir.paths(recursive=recursive, banned_names=[".DS_Store", ".git"]):
+				if not os.path.isdir(path):
+					try:
+						data = Files.load(path)
+					except UnicodeDecodeError: a=1
+					if from_ in data: 
+						loader = syst3m.console.Loader(f"Updating file {path}.")
+						try:
+							Files.save(path, data.replace(from_, to))
+						except KeyboardInterrupt:
+							print(f"{syst3m.color.red}Do not interrupt! Writing out file {path}.")
+							Files.save(path, data.replace(from_, to))
+							sys.exit(1)
+						loader.stop()
+						updates.append(path)
+						c += 1
+			if c > 0:
+				response = r3sponse.success(f"Successfully updated {c} file(s).", {
+					"updates":updates,
+				})
+			else:
+				response = r3sponse.success(f"Updated {c} files.", {
+					"updates":updates,
+				})
+			self.stop(response=response, json=self.options["json"])
+
+# main.
+if __name__ == "__main__":
+	cli = CLI()
+	cli.start()

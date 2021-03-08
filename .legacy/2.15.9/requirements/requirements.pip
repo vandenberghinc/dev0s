@@ -1,0 +1,9 @@
+
+# pip requirements.
+django
+requests
+pathlib
+pexpect
+
+# inc requirements.
+

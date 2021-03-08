@@ -1,0 +1,598 @@
+#!/usr/bin/env bash
+
+# _____________________________________________________________________________
+#
+# DEFAULT FUNCTIONS
+
+# default variables.
+export NEWLINE=$'\n'
+export HOME_PATH="$(echo ~)"
+export MEDIA="/media/"$USER"/"
+export MOUNTS="/mnt/"
+if [[ "$OSTYPE" == "darwin"* ]] ; then
+    export MEDIA="/Volumes/"
+    export MOUNTS="/Volumes/"
+fi
+export PERSISTANCE="$HOME_PATH/persistance/"
+
+# check lib & bin.
+if [[ ! -d "/usr/local/lib" ]] ; then
+    sudo mkdir /usr/local/lib
+fi
+if [[ ! -d "/usr/local/bin" ]] ; then
+    sudo mkdir /usr/local/bin
+fi
+
+
+# operating system.
+function osinfo() {
+    user=$(echo $USER)
+    if [[ "$OSTYPE" == "linux-gnu"* ]] ; then
+        os="linux"
+    elif [[ "$OSTYPE" == "darwin"* ]] ; then
+        os="macos"
+    elif [[ "$OSTYPE" == "cygwin" ]] ; then
+       os="posix"     # POSIX compatibility layer and Linux environment emulation for Windows
+    elif [[ "$OSTYPE" == "msys" ]] ; then
+        os="mysys"    # Lightweight shell and GNU utilities compiled for Windows (part of MinGW)
+    elif [[ "$OSTYPE" == "win32" ]] ; then
+        os="win32"    # I'm not sure this can happen.
+    elif [[ "$OSTYPE" == "freebsd"* ]] ; then
+        os="freebsd"    # ...
+    else
+        os="unknown"    # Unknown.
+    fi
+    group="root"
+    if [[ "$os" == "macos" ]] ; then
+        group="staff"
+    fi
+    OS=$os
+    GROUP=$group
+}
+osinfo
+
+# empty argument / parameter.
+function empty() {
+    if [[ "$1" == "" ]] || [[ "$1" == "none" ]] || [[ "$1" == "None" ]] || [[ "$1" == "nan" ]] || [[ "$1" == "null" ]] ; then
+        echo "true"
+    else
+        echo "false"
+    fi
+}
+
+# check if command exists.
+function command-exists() {
+    if ! command -v "$1" &> /dev/null ; then
+        echo "false"
+    else
+        echo "true"
+    fi
+}
+
+# check if argument is present optionally with safe default.
+function argument-present() {
+    c=0
+    #default=$(get-argument --default $@)
+    success=$default
+    for var in "$@"
+    do
+        if (( c > 0 )) ; then
+            if [[ "$var" == "$1" ]] ; then
+                success="true"
+                break
+            fi
+        fi
+        ((c=c+1))
+    done
+    echo $success
+}
+
+# error.
+function error() {
+    # usage: error "Define parameter ..." $@ ; return
+    # don't forget to pass the $@ argument to detect --error-exit etc.
+    #
+    error="$1"
+    if [[ "$OS" != "macos" ]] ; then
+        error="$(tr '[:lower:]' '[:upper:]' <<< ${error:0:1})${error:1}"
+    fi
+    if [[ ${error:0:7} == "Error: " ]] ; then
+        error=${error:7}
+    fi
+    if [[ "$OS" != "macos" ]] ; then
+        error="$(tr '[:lower:]' '[:upper:]' <<< ${error:0:1})${error:1}"
+    fi
+    if [[ "$(argument-present --error-exit $@)" == "true" ]] ; then
+        echo "Error: $error"
+        exit 1
+    else
+        echo "Error: $error"
+        return 
+    fi
+}
+
+# get the argument after the specified argument.
+function get-argument() {
+    c=0
+    success="false"
+    value="none"
+    for var in "$@"
+    do
+        if (( c > 0 )) ; then
+            if [[ "$var" == "$1" ]] ; then
+                success="true"
+            elif [[ "$success" == "true" ]] ; then
+                value=$var
+                break
+            fi
+        fi
+        ((c=c+1))
+    done
+    echo $value
+}
+
+# get a parameter number with safe default.
+function get-parameter() {
+    value=$1
+    default=$(get-argument --default $@)
+    if [[ "$value" == "" ]] ; then
+        value=$default
+    fi
+    echo $value
+}
+
+# capitalize str.
+function capitalize-str() {
+    string=$1
+    capitalized="$(tr '[:lower:]' '[:upper:]' <<< ${string:0:1})${string:1}"
+    echo $capitalized
+}
+
+# str includes substring.
+function str-includes() {
+    string=$1
+    if [[ "$string" == "none" ]] ; then
+        error "Error: Specify the string (#1) parameter: $ str-includes 'Some string' 'Some'" $@ ; return
+    fi
+    substring=$2
+    if [[ "$substring" == "none" ]] ; then
+        error "Error: Specify the substring (#2) parameter: $ str-includes 'Some string' 'Some'" $@ ; return
+    fi
+    if [[ "$string" =~ "$substring" ]] ; then
+        echo "true"
+    else
+        echo "false"
+    fi
+}
+
+# file includes string.
+function file-includes() {
+    localpath=$1
+    if [[ "$localpath" == "none" ]] ; then
+        error "Error: Specify the path (#1) parameter: $ file-includes /path/to 'Some string'" $@ ; return
+    fi
+    string=$2
+    if [[ "$localpath" == "none" ]] ; then
+        error "Error: Specify the string (#2) parameter: $ file-includes /path/to 'Some string'" $@ ; return
+    fi
+    file=$(<$localpath)
+    if [[ "$file" =~ "$string" ]] ; then
+        echo "true"
+    else
+        echo "false"
+    fi
+}
+
+# replace substring in str
+function replace-str() {
+    string=$1
+    if [[ "$string" == "" ]] ; then
+        error "Error: Specify the string (#1) parameter: $ replace-str 'hello wold' 'worl' 'world' " $@ ; return
+    fi
+    from=$2
+    if [[ "$from" == "" ]] ; then
+        error "Error: Specify the from (#2) parameter: $ replace-str 'hello wold' 'worl' 'world' " $@ ; return
+    fi
+    to=$3
+    if [[ "$to" == "" ]] && [[ $(argument-present --except $@) == "false" ]] ; then
+        error "Error: Specify the to (#3) parameter: $ replace-str 'hello wold' 'worl' 'world' " $@ ; return
+    fi
+    new=${string/$from/$to}
+    echo $new
+}
+
+# replace substring in file
+function replace-str-in-file() {
+    localpath=$1
+    if [[ "$localpath" == "" ]] ; then
+        echo "Error: Specify the path (#1) parameter: $ replace-str-in-file /path/to/file 'worl' 'world' "
+        return
+    fi
+    from=$2
+    if [[ "$from" == "" ]] ; then
+        echo "Error: Specify the from (#2) parameter: $ replace-str-in-file /path/to/file 'worl' 'world' "
+        return
+    fi
+    to=$3
+    if [[ "$to" == "" ]] ; then
+        echo "Error: Specify the to (#3) parameter: $ replace-str-in-file /path/to/file 'worl' 'world' "
+        return
+    fi
+    file=$(< $localpath)
+    new=$(replace-str $file $from $to)
+    echo "$new" > $file
+}
+
+# clean file path.
+function clean-path() {
+    program="clean-path"
+    localpath=$1
+    if [[ "$localpath" == "" ]] || [[ "$localpath" == "none" ]] ; then
+        error "Error: specify the path (#1) parameter: $ $program /some//path/" $@ ; return
+    fi
+    localpath=${localpath/\/\///} ; localpath=${localpath/\/\///} ; localpath=${localpath/\/\///} ; localpath=${localpath/\/\///} ; localpath=${localpath/\/\///}
+    while true; do 
+        if [[ "$localpath" == *"//"* ]] ; then
+            localpath=$(replace-str "$localpath" "//" "/" )
+        else
+            break
+        fi
+    done
+    localpath=$(replace-str "$localpath" "//" "/" )
+    echo $localpath
+}
+
+# import bash script.
+function import-bash() {
+    error_exit=$(argument-present --error-exit $@)
+    localpath=$1
+    if [[ "$(empty $localpath)" == "true" ]] ; then
+        error "Error: Specify the path (#1) parameter: $ import-bash /path/to/bash " $@ ; return
+    fi
+    localpath=$(clean-path $localpath)
+    if [[ ! -f "$localpath" ]] ; then
+        error "specified bash import $localpath does not exist." $@ ; return
+    fi
+    if [[ "$OSTYPE" == "linux-gnu"* ]] ; then
+        . $localpath
+    elif [[ "$OSTYPE" == "darwin"* ]] ; then
+        source $localpath
+    else
+        error "unsupported operating system $OSTYPE." $@ ; return
+    fi
+}
+
+# python functions.
+function kill-python() {
+    pkill -9 -f python && pkill -9 -f Python && sudo pkill -9 -f python && sudo pkill -9 -f Python
+}
+function python-venv() {
+    rm -fr ~/venv && python3 -m venv ~/venv && source ~/venv/bin/activate && ~/venv/bin/python3 -m pip install --upgrade pip && echo 'Successfully created python environment ~/venv/'
+}
+function python-alias() {
+
+    # vars.
+    program="python-alias"
+    source=$1
+    alias=$2
+
+    # checks.
+    if [[ "$source" == "" ]] || [[ "$source" == "none" ]] ; then
+        error "Error: Specify the source path (#1) parameter: $ $program /path/to/python alias" $@ ; return
+    elif [[ "$alias" == "" ]] || [[ "$alias" == "none" ]] ; then
+        error "Error: Specify the alias (#2) parameter: $ $program /path/to/python alias" $@ ; return
+    fi
+    if [ ! -d "/usr/local/bin" ] ; then
+        sudo mkdir /usr/local/bin
+    fi
+    sudo rm -fr /usr/local/bin/$alias
+    sudo touch /usr/local/bin/$alias
+    sudo chown $user:$group /usr/local/bin/$alias
+
+    # script.
+    echo '#!/usr/bin/env python3 ' > /usr/local/bin/$alias
+    echo """import os, sys """ >> /usr/local/bin/$alias
+    echo """package='$source' """ >> /usr/local/bin/$alias
+    echo """sys.argv.pop(0) """ >> /usr/local/bin/$alias
+    echo """arguments = sys.argv """ >> /usr/local/bin/$alias
+    echo """s = '' """ >> /usr/local/bin/$alias
+    echo """for i in arguments: """ >> /usr/local/bin/$alias
+    echo """    if s == '':  """ >> /usr/local/bin/$alias
+    echo """        if ' ' in i: s = f\"'{i}'\" """ >> /usr/local/bin/$alias
+    echo """        else: s = i """ >> /usr/local/bin/$alias
+    echo """    else: """ >> /usr/local/bin/$alias
+    echo """        if ' ' in i: s += f\" '{i}'\" """ >> /usr/local/bin/$alias
+    echo """        else: s += f' {i}' """ >> /usr/local/bin/$alias
+    echo """if os.path.exists('/usr/bin/python3'): os.system(f'/usr/bin/python3 {package} {s}') """ >> /usr/local/bin/$alias
+    echo """else:  os.system(f'python3 {package} {s}') """ >> /usr/local/bin/$alias
+    #echo """os.system(f'python3 {package} {s}') """ >> /usr/local/bin/$alias
+
+    # permissions.
+    sudo chown $user:$group /usr/local/bin/$alias
+    sudo chmod +x /usr/local/bin/$alias
+
+    # handler.
+    echo "Successfully created alias [$alias]."
+}
+
+# activate dev0s env.
+function activate-dev0s-env() {
+    import-bash $(clean-path $DEVOS_LIB/env)
+}
+
+# set new hostname.
+function set-hostname() {
+    if [[ "$1" == "" ]] ; then
+        error "Error: Specify the hostname parameter: $ hostname <hostname>" $@ ; return
+    fi
+    lhostname=$1
+    rhostname=$(replace-str $lhostname "." "_")
+    if [[ "$OS" == "macos" ]] ; then
+        sudo scutil --set HostName $rhostname
+        echo "New hostname: $lhostname"
+    elif [[ "$OS" == "linux" ]] ; then
+        sudo echo "$rhostname" > /etc/hostname
+        echo "New hostname: $lhostname"
+    else 
+        error "Error: unsupported operating system $OS." $@ ; return
+    fi
+}
+
+# find str.
+#function find-str() {
+#    program="find-str"
+#    pattern=$1
+#    path=$2
+#    if [[ "$(empty '$pattern')" == "true" ]] ; then
+#        error "Error: Specify the pattern parameter: $ $program 'Hello World' /path/to/dir" $@ ; return
+#    elif [[ "$(empty '$localpath')" == "true" ]] ; then
+#        path="."
+#    fi
+#    grep -rnw $path -e $pattern
+#}
+
+# find path.
+#function find-path() {
+#    program="find-path"
+#    pattern=$1
+#    path=$2
+#    if [[ "$(empty $pattern)" == "true" ]] ; then
+#        error "Error: Specify the pattern parameter: $ $program 'Hello World' /path/to/dir" $@ ; return
+#    elif [[ "$(empty $localpath)" == "true" ]] ; then
+#        path="."
+#    fi
+#    find ./ -name "$pattern" -print0 | xargs -0 grep -i "$path"
+#    #-type f
+#}
+
+# split str by seperator.
+#function split_str() {
+#    string=$1
+#    if [[ "$string" == "" ]] ; then
+#        echo "Error: Specify the string (#1) parameter: $ iterate_str 'hello world' ' ' '\\\n' "
+#        return
+#    fi
+#    seperator=$2
+#    if [[ "$seperator" == "" ]] ; then
+#        echo "Error: Specify the seperator (#2) parameter: $ iterate_str 'hello world' ' ' '\\\n' "
+#        return
+#    fi
+#    joiner=$3 # default is ""
+#    #if [[ "$joiner" == "" ]] ; then
+#    #    echo "Error: Specify the joiner (#3) parameter: $ replace-str-in-file /path/to/file 'worl' 'world' '\\\n' "
+#    #    return
+#    #    #joiner=$NEWLINE
+#    #fi
+#    sentence=${string//$seperator/$joiner}  # change the semicolons to white space
+#    echo $sentence
+#    #for word in $sentence
+#    #do
+#    #    echo "$word"
+#    #done
+#}
+#
+# iterating a string.
+#for word in $(split_str "1.1" "." "") ; do
+#    echo "$word"
+#done
+
+# increment int.
+function increment() {
+    integer=$1
+    integer=$((integer+1))
+    echo $integer
+}
+
+# decrement int.
+function decrement(){
+    integer=$1
+    integer=$((integer-1))
+    echo $integer
+}
+
+# imcrement / decrement a int.
+#counter=1
+#a=$(increment $counter)
+#a=$(decrement $counter)
+
+# increase version.
+function increase-version() {
+    version=$1
+    if [[ "$version" == "" ]] ; then
+        error "Error: Specify the version (#1) parameter: $ increase-version 1.0" $@ ; return
+    fi
+    echo $version | awk -F. -v OFS=. 'NF==1{print ++$NF}; NF>1{if(length($NF+1)>length($NF))$(NF-1)++; $NF=sprintf("%0*d", length($NF), ($NF+1)%(10^length($NF))); print}'
+}
+
+
+# linux only functions.
+if [[ "$OS" == "linux" ]] ; then
+
+    # hfs+ drives.
+    function mount-hfs() {
+        drive=$1
+        mount_point=$2
+        if [[ ! -d "$mount_point" ]] ; then
+            sudo mkdir $mount_point
+        fi
+        sudo mount -t hfsplus -o force,rw $drive $mount_point
+    }
+    function check-hfs() {
+        drive=$1
+        sudo fsck.hfsplus -f $drive
+    }
+    function remount-hfs() {
+        mount_point=$1
+        sudo mount -t hfsplus -o remount,force,rw $mount_point
+    }
+    function format-hfs() {
+        drive=$1
+        sudo mkfs.hfsplus $drive
+    }
+
+    # ext4 drives.
+    function erase-drive() {
+        # sourcce: https://www.digitalocean.com/community/tutorials/how-to-partition-and-format-storage-devices-in-linux
+        drive=$1 # drive without partition number!
+        read -p "Warning! You are erasing drive ["$drive"], do you wish to proceed? (y/n): " -n 1 -r
+        echo    # (optional) move to a new line
+        if [[ ! $REPLY =~ ^[Yy]$ ]] ; then
+            echo "Aborted."
+        else
+            echo "Formatting drive [$drive]..."
+            sudo dd if=/dev/zero of=$drive bs=4M
+            echo "Finished formatting drive [$drive]."
+            echo "Create a new ext4 partition with the following command:"
+            echo "$ partition-ext4 $drive"
+            echo "Format the new ext4 partition with the following command:"
+            echo "$ format-ext4 "$drive"1 MyVolume"
+            echo "Mount the newly formatted ext4 partition with the following command:"
+            echo "$ mount-ext4 "$drive"1 /media/"$USER"/MyVolume"
+        fi
+    }
+    function partition-ext4() {
+        # sourcce: https://www.digitalocean.com/community/tutorials/how-to-partition-and-format-storage-devices-in-linux
+        drive=$1 # drive without partition number!
+        sudo parted $drive mklabel gpt # partition drive.
+        sudo parted -a opt $drive mkpart primary ext4 0% 100% # create partition.
+        echo "Check if the newly created partition exists."
+        echo "$ lsblk"
+    }
+    function format-ext4() {
+        drive=$1 # drive must contain partition number!
+        label=$2 # the comment label.
+        sudo mkfs.ext4 -L datapartition $drive
+        sudo e2label $drive $label
+        echo "Check if the formatting was successful."
+        echo "$ sudo lsblk --fs"
+    }
+    function mount-ext4() {
+        drive=$1 # drive must contain partition number!
+        mount_point=$2
+        if [[ ! -d "$mount_point" ]] ; then
+            sudo mkdir $mount_point
+        fi
+        sudo mount -o defaults,rw $drive $mount_point
+        sudo chown $USER:root $mount_point
+        sudo chmod 700 $mount_point
+        echo "Check if the mount was successful."
+        echo "$ sudo ls "$mount_point
+    }
+
+    # check if rsync is installed.
+    function check-rsync() {
+        if [[ "$(command-exists rsync)" == "false" ]] ; then
+            sudo apt-get -y install rsync
+        fi
+    }
+
+# macos only functions.
+elif [[ "$OS" == "macos" ]] ; then
+
+    # set dir icon.
+    function set-dir-icon() {
+        program="set-dir-icon"
+        icon="$1"
+        dest="$2"
+        if [[ "$string" == "none" ]] ; then
+            error "Error: Specify the icon path (#1) parameter: $ $program /path/to/icon.png /path/to/dir/" $@ ; return
+        fi
+        if [[ "$string" == "none" ]] ; then
+            error "Error: Specify the directory path (#2) parameter: $ $program /path/to/icon.png /path/to/dir/" $@ ; return
+        fi
+
+        # Check inputs
+        if [ ! -f $icon ] ; then 
+            error "Error: icon $1 does not exists" $@ ; return
+        elif [[ ! $icon =~ .*\.(png|PNG|jpg|JPG) ]] ; then
+            error "Error: icon must be a .png|.jpg file" $@ ; return
+        elif [ -f $dest ] ; then
+            folder=false
+        elif [ -d $dest ] ; then
+            folder=true
+        else
+            echo 'Error: file|directory destination does not exists'
+            return 
+        fi
+
+        # Create icns icon
+        sips -i $icon > /dev/null
+        DeRez -only icns $icon > /tmp/tmpicns.rsrc
+
+        # Set Icon
+        if [ "$folder" = true ] ; then
+            Rez -append /tmp/tmpicns.rsrc -o $dest$'/Icon\r'
+            SetFile -a C $dest
+            SetFile -a V $dest$'/Icon\r'
+        else
+            Rez -append /tmp/tmpicns.rsrc -o $dest
+            SetFile -a C $dest
+        fi
+
+        # Clean up
+        rm /tmp/tmpicns.rsrc
+        echo 'Successfully assigned icon '$icon' to directory '$dest'.'
+        return
+    }
+
+    # check if homebrew is installed.
+    function check-homebrew() {
+        if [[ "$(command-exists brew)" == "false" ]] ; then
+            echo "HomeBrew is not installed."
+            echo "Installing HomeBrew..."
+            /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)" && brew doctor
+        fi
+    }
+    check-homebrew
+
+    # check if rsync is installed.
+    function check-rsync() {
+        if [[ "$(command-exists rsync)" == "false" ]] ; then
+            brew install rsync
+        fi
+    }
+
+    # check if folderify is installed.
+    function check-folderify() {
+        if [[ "$(command-exists folderify)" == "false" ]] ; then
+            brew install folderify
+        fi
+    }
+    check-folderify
+
+fi
+
+# _____________________________________________________________________________
+#
+# ALIASES
+
+# macos aliases.
+if [[ "$OS" == "macos" ]] ; then
+    alias subl="sublime"
+
+# linux aliases.
+elif [[ "$OS" == "linux" ]] ; then
+    alias sublime="subl"
+fi
+
+

@@ -1,0 +1,116 @@
+#!/usr/bin/env bash
+# 
+# Import the dev0s library.
+# Usage:
+#   import from local.
+#     $ bash /usr/local/lib/dev0s/lib/import
+#   import remotely.
+#     $ curl -s https://raw.githubusercontent.com/vandenberghinc/dev0s/master/lib/import | bash 
+#   import from .zshrc / .bashrc with an environment.
+#     $ bash /usr/local/lib/dev0s/lib/import --env
+#
+
+# utils.
+
+    # clean path (differs from utils).
+    function clean-path() {
+        lib=$1
+        lib=${lib/\/\///} ; lib=${lib/\/\///} ; lib=${lib/\/\///} ; lib=${lib/\/\///} ; lib=${lib/\/\///}
+        if [[ "${lib:$i:1}" == "/" ]] ; then
+            lib=${lib%?}
+        fi
+        echo $lib
+    }
+
+    # check if argument is present optionally with safe default.
+    function argument-present() {
+        c=0
+        #default=$(get-argument --default $@)
+        success=$default
+        for var in "$@"
+        do
+            if (( c > 0 )) ; then
+                if [[ "$var" == "$1" ]] ; then
+                    success="true"
+                    break
+                fi
+            fi
+            ((c=c+1))
+        done
+        echo $success
+    }
+
+    # get the argument after the specified argument.
+    function get-argument() {
+        c=0
+        success="false"
+        value="none"
+        for var in "$@"
+        do
+            if (( c > 0 )) ; then
+                if [[ "$var" == "$1" ]] ; then
+                    success="true"
+                elif [[ "$success" == "true" ]] ; then
+                    value=$var
+                    break
+                fi
+            fi
+            ((c=c+1))
+        done
+        echo $value
+    }
+
+    #
+
+# error exit.
+error_exit="true"
+if [[ "$(argument-present --no-error-exit $@)" == "true" ]] ; then
+    error_exit="false"
+fi
+
+# library variable.
+lib=$(clean-path $(get-argument --lib $@))
+if [[ "$lib" == "none" ]] || [[ "$lib" == "" ]] ; then
+
+    # default lib.
+    lib="/usr/local/lib/dev0s/lib/"
+
+    # install.
+    if [[ ! -d "$lib" ]] ; then
+        echo "Installing library dev0s."
+        curl -s https://raw.githubusercontent.com/vandenberghinc/dev0s/master/requirements/installer.remote | bash 
+        if [[ ! -d "/usr/local/lib/dev0s" ]] ; then
+            echo "Error: failed to install library dev0s."
+            if [[ "$error_exit" == "true" ]] ; then exit 1 ; else return ; fi
+        fi
+    fi
+
+fi
+#echo "dev0s library: $lib"
+
+# import utils.
+export DEVOS_LIB=$lib
+if [[ "$OSTYPE" == "darwin"* ]] ; then
+    source $lib/bash/utils
+else
+    . $lib/bash/utils
+fi
+
+# imports lib.
+import-bash $lib/bash/pull_push
+import-bash $lib/bash/packages
+
+# test imports.
+if ! command -v "argument-present" &> /dev/null ; then
+    echo "Error: failed to import library dev0s."
+    if [[ "$error_exit" == "true" ]] ; then exit 1 ; else return ; fi
+else
+    if [[ "$DEVOS_IMPORTED" != "true" ]] && [[ "$(argument-present --silent)" == "false" ]] ; then
+        echo "Successfully imported library dev0s."
+    fi
+fi
+
+# success.
+export DEVOS_IMPORTED="true"
+
+

@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+
+# library variable.
+lib=$(clean-path $(get-argument --lib $@))
+if [[ "$lib" == "none" ]] || [[ "$lib" == "" ]] ; then
+    lib="/usr/local/lib/dev0s/lib/"
+fi
+
+# import.
+if [[ "$OSTYPE" == "darwin"* ]] ; then
+    source $lib/import
+else
+    . $lib/import
+fi
+
+# colors.
+if [[ "$OS" == "macos" ]] ; then
+
+    # colors (http://www.marinamele.com/2014/05/customize-colors-of-your-terminal-in-mac-os-x.html).
+    if [[ "$user" != "root" ]] ; then
+        #export PS1='%{%F{green}%}%n%{%f%}%{%F{green}%}@%{%f%}%{%F{green}%}%m %{%F{blue}%}%1~ %{%f%}%$$ '
+        lhostname="%{%f%}%{%F{green}%}%m"
+        rhostname=$(replace-str $lhostname "_" ".")
+        export PS1='%{%F{green}%}%n%{%f%}%{%F{green}%}@'$(replace-str $rhostname "_" ".")' %{%F{blue}%}%1~ %{%f%}%$$ '
+        export CLICOLOR=1
+        export LSCOLORS=ExGxBxDxCxegedabagaced
+    fi
+
+    # prevent duplicate commands in arrow up history.
+    setopt HIST_IGNORE_DUPS
+
+fi

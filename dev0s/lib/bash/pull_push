@@ -1,0 +1,368 @@
+#!/usr/bin/env bash
+
+# test ssh.
+function test-ssh() {
+    if [[ "$1" == "" ]] ; then
+        error "Error: Specify the ssh alias parameter: $ test-ssh myserver" $@ ; return
+    fi
+    alias=$1
+    output=$(ssh $alias ' echo "Hello World" ' )
+    if [[ "$output" != "Hello World" ]] ; then
+        error "Error: unable to connect with ssh server $alias."
+        echo "false"
+    else 
+        echo "true"
+    fi
+}
+
+# test ssh file.
+function test-ssh-file() {
+    alias=$1
+    if [[ "$alias" == "" ]] ; then
+        error "Error: Specify the ssh alias (#1) parameter: $ test-ssh myserver /path/to/file" $@ ; return
+    fi
+    localpath=$2
+    if [[ "$localpath" == "" ]] ; then
+        error "Error: Specify the path (#2) parameter: $ test-ssh myserver /path/to/file" $@ ; return
+    fi
+    output=$(ssh $alias ' ls -ld $localpath ' )
+    if [[ "$output" =~ "No such file or directory" ]] ; then
+        echo "false"
+    else 
+        echo "true"
+    fi
+}
+
+# check push.
+function check-push() {
+    alias=$1
+    source=$2
+    remote_source=$3
+    increment=$(argument-present --increment $@ --default "true")
+    if [[ "$alias" == "" ]] ; then
+        error "Error: Specify the path (#1) parameter: $ check-push_version sshalias /path/to/source /path/to/remote/source" $@ ; return
+    elif [[ "$source" == "" ]] ; then
+        error "Error: Specify the source (#2) parameter: $ check-push_version sshalias /path/to/source /path/to/remote/source" $@ ; return
+    elif [[ "$remote_source" == "" ]] ; then
+        error "Error: Specify the remote source (#3) parameter: $ check-push_version sshalias /path/to/source /path/to/remote/source" $@ ; return
+    elif [[ "$increment" == "true" ]] && [[ ! -d "$source" ]] ; then
+        error "Error: Source path $source does not exist." $@ ; return
+    #elif [[ ! -f "$source/.push_version" ]] ; then
+    #    error "Error: File $source/.push_version does not exist." $@ ; return
+    fi
+    remote_version=$(ssh $alias "cat $remote_source/.push_version " ) 2> /dev/null
+    if [[ ! -f "$source/.push_version" ]] ; then
+        if [[ "$remote" == "" ]] ; then
+            remote="1.1.001"
+        fi
+        version="1.1.001"
+        echo "$version" > $source/.push_version 
+    else
+        version=$(< $source/.push_version)
+    fi
+    if [[ "$remote_version" != "$version" ]] ; then
+        error "Error: mismatching versions, remote=$remote_version & local=$version. Manually fix the version mismatch or force the push with $ push $alias $source $remote_version --forced" $@ ; return
+    else
+        if [[ "$increment" == "true" ]] ; then
+            echo "Incrementing $source ($version) ==> ($new_version)."
+            new_version=$(increase-version $version)
+            echo "$new_version" > $source/.push_version
+        fi
+        echo "true"
+    fi
+}
+
+# pull.
+function pull() {
+    program="pull"
+    if [[ "$(argument-present --help $@)" == "true" ]]  || [[ "$(argument-present -h $@)" == "true" ]] ; then
+        echo """Description: $program files over ssh.
+Usage: $program sshalias /path/to/remote /path/to/local <options> 
+Modes:
+    -h / --help         Show the documentaton.
+Options:
+    --safe              Safe push with version control.
+    --forced            Ignore version control.
+    --reversed          Reverse the local & remote paths.
+    --delete            Also synchronize the deleted files.
+    --no-exclude        Do not exluce any files.
+Notes:
+    - Optionally localhost can be passed as the alias parameter to sync within the local system.
+Author: Daan van den Bergh. 
+Copyright: © Daan van den Bergh 2021. All rights reserved."""
+        return
+    fi
+    check-rsync
+    alias=$1
+    if [[ "$alias" == "" ]] ; then
+        error "Error: Specify the ssh alias (#1) parameter: $ pull vandenberghinc.com /remote/path/to/ /local/path/to" $@ ; return
+    elif [[ "$alias" != "localhost" ]] ; then
+        if [[ "$(test-ssh $alias)" == "false" ]] ; then
+            return 
+        fi
+    fi
+    if [[ "$(argument-present --reversed $@)" == "true" ]] ; then
+        remote=$3
+        local=$2
+    else
+        remote=$2
+        local=$3
+    fi
+    if [[ "$remote" == "" ]] ; then
+        error "Error: Specify the remote path (#2) parameter: $ pull vandenberghinc.com /remote/path/to/ /local/path/to" $@ ; return
+    fi
+    if [[ "$local" == "" ]] ; then
+        error "Error: Specify the local path (#3) parameter: $ pull vandenberghinc.com /remote/path/to/ /local/path/to" $@ ; return
+    fi
+    if [[ "$(test-ssh-file $alias $remote)" == "false" ]] ; then
+        error "Error: remote path $remote does not exist." $@ ; return
+    fi
+    if [[ "$(argument-present --safe $@)" == "true" ]] && [[ "$(argument-present --forced $@)" == "false" ]] ; then
+        output=$(check-push $alias $local $remote)
+        if [[ ! "$output" =~ "true" ]] ; then
+            echo $output
+            return
+        fi
+    fi
+    if [[ "$(argument-present --delete $@)" == "true" ]] ; then
+        delete_str="--delete"
+    else 
+        delete_str=""
+    fi
+    echo "Pulling $remote to $local."
+    if [[ "$alias" != "localhost" ]] ; then
+        if [[ "$(argument-present --no-exclude $@)" == "false" ]] ; then
+            rsync -azP $alias:$remote/ $local $delete_str --exclude '__pycache__' --exclude '.DS_Store'
+        else
+            rsync -azP $alias:$remote/ $local $delete_str
+        fi
+    else 
+        if [[ "$(argument-present --no-exclude $@)" == "false" ]] ; then
+            rsync -azP $remote/ $local $delete_str --exclude '__pycache__' --exclude '.DS_Store'
+        else
+            rsync -azP $remote/ $local $delete_str
+        fi
+    fi
+}
+
+# push.
+function push() {
+    program="push"
+    if [[ "$(argument-present --help $@)" == "true" ]]  || [[ "$(argument-present -h $@)" == "true" ]] ; then
+        echo """Description: $program files over ssh.
+Usage: $program sshalias /path/to/local /path/to/remote <options> 
+Modes:
+    -h / --help         Show the documentaton.
+Options:
+    --safe              Safe push with version control.
+    --forced            Ignore version control.
+    --reversed          Reverse the local & remote paths.
+    --delete            Also synchronize the deleted files.
+    --no-exclude        Do not exluce any files.
+Notes:
+    - Optionally localhost can be passed as the alias parameter to sync within the local system.
+Author: Daan van den Bergh. 
+Copyright: © Daan van den Bergh 2021. All rights reserved."""
+        return
+    fi
+    check-rsync
+    alias=$1
+    if [[ "$alias" == "" ]] ; then
+        error "Error: Specify the ssh alias (#1) parameter: $ push vandenberghinc.com /remote/path/to/ /local/path/to" $@ ; return
+    elif [[ "$alias" != "localhost" ]] ; then
+        if [[ "$(test-ssh $alias)" == "false" ]] ; then
+            return 
+        fi
+    fi
+    if [[ "$(argument-present --reversed $@)" == "true" ]] ; then
+        local=$3
+        remote=$2
+    else
+        local=$2
+        remote=$3
+    fi
+    if [[ "$local" == "" ]] ; then
+        error "Error: Specify the local path (#2) parameter: $ push vandenberghinc.com /remote/path/to/ /local/path/to" $@ ; return
+    fi
+    if [[ "$remote" == "" ]] ; then
+        error "Error: Specify the remote path (#3) parameter: $ push vandenberghinc.com /remote/path/to/ /local/path/to" $@ ; return
+    fi
+    if [[ ! -d "$local" ]] ; then
+        error "Error: local path $local does not exist." $@ ; return
+    fi
+    if [[ "$(argument-present --safe $@)" == "true" ]] && [[ "$(argument-present --forced $@)" == "false" ]] ; then
+        output=$(check-push $alias $local $remote --increment)
+        if [[ ! "$output" =~ "true" ]] ; then
+            echo $output
+            return
+        fi
+    fi
+    if [[ "$(argument-present --delete $@)" == "true" ]] ; then
+        delete_str="--delete"
+    else 
+        delete_str=""
+    fi
+    echo "Pushing $local to $remote."
+    if [[ "$alias" != "localhost" ]] ; then
+        if [[ $(argument-present --no-exclude $@) == "false" ]] ; then
+            rsync -azP $delete_str $local/ $alias:$remote --exclude '__pycache__' --exclude '.DS_Store'
+        else
+            a=$(argument-present --no-exclude $@) 
+            rsync -azP $delete_str $local/ $alias:$remote
+        fi
+    else 
+        if [[ $(argument-present --no-exclude $@) == "false" ]] ; then
+            rsync -azP $delete_str $local/ $remote --exclude '__pycache__' --exclude '.DS_Store'
+        else
+            a=$(argument-present --no-exclude $@)
+            rsync -azP $delete_str $local/ $remote
+        fi
+    fi
+}
+
+# pull nas-server storage.
+function pull-storage() {
+    program="pull-storage"
+    if [[ "$(argument-present --help $@)" == "true" ]]  || [[ "$(argument-present -h $@)" == "true" ]] ; then
+        echo """Description: safely pull nas-server storages over ssh.
+Usage: $program sshalias storagename <options> 
+Modes:
+    -h / --help         Show the documentaton.
+Options:
+    --forced            Ignore version control.
+    --delete            Also synchronize the deleted files.
+    --no-exclude        Do not exluce any files.
+Notes:
+    - Pass localhost as alias parameter to sync within the local system.
+    - Define environment variable NAS_SERVER_CLIENT to set a default alias, storagename then becomes number 1 parameter.
+Author: Daan van den Bergh. 
+Copyright: © Daan van den Bergh 2021. All rights reserved."""
+        return
+    fi
+    # by env variable alias.
+    #if [[ "$NAS_SERVER_CLIENT" != "" ]] ; then
+    #    if [[ ! "$2" =~ "--" ]] ; then
+    #        alias=$NAS_SERVER_CLIENT
+    #        storagename=$1
+    #        if [[ "$storagename" == "" ]] ; then
+    #            error "Error: Specify the storage name (#1) parameter: $ $program mystorage" $@ ; return
+    #        fi
+    #    else
+    #        alias=$1
+    #        storagename=$2
+    #        if [[ "$storagename" == "" ]] ; then
+    #            error "Error: Specify the storage name (#2) parameter: $ $program vandenberghinc.com mystorage" $@ ; return
+    #        fi
+    #    fi
+    ## by no env variable alias.
+    #else
+    alias=$1
+    if [[ "$alias" == "" ]] ; then
+        error "Error: Specify the ssh alias (#1) parameter: $ $program vandenberghinc.com mystorage" $@ ; return
+    elif [[ "$alias" != "localhost" ]] ; then
+        if [[ "$(test-ssh $alias)" == "false" ]] ; then
+            return 
+        fi
+    fi
+    for var in "$@" ; do
+        if [[ "$var" != "$alias" ]] && [[ "$var" != "--delete" ]] && [[ "$var" != "--forced" ]] ; then
+            storagename=$var
+            if [[ "$storagename" == "" ]] ; then
+                error "Error: Specify the storage name (#2) parameter: $ $program vandenberghinc.com mystorage" $@ ; return
+            fi
+            #fi
+            # options.
+            if [[ "$(argument-present --delete $@)" == "true" ]] ; then
+                delete="--delete"
+            else 
+                delete=""
+            fi
+            if [[ "$(argument-present --forced $@)" == "true" ]] ; then
+                forced="--forced"
+            else 
+                forced=""
+            fi
+            if [[ "$(argument-present --no-exclude $@)" == "true" ]] ; then
+                no_exclude="--no-exclude"
+            else 
+                no_exclude=""
+            fi
+            # pull.
+            pull $alias /nas-server/storages/$storagename ~/pulls/$storagename --safe $delete $forced $no_exclude
+        fi
+    done
+}
+
+# push nas-server storage.
+function push-storage() {
+    # help.
+    program="push-storage"
+    if [[ "$(argument-present --help $@)" == "true" ]]  || [[ "$(argument-present -h $@)" == "true" ]] ; then
+        echo """Description: safely push nas-server storages over ssh.
+Usage: $program sshalias storagename <options> 
+Modes:
+    -h / --help         Show the documentaton.
+Options:
+    --forced            Ignore version control.
+    --delete            Also synchronize the deleted files.
+    --no-exclude        Do not exluce any files.
+Notes:
+    - Pass localhost as alias parameter to sync within the local system.
+    - Define environment variable NAS_SERVER_CLIENT to set a default alias, storagename then becomes number 1 parameter.
+Author: Daan van den Bergh. 
+Copyright: © Daan van den Bergh 2021. All rights reserved."""
+        return
+    fi
+    # by env variable alias.
+    #if [[ "$NAS_SERVER_CLIENT" != "" ]] ; then
+    #    if [[ ! "$2" =~ "--" ]] ; then
+    #        alias=$NAS_SERVER_CLIENT
+    #        storagename=$1
+    #        if [[ "$storagename" == "" ]] ; then
+    #            error "Error: Specify the storage name (#1) parameter: $ $program mystorage" $@ ; return
+    #        fi
+    #    else
+    #        alias=$1
+    #        storagename=$2
+    #        if [[ "$storagename" == "" ]] ; then
+    #            error "Error: Specify the storage name (#2) parameter: $ $program vandenberghinc.com mystorage" $@ ; return
+    #        fi
+    #    fi
+    ## by no env variable alias.
+    #else
+    alias=$1
+    if [[ "$alias" == "" ]] ; then
+        error "Error: Specify the ssh alias (#1) parameter: $ $program vandenberghinc.com mystorage" $@ ; return
+    elif [[ "$alias" != "localhost" ]] ; then
+        if [[ "$(test-ssh $alias)" == "false" ]] ; then
+            return 
+        fi
+    fi
+    for var in "$@" ; do
+        if [[ "$var" != "$alias" ]] && [[ "$var" != "--delete" ]] && [[ "$var" != "--forced" ]] ; then
+            storagename=$var
+            if [[ "$storagename" == "" ]] ; then
+                error "Error: Specify the storage name (#2) parameter: $ $program vandenberghinc.com mystorage" $@ ; return
+            fi
+            #fi
+            # options.
+            if [[ "$(argument-present --delete $@)" == "true" ]] ; then
+                delete="--delete"
+            else 
+                delete=""
+            fi
+            if [[ "$(argument-present --forced $@)" == "true" ]] ; then
+                forced="--forced"
+            else 
+                forced=""
+            fi
+            if [[ "$(argument-present --no-exclude $@)" == "true" ]] ; then
+                no_exclude="--no-exclude"
+            else 
+                no_exclude=""
+            fi
+            # push.
+            push $alias ~/pulls/$storagename /nas-server/storages/$storagename --safe $delete $forced $no_exclude
+        fi
+    done
+}

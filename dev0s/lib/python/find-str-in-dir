@@ -1,0 +1,93 @@
+#!/usr/bin/env python3
+
+# imports.
+import os,sys
+import syst3m, cl1
+from dev0s import *
+from r3sponse import r3sponse
+
+# cl1.
+class CLI(cl1.CLI):
+	def __init__(self):
+		self.version = "1.0.0"
+		cl1.CLI.__init__(self,
+			modes={
+				"Do not specify a mode to use the default mode":"",
+				"-v / --version":"Print the library version.",
+				"-h / --help":"Show the library documenation.",
+			},
+			options={
+				"--path /path/to/dir":"Specify the path to the directory.",
+				"--string 'Hello World'":"Specify the string.",
+				"--recursive true":"Specify the recursive boolean (default is true).",
+				"-j / --json":"Print the response object in json format.",
+			},
+			alias="replace-str-in-dir",)
+	def start(self):
+
+		# check arguments.
+		self.options["json"] = self.arguments.present(["--json", "-j"])
+		self.arguments.check(json=self.options["json"])
+
+		# help.
+		if self.arguments.present(['-h', '--help']):
+			self.docs(success=True, chapter=None, json=self.options["json"])
+
+		# version.
+		elif self.arguments.present(['-v', '--version']):
+			self.stop(message=f"{self.alias}=={self.version}")
+
+		# default mode.
+		else:
+
+			# replace.
+			path = syst3m.env.fill(self.arguments.get("--path"))
+			string = self.arguments.get("--string")
+			recursive = self.arguments.get("--recursive", required=False, default=True)
+			dir, gfp = Files.Directory(path), FilePath("")
+			if not dir.file_path.exists():
+				self.stop(error=f"Path {path} does not exist.", json=self.options["json"])
+			elif not dir.file_path.directory():
+				self.stop(error=f"Path {path} is not a directory.", json=self.options["json"])
+			c, references = 0, {}
+			for path in dir.paths(recursive=recursive, files_only=True, banned_names=[".DS_Store", ".git"]):
+				data = None
+				try:
+					data = Files.load(path)
+				except:
+					try:
+						data = f"{Files.load(path, format=bytes)}"
+					except: data = None
+				if data != None and string in data: 
+					if not self.options["json"]:
+						print("")
+						print(f"{path}:")
+					lines, linecount = data.split("\n"), 0
+					for _ in lines:
+						if string in lines[linecount]:
+							try: before = lines[linecount-1]
+							except: before = None
+							try: after = lines[linecount+1]
+							except: after = None
+							if not self.options["json"]:
+								if before != None: print(" * "+before)
+								print(" * "+lines[linecount])
+								if after != None: print(" * "+after)
+							references[path] = lines[linecount]
+						linecount += 1
+					c += 1
+			if not self.options["json"] and c > 0: print("")
+			if c > 0:
+				response = r3sponse.success(f"Successfully found {c} reference(s).", {
+					"references":references,
+				})
+			else:
+				response = r3sponse.success(f"Found {c} references.", {
+					"references":references,
+				})
+			self.stop(response=response, json=self.options["json"])
+
+# main.
+if __name__ == "__main__":
+	cli = CLI()
+	cli.start()

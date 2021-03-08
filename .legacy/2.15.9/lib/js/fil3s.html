@@ -1,0 +1,590 @@
+<!-- Use html for django include, template & static compatibility -->
+<script type="text/javascript">
+
+// _____________________________________________________________________________
+//
+// Header
+//
+
+/*
+Notes:
+	* The "args" parameter (dict).
+		The "args" parameter will always be filled with the default is they are included, so they remain optional. When specified it overwrites the default value.
+*/
+
+
+
+// _____________________________________________________________________________
+//
+// Exceptions
+//
+
+function InvalidUsage(message) {
+  const error = new Error(message);
+  return error;
+}
+InvalidUsage.prototype = Object.create(Error.prototype);
+
+// _____________________________________________________________________________
+//
+// Utils
+//
+
+// content size.
+function len(item) {
+	if (typeof item === 'string' || item instanceof String) {
+		return item.length;
+	} else if (typeof item === 'object' || item instanceof Object) {
+		return Object.keys(item).length;
+	} else if (typeof item === 'array' || item instanceof Array) {
+		return item.length;
+	}
+}
+
+// parse int function.
+function int(item) {
+	if (item == "NaN") {
+		return item
+	} else if (item.instance() == 'String') {
+		return parseInt(item)
+	} else if (item.instance(true) == 'Float') {
+		return Math.round(value * 1) / 1	
+	} else if (item.instance(true) == "Integer" || item.instance() == "Number") {
+		return item
+	} else if (item.instance() == 'Boolean') {
+		if (item == true) {
+			return 1
+		} else {
+			return 0
+		}
+	} else if (item.instance() == 'Object') {
+		return Object.keys(item).length;
+	} else if (item.instance() == 'Array') {
+		return item.length;
+	}
+}
+
+// parse float function.
+function float(item) {
+	if (item == "NaN") {
+		return item
+	} else if (item.instance() == 'String') {
+		return parseFloat(item)
+	} else if (item.instance(true) == 'Float') {
+		return value
+	} else if (item.instance(true) == 'Integer' || item.instance() == "Number") {
+		return parseFloat(item)
+	} else if (item.instance() == 'Boolean') {
+		if (item == true) {
+			return 1
+		} else {
+			return 0
+		}
+	} else if (item.instance() == 'Object') {
+		return parseFloat(Object.keys(item).length);
+	} else if (item.instance() == 'Array') {
+		return parseFloat(item.length);
+	}
+}
+
+// parse bool function.
+function bool(item) {
+	if (item == true || item == "True" || item == "true" || item == "TRUE" || item == 1 || item == 1.0) {
+		return true	
+	} else {
+		return false
+	}
+}
+
+// parse none function.
+function none(item) {
+	if (item == null || item == "None" || item == "none" || item == "NONE" || item == "Nan") {
+		return null
+	} else {
+		return item
+	}
+}
+
+// get a timestamp dd-mm-yy
+function timestamp() {
+	let date_ob = new Date()
+	let date = ("0" + date_ob.getDate()).slice(-2)
+	let month = ("0" + (date_ob.getMonth() + 1)).slice(-2)
+	let year = date_ob.getFullYear()
+	return year + "-" + month + "-" + date
+}
+
+// urlencode dictionary.
+function urlencode(data) {
+	return Object.keys(data).map(key => encodeURIComponent(key) + '=' + encodeURIComponent(data[key])).join('&')
+}
+
+// set defaults when undefined & return full parameters.
+function __default_args__(params={}, defaults={}) {
+	Object.entries(defaults).forEach(function([key, default_]) {
+		if (params[key] == null) {
+			params[key] = default_
+		}
+	})
+	return params
+}
+
+
+// _____________________________________________________________________________
+//
+// Boolean object
+//
+
+// parse int.
+Boolean.prototype.int = function() { return int(this) }
+
+// instance detection.
+Boolean.prototype.instance = function() { return "Boolean" }
+
+// _____________________________________________________________________________
+//
+// String object
+//
+
+// content size.
+String.prototype.len = function() { return len(this) }
+
+// parse int.
+String.prototype.int = function() { return int(this) }
+
+// parse float.
+String.prototype.float = function() { return float(this) }
+
+// parse bool.
+String.prototype.bool = function() { return bool(this) }
+
+// string python like format function.
+String.prototype.format = function () {
+	var i = 0, args = arguments;
+	return this.replace(/{}/g, function () {
+		return typeof args[i] != 'undefined' ? args[i++] : '';
+	});
+};
+
+// capitalize the first word (in the scentence).
+String.prototype.capitalize_word = function() {
+	return this.charAt(0).toUpperCase() + this.slice(1)
+}
+
+// capitalize each word in the scentence.
+String.prototype.capitalize_scentence = function() {
+	var items = this.split(" ")
+	scentence = ""
+	items.forEach(function(item) {
+		if (scentence == ""){
+			scentence = String(item).capitalize_word()
+		} else {
+			scentence += " "+String(item).capitalize_word()
+		}
+	})
+	return scentence
+}
+
+// lower & upper.
+String.prototype.lower = function() { return this.lowercase() }
+String.prototype.upper = function() { return this.uppercase() }
+
+// check if first chars of string equals substring.
+//   when count is not Number instance, it automatically will be converted to a count with len(count).
+String.prototype.first = function(count) { 
+	if (count.instance() != "Number") { count = len(count) }
+	count = int(count)
+	return this.substring(0,count)
+}
+
+// check if last chars of string equals substring.
+//   when count is not Number instance, it automatically will be converted to a count with len(count).
+String.prototype.last = function(count) { 
+	if (count.instance() != "Number") { count = len(count) }
+	count = int(count)
+	return this.substring(len(this) - count ,len(this))
+}
+
+// remove the first n characters.
+//   when count is not Number instance, it automatically will be converted to a count with len(count).
+String.prototype.remove_first = function(count) { 
+	if (count.instance() != "Number") { count = len(count) }
+	count = int(count)
+	return this.substring(count, len(this))
+}
+
+// remove the last n characters.
+//   when count is not Number instance, it automatically will be converted to a count with len(count).
+String.prototype.remove_last = function(count) { 
+	if (count.instance() != "Number") { count = len(count) }
+	count = int(count)
+	return this.substring(0, len(this)-count)
+}
+
+// use replace all as default.
+DefaultString = String
+String.prototype.replace_one = function(from_, to_) {
+	return DefaultString(this).replace(from_, to_)
+}
+String.prototype.replace_one = function(from_, to_) {
+	return DefaultString(this).replaceAll(from_, to_)
+}
+
+// instance detection.
+String.prototype.instance = function() { return "String" }
+
+// _____________________________________________________________________________
+//
+// Number object
+//
+
+// content size.
+Number.prototype.len = function() { return len(this) }
+
+// parse int.
+Number.prototype.int = function() { return int(this) }
+
+// parse float.
+Number.prototype.float = function() { return float(this) }
+
+// parse bool.
+Number.prototype.bool = function() { return bool(this) }
+
+// increment & decrement number by count.
+Number.prototype.increment = function(count) { 
+	return this + count
+}
+Number.prototype.decrement = function(count) { 
+	return this - count
+}
+
+// instance detection.
+Number.prototype.instance = function(exact=false) { 
+	if (exact == true) {
+		if (typeof this === 'int') {
+			return "Integer"
+		} else if (typeof this === 'float') {
+			return "Float"
+		}
+	} else {
+		return "Number"
+	}
+}
+
+// _____________________________________________________________________________
+//
+// Array object
+//
+
+// content size.
+Array.prototype.len = function() { return len(this) }
+
+// iterate items.
+Array.prototype.iterate = function(handler) {
+	this.forEach(function(item, index) {
+		handler(item)
+	});
+}
+
+// append.
+Array.prototype.append = function(item) {
+	this.push(item)
+}
+
+// adds an element to the array if it does not already exist using a comparer 
+// function
+Array.prototype.append_if_not_included = function(element) { 
+	if (!this.includes(element)) {
+		this.push(element)
+	}
+}
+
+// clean an array.
+Array.prototype.clean = function(args={
+	// the replacements (dict).
+	"replacements": {},
+	// first characters that should be removed (list).
+	"remove_first": [],
+	// last characters that should be removed (list).
+	"remove_last": [],
+	// first characters that should be added if not already one of them is first (list).
+	"ensure_first": [],
+	// last characters that should be added if not already one of them is first (list).
+	"ensure_last": [],
+	// the values that should be removed (list).
+	"remove_values": [],
+}) { 
+
+	// set default args.
+	args = __default_args__(args, {
+		// the replacements (dict).
+		"replacements": {},
+		// first characters that should be removed (list).
+		"remove_first": [],
+		// last characters that should be removed (list).
+		"remove_last": [],
+		// first characters that should be added if not already one of them is first (list).
+		"ensure_first": [],
+		// last characters that should be added if not already one of them is first (list).
+		"ensure_last": [],
+		// the values that should be removed (list).
+		"remove_values": [],
+	})
+
+	// iterate.
+	array = []
+	this.iterate(function(item, index) {
+		var append = true
+		while (true) {
+			var edited = false
+			var stop = false
+			args.replacements.iterate(function(from_, to_) {
+				if (item.includes(from_) == true) {
+					item = item.replaceAll(from_, to_)
+					edited = true
+				}
+			})
+			args.remove_first.iterate(function(remove) {
+				if (item.first(remove) == remove ) {
+					item = item.remove_first(remove)
+					edited = true
+				}
+			})
+			args.remove_last.iterate(function(remove) {
+				if (item.last(remove) == remove ) {
+					item = item.remove_last(remove)
+					edited = true
+				}
+			})
+			var found = false
+			args.ensure_first.iterate(function(ensure) {
+				if (found == false && len(ensure) > 0 && item.first(ensure) == ensure ) {
+					found = true
+				}
+			})
+			if (found == false && len(args.ensure_first) > 0) {
+				item = args.ensure_first[0] + item
+				edited = true
+			}
+			var found = false
+			args.ensure_last.iterate(function(ensure) {
+				if (found == false && len(ensure) > 0 && item.last(ensure) == ensure ) {
+					found = true
+				}
+			})
+			if (found == false && len(args.ensure_last) > 0) {
+				item = item + args.ensure_last[0]
+				edited = true
+			}
+			var found = false
+			args.remove_values.iterate(function(remove) {
+				if (found == false && remove == item) {
+					append = false
+					stop = true
+					found = true
+				}
+			})
+			if (edited == false || stop == true) {
+				break
+			}
+		}
+		if (append == true) {
+			array.append(item)
+		}
+	})
+	return array
+}
+
+// instance detection.
+Array.prototype.instance = function() { return "Array" }
+
+// _____________________________________________________________________________
+//
+// Object.
+//
+
+// content size.
+Object.prototype.len = function() { return len(this) }
+
+// iterate items.
+Object.prototype.iterate = function(handler) {
+	if (handler == null) {
+		throw new InvalidUsage('Define parameter: [handler].');
+	}
+	Object.entries(this).forEach(function([key, value]) {
+		handler(key, value)
+	});
+}
+
+// iterate keys.
+Object.prototype.keys = function(handler) {
+	Object.entries(this).forEach(function([key, value]) {
+		handler(key)
+	});
+}
+
+// iterate values.
+Object.prototype.values = function(handler) {
+	Object.entries(this).forEach(function([key, value]) {
+		handler(value)
+	});
+}
+
+// clone a dictionary.
+Object.prototype.clone = function() {
+	return JSON.parse(JSON.stringify(this));
+}
+
+// urlencode the object.
+Object.prototype.urlencode = function() { return urlencode(this) }
+
+// instance detection.
+Object.prototype.instance = function() { return "Object" }
+
+
+// _____________________________________________________________________________
+//
+// Response.
+//
+
+// Response object class.
+class __Response__ {
+
+	// init.
+	constructor() {
+		this.parameters = null // should be filled after init.
+	}
+
+	// success response.
+	success(message, args={}) {
+		var response = this.default()
+		response.success = true
+		response.message = message
+		Object.entries(args).forEach(function([key, value]) {
+			response[key] = value
+		});
+		return response
+	}
+
+	// error response.
+	error(error) {
+		var response = this.default()
+		response.error = error
+		return response
+	}
+
+	// default response.
+	default() {
+		return {
+			"success":false,
+			"message":null,
+			"error":null,
+		}
+	}
+
+	// log to console.
+	log(item) {
+		if (typeof item === 'string' || item instanceof String) {
+			console.log(item)
+		} else if (typeof item === 'array' || item instanceof Array) {
+			try {
+				return console.log(JSON.stringify(item));
+			} catch(e) {
+				console.log(item)
+			}
+		} else if (typeof item === 'object' || item instanceof Object) {
+			if (response.success == true || response.success == "True") {
+				console.log(response.message)
+			} else {
+				console.log("Error: "+response.error)
+			}
+		}
+	}
+
+	// dump response to string.
+	dump(response) {
+		try {
+			return JSON.stringify(response)
+		} catch(e) {
+			return response
+		}
+	}
+
+	// serialize response object to js object.
+	serialize(response) {
+		var new_response = {}
+		Object.entries(response).forEach(function([key, value]) {
+			if (typeof value === 'string' || value instanceof String) {
+				if (value == "None" || value == "null") { value = null }
+				else if (value == "False" || value == "false") { value = false }
+				else if (value == "True" || value == "true") { value = true }
+				else {
+					try {
+						if (value.includes(".") || value.includes(",")) {
+							value = parseFloat(value)
+						} else {
+							value = parseInt(value)
+						}
+					} catch(e) {
+						a=1
+					}
+				}
+			}
+			new_response[key] = value
+		});
+		return new_response
+	}
+
+}
+
+// parameters object class.
+class Parameters {
+
+	// init.
+	constructor(Response) {
+		a=1
+	}
+
+	// check if a parameter is defined if not return & return succes / error response.
+	check(params={}, required=true, default_=null) {
+		Object.entries(params).forEach(function([key, value]) {
+			if (value == null && required == true) {
+				return Response.error(`Define parameter: [${key}]`)
+			}
+		})
+		return Response.success("Successfully checked the parameters.")
+	}
+
+	// set defaults when undefined & return full parameters.
+	defaults(params={}, defaults={}) {
+		Object.entries(defaults).forEach(function([key, default_]) {
+			if (params[key] == null) {
+				params[key] = default_
+			}
+		})
+		return params
+	}
+
+	// get url parameters.
+	get(id, format="string") {
+		var url = new URL(window.location.href);
+		var value = url.searchParams.get(id);
+		if (format == Boolean || format.lowercase() == "bool" || format.lowercase() == "boolean") {
+			return bool(value)
+		} else if (format.lowercase() == "int" || format.lowercase() == "integer") {
+			return int(value)
+		} else if (format == Number || format.lowercase() == "float" || format.lowercase() == "number") {
+			return float(value)
+		} else {
+			return value
+		}
+
+	}
+
+}
+
+// initialize classes.
+const Response = new __Response__();
+Response
+
+</script>
