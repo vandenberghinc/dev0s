@@ -5,6 +5,14 @@
 import os, sys, requests, ast, json, pathlib, platform, random, shutil, zipfile, pwd, grp, subprocess, time, threading, sysconfig
 from datetime import datetime
 
+# settings.
+ALIAS = "dev0s"
+
+# update.
+if "--update" in sys.argv and ALIAS in sys.argv[0]:
+	os.system(f"curl -s https://raw.githubusercontent.com/vandenberghinc/{ALIAS}/master/requirements/installer.remote | bash ")
+	sys.exit(0)
+
 # functions.
 def __get_operating_system__():
 	os = platform.system().lower()
@@ -52,9 +60,7 @@ def __load_file__(path, data="not to be used", format="str"): # keep data as sec
         else: raise ValueError(f"Unknown format {format}.")
 
 # source.
-ALIAS = "dev0s"
-SOURCE_NAME = "dev0s"
-SOURCE_PATH, BASE = __get_source_path__(SOURCE_NAME, index=1)
+SOURCE_PATH, BASE = __get_source_path__(ALIAS, index=1)
 OS = __get_operating_system__()
 
 # file settings.
@@ -69,5 +75,3 @@ if OS in ["macos"]:
 ERROR_TRACEBACK = os.environ.get("R3SPONSE_ERROR_TRACEBACK")
 if str(ERROR_TRACEBACK) in ["True", "true", True]: ERROR_TRACEBACK = True
 else: ERROR_TRACEBACK = False
-
-
