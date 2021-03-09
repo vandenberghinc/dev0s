@@ -881,7 +881,7 @@ class Code():
 			# banned sub paths.
 			banned=[],
 			# banned names.
-			banned_names=["__main__.py", "utils.py", ".version.py"],
+			banned_names=["__main__.py", "utils.py", ".version"],
 			# banned basenames.
 			banned_basenames=["utils", "__pycache__", ".legacy"],
 			# banned class types.
@@ -1152,7 +1152,7 @@ class Code():
 			# banned sub paths.
 			banned=[],
 			# banned names.
-			banned_names=["__main__.py", "utils.py", ".version.py"],
+			banned_names=["__main__.py", "utils.py", ".version"],
 			# banned basenames.
 			banned_basenames=["utils", "__pycache__", ".legacy"],
 			# banned class types.

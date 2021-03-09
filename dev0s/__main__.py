@@ -100,7 +100,7 @@ class CLI_(CLI.CLI):
 
 		# version.
 		elif self.arguments.present(['--version']):
-			print(f"{ALIAS} version:",Files.load(f"{SOURCE_PATH}/.version.py").replace("\n",""))
+			print(f"{ALIAS} version:",Files.load(f"{SOURCE_PATH}/.version").replace("\n",""))
 
 		# install.
 		elif self.arguments.present('--install'):
