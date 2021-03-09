@@ -116,7 +116,11 @@ function timestamp() {
 
 // urlencode dictionary.
 function urlencode(data) {
-	return Object.keys(data).map(key => encodeURIComponent(key) + '=' + encodeURIComponent(data[key])).join('&')
+	var str = [];
+	for(var p in data)
+		str.push(encodeURIComponent(p) + "=" + encodeURIComponent(data[p]));
+	return str.join("&");
+	//return Object.keys(data).map(key => encodeURIComponent(key) + '=' + encodeURIComponent(data[key])).join('&')
 }
 
 // set defaults when undefined & return full parameters.
@@ -338,7 +342,7 @@ Array.prototype.clean = function(args={
 		while (true) {
 			var edited = false
 			var stop = false
-			args.replacements.iterate(function(from_, to_) {
+			Object(args.replacements).forEach(function([from_, to_]) {
 				if (item.includes(from_) == true) {
 					item = item.replaceAll(from_, to_)
 					edited = true
@@ -403,37 +407,48 @@ Array.prototype.instance = function() { return "Array" }
 // Object.
 //
 
+
+
 // content size.
 Object.prototype.len = function() { return len(this) }
 
+/*
+
+// This commented section seems to throw an awfull lots of errors
+
 // iterate items.
 Object.prototype.iterate = function(handler) {
-	if (handler == null) {
-		throw new InvalidUsage('Define parameter: [handler].');
+	if (handler != null) {
+		Object.entries(this).forEach(function([key, value]) {
+			handler(key, value)
+		});
 	}
-	Object.entries(this).forEach(function([key, value]) {
-		handler(key, value)
-	});
 }
 
 // iterate keys.
-Object.prototype.keys = function(handler) {
-	Object.entries(this).forEach(function([key, value]) {
-		handler(key)
-	});
+Object.prototype.iterate_keys = function(handler) {
+	if (handler != null) {
+		Object.entries(this).forEach(function([key, value]) {
+			handler(key)
+		});
+	}
 }
 
 // iterate values.
-Object.prototype.values = function(handler) {
-	Object.entries(this).forEach(function([key, value]) {
-		handler(value)
-	});
+Object.prototype.iterate_values = function(handler) {
+	if (handler != null) {
+		Object.entries(this).forEach(function([key, value]) {
+			handler(value)
+		});
+	}
 }
 
 // clone a dictionary.
 Object.prototype.clone = function() {
 	return JSON.parse(JSON.stringify(this));
 }
+
+*/
 
 // urlencode the object.
 Object.prototype.urlencode = function() { return urlencode(this) }
@@ -515,18 +530,20 @@ class __Response__ {
 		var new_response = {}
 		Object.entries(response).forEach(function([key, value]) {
 			if (typeof value === 'string' || value instanceof String) {
-				if (value == "None" || value == "null") { value = null }
-				else if (value == "False" || value == "false") { value = false }
-				else if (value == "True" || value == "true") { value = true }
+				if (value == "None" || value == "null" || value == "Nan" || value == "NaN" || value == "NONE" || value == "none") { value = null }
+				else if (value == "False" || value == "false" || value == "FALSE") { value = false }
+				else if (value == "True" || value == "true" || value == "TRUE") { value = true }
 				else {
-					try {
-						if (value.includes(".") || value.includes(",")) {
-							value = parseFloat(value)
+					var first = value.first(0)
+					if (first == "0" || first == "1" || first == "2" || first == "3" || first == "4" || first == "5" || first == "6" || first == "7" || first == "8" || first == "9" ) {
+						if (value.includes(".") == true) {
+							var l = parseFloat(value)
 						} else {
-							value = parseInt(value)
+							var l = parseInt(value)
 						}
-					} catch(e) {
-						a=1
+						if (l) {
+							value = l
+						}
 					}
 				}
 			}
