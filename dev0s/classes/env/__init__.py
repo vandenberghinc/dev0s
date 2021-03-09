@@ -18,6 +18,7 @@ class __Environment__(Docs):
 			notes=[], )
 
 		#
+	
 	# fill with variables.
 	def fill(self, string):
 		c = 0
@@ -34,6 +35,7 @@ class __Environment__(Docs):
 			string = string.replace(f"${variable_id}", variable)
 		string = string.replace("~",HOME)
 		return string
+	
 	# import env.
 	def import_(self, env=None):
 		if env == None: return Response.error("Define parameter: env.")
@@ -54,6 +56,7 @@ class __Environment__(Docs):
 			os.environ[str(key)] = str(value)
 		return Response.success(f"Successfully imported {len(dictionary)} env variables.")
 		#
+	
 	# export env.
 	def export(self, env=None, export=None):
 		if env == None: return Response.error("Define parameter: env.")
@@ -73,6 +76,7 @@ class __Environment__(Docs):
 			Files.save(export, exported, format="json")
 		return Response.success(f"Successfully exported {len(dictionary)} env variables.")
 		#
+	
 	# get.
 	def get(self, id, default=None, format="str"):
 		if format in [str, "str", "string"]:
@@ -142,6 +146,7 @@ class __Environment__(Docs):
 					d[self.__remove_whitespace__(key)] = self.__remove_whitespace__(value)
 				except: a=1
 			return tuple(a)
+	
 	# set.
 	def set(self, id, value, format="unknown"):
 		if format == "unknown": format = Formats.get(value, serialize=True)
@@ -177,6 +182,26 @@ class __Environment__(Docs):
 				self.set_dictionary(key, value, subkey=lkey)
 			else: 
 				self.set(lkey, value, format="unknown")
+
+	# support item assignment.
+	def __getitem__(self, key):
+		value = self.get(id)
+		if value in ["None", "none"]: value = None
+		elif value in ["True", "true", "TRUE"]: value = True
+		elif value in ["False", "false", "FALSE"]: value = False
+		else:
+			if "." in str(key):
+				try: value = float(value)
+				except: a=1
+			else:
+				try: value = int(value)
+				except: a=1
+		return value
+	def __setitem__(self, key, value):
+		self.set(key, str(value), format="str")
+	def __delitem__(self, key):
+		self.set(key, "")
+
 	# system functions.
 	def __remove_whitespace__(self, string):
 		if isinstance(string, str):
@@ -187,6 +212,8 @@ class __Environment__(Docs):
 					string = string[:-1]
 				else: break
 		return string
+
+	#
 	
 # initialized classes.
 Environment = __Environment__()
