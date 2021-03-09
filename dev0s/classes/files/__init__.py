@@ -2124,7 +2124,7 @@ class Files():
 					__loader__.stop(success=False)
 					raise KeyboardInterrupt(e)
 				return Files.save(
-					path, data
+					path, data,
 					format=format,
 					sudo=sudo,
 					indent=indent,
