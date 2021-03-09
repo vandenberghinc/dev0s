@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # imports.
-from dev0s.classes.config import *
+from dev0s.classes.files import *
 
 # the installation object class.
 class Installation(object):
