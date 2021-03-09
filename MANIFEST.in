@@ -1,3 +1,4 @@
 include dev0s/.version.py
-include dev0s/js/*.html
-include dev0s/js/*.js
+include dev0s/lib/python/*
+include dev0s/lib/bash/*
+include dev0s/lib/js/*

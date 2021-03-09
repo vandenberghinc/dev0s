@@ -4,6 +4,7 @@
 # imports.
 from dev0s.classes.exceptions import Exceptions
 from dev0s.classes.files import *
+from dev0s.classes.utils.copycats import Docs
 
 # pip imports.
 from django.http import JsonResponse
@@ -11,8 +12,14 @@ import json as pypi_json
 import traceback as _traceback_
 
 # the response manager class.
-class __Response__(object):
+class __Response__(Docs):
 	def __init__(self):	
+
+		# docs.
+		Docs.__init__(self,
+			initialized=True,
+			module="Response", 
+			notes=[], )
 
 		# set log file.
 		#	assign new values with self.log_file.assign(...) to keep it shared across other objects.

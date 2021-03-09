@@ -8,9 +8,9 @@ fi
 
 # import.
 if [[ "$OSTYPE" == "darwin"* ]] ; then
-    source $lib/import
+    source $lib/bash/import --lib $lib
 else
-    . $lib/import
+    . $lib/bash/import --lib $lib
 fi
 
 # colors.

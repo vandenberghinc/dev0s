@@ -10,10 +10,10 @@ class Installation(object):
 
 		if OS in ["macos"]: 
 			self.bashrc = File(path=f"/Users/{USER}/.zshrc", load=True)
-			self.link = f"source {SOURCE_PATH}/lib/import\nsource {SOURCE_PATH}/lib/env"
+			self.link = f"source {SOURCE_PATH}/lib/bash/import\nsource {SOURCE_PATH}/lib/bash/env"
 		else: 
 			self.bashrc = File(path=f"/home/{USER}/.bashrc", load=True)
-			self.link = f". {SOURCE_PATH}/lib/import\n. {SOURCE_PATH}/lib/env"
+			self.link = f". {SOURCE_PATH}/lib/bash/import\n. {SOURCE_PATH}/lib/bash/env"
 		#
 	def link(self):
 		self.bashrc.load()

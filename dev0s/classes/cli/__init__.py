@@ -5,6 +5,7 @@
 from dev0s.classes.files import *
 from dev0s.classes.exceptions import *
 from dev0s.classes import utils
+from dev0s.classes.response import Response
 import datetime 
 
 # argument functions.
@@ -361,7 +362,11 @@ class CLI(object):
 	# the arguments object class.
 	class Arguments(object):
 		def __init__(self, attributes={}):
+
+			#
 			self.assign(attributes)
+
+			#
 		def iterate(self):
 			return sys.argv
 		def present(self, argument, default=False, count=1):

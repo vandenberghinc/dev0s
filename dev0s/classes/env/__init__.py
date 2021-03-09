@@ -3,11 +3,19 @@
 
 # imports.
 from dev0s.classes.config import *
+from dev0s.classes.color import color, symbol
+from dev0s.classes.utils.copycats import Docs
 
 # the env object class.
-class __Environment__(object):
+class __Environment__(Docs):
 	def __init__(self):
-		a=1
+		
+		# docs.
+		Docs.__init__(self,
+			initialized=True,
+			module="Environment", 
+			notes=[], )
+
 		#
 	# fill with variables.
 	def fill(self, string):

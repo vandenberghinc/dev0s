@@ -3,11 +3,11 @@
 # Import the dev0s library.
 # Usage:
 #   import from local.
-#     $ bash /usr/local/lib/dev0s/lib/import
+#     $ bash /usr/local/lib/dev0s/lib/bash/import
 #   import remotely.
-#     $ curl -s https://raw.githubusercontent.com/vandenberghinc/dev0s/master/lib/import | bash 
+#     $ curl -s https://raw.githubusercontent.com/vandenberghinc/dev0s/master/lib/bash/import | bash 
 #   import from .zshrc / .bashrc with an environment.
-#     $ bash /usr/local/lib/dev0s/lib/import --env
+#     $ bash /usr/local/lib/dev0s/lib/bash/import --env
 #
 
 # utils.
@@ -91,14 +91,14 @@ fi
 # import utils.
 export DEVOS_LIB=$lib
 if [[ "$OSTYPE" == "darwin"* ]] ; then
-    source $lib/bash/utils
+    source $lib/bash/utils --lib $DEVOS_LIB
 else
-    . $lib/bash/utils
+    . $lib/bash/utils --lib $DEVOS_LIB
 fi
 
 # imports lib.
-import-bash $lib/bash/pull_push
-import-bash $lib/bash/packages
+import-bash $lib/bash/pull_push --lib $DEVOS_LIB
+import-bash $lib/bash/packages --lib $DEVOS_LIB
 
 # test imports.
 if ! command -v "argument-present" &> /dev/null ; then

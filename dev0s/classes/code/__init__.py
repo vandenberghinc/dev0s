@@ -6,16 +6,19 @@ from dev0s.classes.exceptions import Exceptions
 from dev0s.classes.console import Console
 from dev0s.classes.files import *
 from dev0s.classes.defaults import Defaults
-from dev0s.classes.code import execute
+from dev0s.classes.code import execute, docs
 
 
 # the code classes.
 class Code():
 
-	# include execute functions & classes.
+	# include "execute" functions & classes.
 	Spawn = execute.Spawn
 	OutputObject = execute.OutputObject
 	execute = execute.execute
+
+	# include "docs" classes.
+	Docs = docs.Docs
 
 	#
 
@@ -405,7 +408,9 @@ class Code():
 				default=default,
 			)
 			self.executable = executable
-		
+			
+			#
+
 		# execute.
 		def execute(self, 
 			# the script executable (leave None to use defult self.executable) (#1).
@@ -745,6 +750,7 @@ class Code():
 				elif "):        \n" in data: data = data.replace("):        \n","):\n")
 				#elif "\n " in data: data = data.replace("\n ", "\n")
 				elif " \n" in data: data = data.replace(" \n", "\n")
+				elif "	\n" in data: data = data.replace("	\n", "\n")
 				else: break
 			
 			# slice with all indent (less dependable).
@@ -906,44 +912,63 @@ class Code():
 				unique_name = str(info["raw_name"])
 				info['raw_name'] = info['raw_name'].split("-")[0]
 				initialized_name = String(info["raw_name"]).variable_format()
-				"""
+				old_init_name = initialized_name
+				#class_holder_class = True
+				#if len(initialized_name) >= 2 and String(initialized_name).first("__") == "__":
+				#	initialized_name = String(initialized_name).remove_first("__")
+				#else: class_holder_class = False
+				#if len(initialized_name) >= 2 and String(initialized_name).last("__") == "__":
+				#	initialized_name = String(initialized_name).remove_last("__")
+				#else: class_holder_class = False
+				#if class_holder_class:
+				#	initialized_name = String(initialized_name).capitalized_word()
+				""" """
 				# fill traceback name.
-				# depricated due to module param & detection.
+				initialized, module, notes = None, None, None
 				if len(info["functions"]) > 0:
 					for func in info["functions"]:
 						if "__init__" in func["name"]:
 							set = False
 							for test in [
-								"Traceback",
-								"Object",
-								"Thread",
+								"Docs",
 							]:
 								if f"{test}.__init__(" in func["code"]:
 									params = clean_params(func["code"].split(f"{test}.__init__(")[1].split(")")[0])
-									if "raw_traceback=" in params:
-										raw_traceback = params.split("raw_traceback=")[1].split(",")[0].replace("'",'').replace('"','')
-										if "traceback=" in params: # check if traceback is ClassFormat
-											traceback = params.split("traceback=")[1].split(",")[0].replace("'",'').replace('"','')
-											if traceback.lower() != traceback:
-												info["name"] = traceback
-											else:
-												info["name"] = raw_traceback
-										else:
-											info["name"] = raw_traceback
+									if "initialized=" in params:
+										initialized = params.split("initialized=")[1].split(",")[0].replace("'",'').replace('"','')
 										set = True
-										break
-									elif "traceback=" in params:
-										info["name"] = params.split("traceback=")[1].split(",")[0].replace("'",'').replace('"','')
+									if "module=" in params:
+										module = params.split("module=")[1].split(",")[0].replace("'",'').replace('"','')
 										set = True
-										break
+									if "notes=" in params:
+										try:
+											notes = ast.literal_eval(String(params.split("notes=")[1]).slice_array(depth=1))
+										except:
+											notes = None
+										set = True
+								if set: break
 							if set: break
-				"""
+					if [initialized, module, notes] != [None, None, None]:
+						initialized_name = module
 				parameters = clean_params(info["parameters"]).replace("self.", initialized_name+".")
-				doc = (
-					"\n\n# initialize the " + str(initialized_name) + " object class." + "\n" +
-					#"#" + "\n" +
-					str(initialized_name)+" = " + info["name"] + str(parameters) + "\n" +
-					"")
+				if initialized:
+					doc = (
+						"\n\n# import the " + str(initialized_name) + " object class." + "\n" +
+						"")
+					if notes != None:
+						for i in notes: doc += f"{i}\n"
+					doc += (
+						f"from {package} import " + module + "\n" +
+						"")
+				else:
+					doc = (
+						"\n\n# initialize the " + str(initialized_name) + " object class." + "\n" +
+						"")
+					if notes != None:
+						for i in notes: doc += f"{i}\n"
+					doc += (
+						str(initialized_name)+" = " + info["name"] + str(parameters) + "\n" +
+						"")
 				if readme:
 					doc = (
 						f"## {info['raw_name']}:" + "\n" +
@@ -956,6 +981,9 @@ class Code():
 				c = 0
 				for i in info["functions"]:
 					if "__init__" not in i["name"]:
+						if module != None:
+							i["name"] = i["name"].replace(f"{old_init_name}.", f"{module}.")
+							i["raw_name"] = i["raw_name"].replace(f"{old_init_name}.", f"{module}.")
 						i["parameters"] = clean_params(i["parameters"]).replace("self.", initialized_name+".") # just for the self / initialized_name replacement.
 						if i["type"] == "property":
 							properties.append(i)
@@ -1276,6 +1304,7 @@ class Code():
 
 			# handler.
 			return _readme_
+			#
 
 		#
 		# object instance.
@@ -1284,7 +1313,10 @@ class Code():
 		@property
 		def __name__(self):
 			return self.instance()
+			
 			#
+
+		#
 		# support self assignment.
 		def assign(self, string):
 			if isinstance(data, (int, float)):
@@ -1297,6 +1329,10 @@ class Code():
 				raise Exceptions.FormatError(f"Can not assign object {self.__class__} & {data.__class__}.")
 			self.data = str(data)
 			return self
+			
+			#
+
 		#
 	
+
 	#

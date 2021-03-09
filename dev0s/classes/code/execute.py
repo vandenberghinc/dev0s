@@ -515,7 +515,7 @@ class OutputObject(ResponseObject):
 # execute.
 def execute(
 	# Notes:
-	#   returns a syst3m.console.OutputObject object (very similair to ResponseObject).
+	#   returns a dev0s.Code.OutputObject object (very similair to ResponseObject).
 	#
 	# Mode:
 	#   option 1:

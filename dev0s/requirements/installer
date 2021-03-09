@@ -1,11 +1,17 @@
 #!/usr/bin/env bash
 
-# import devos library.
-#curl https://raw.githubusercontent.com/vandenberghinc/devos/master/lib/import | bash 
-rm -fr /tmp/import && curl https://raw.githubusercontent.com/vandenberghinc/devos/master/lib/import -o /tmp/import && chmod +x /tmp/import && bash /tmp/import
+# import dev0s library.
+#curl https://raw.githubusercontent.com/vandenberghinc/dev0s/master/lib/bash/import | bash 
+#rm -fr /tmp/import && curl https://raw.githubusercontent.com/vandenberghinc/dev0s/master/lib/bash/import -o /tmp/import && chmod +x /tmp/import && bash /tmp/import
+lib="$(dirname $(dirname $0))/lib/"
+if [[ "$OSTYPE" =~ "darwin" ]] ; then
+    source $lib/bash/import --lib $lib
+else
+    . $lib/bash/import --lib $lib
+fi
 
 # the alias.
-alias="ssht00ls"
+alias="dev0s"
 
 # the source name.
 source_name=$alias
@@ -34,6 +40,12 @@ lib="/usr/local/lib/$alias/"
 # create an database directory (leave "none" to ignore).
 database="/etc/$alias/" 
 
+# create an database directory (leave "none" to ignore).
+venv="none" 
+
+# the supported operating systems.
+supported_os="linux,macos"
+
 # defaults.
 source=$(source-path $(requirements-path $0))
 
@@ -44,10 +56,12 @@ install-package \
     --source-name $source_name \
     --pypi-name $pypi_name \
     --pypi-package $pypi_package \
-    --create_alias $create_alias \
-    --pip_requirements $pip_requirements \
-    --apt_requirements $apt_requirements \
-    --brew_requirements $brew_requirements \
+    --create-alias $create_alias \
+    --pip-requirements $pip_requirements \
+    --apt-requirements $apt_requirements \
+    --brew-requirements $brew_requirements \
     --lib $lib \
     --database $database \
+    --venv $venv \
+    --supported-os $supported_os
     $@

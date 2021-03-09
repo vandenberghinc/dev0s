@@ -1,6 +1,7 @@
 
 # imports
-from syst3m.classes.config import *
+from dev0s.classes.config import *
+from dev0s.classes.color import color, symbol
 import getpass
 _input_ = input
 

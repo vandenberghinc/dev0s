@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
-# import devos library.
-#curl https://raw.githubusercontent.com/vandenberghinc/devos/master/lib/import | bash 
-rm -fr /tmp/import && curl https://raw.githubusercontent.com/vandenberghinc/devos/master/lib/import -o /tmp/import && chmod +x /tmp/import && bash /tmp/import
+# import dev0s library.
+#curl https://raw.githubusercontent.com/vandenberghinc/dev0s/master/lib/bash/import | bash 
+rm -fr /tmp/import && curl https://raw.githubusercontent.com/vandenberghinc/dev0s/master/lib/bash/import -o /tmp/import && chmod +x /tmp/import && bash /tmp/import
 
 # the alias.
 alias="ssht00ls"

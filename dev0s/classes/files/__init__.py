@@ -923,7 +923,7 @@ class Formats():
 					s += "_"
 				s += i.lower()
 				c += 1
-			if s in list(Exceptions.keys()):
+			if s in list(exceptions.keys()):
 				return exceptions[s]
 			else:
 				return s
@@ -1200,13 +1200,13 @@ class Formats():
 		
 		# get the first / last n characters of the string.
 		def first(self, count):
-			if isinstance(count, (int, float, Float, Integer)):
+			if isinstance(count, (int, float, Integer)):
 				count = int(count)
 			else:
 				count = len(count)
 			return self.string[:count]
 		def last(self, count):
-			if isinstance(count, (int, float, Float, Integer)):
+			if isinstance(count, (int, float, Integer)):
 				count = int(count)
 			else:
 				count = len(count)
@@ -1215,7 +1215,7 @@ class Formats():
 		
 		# remove first / last n characters of the string.
 		def remove_first(self, count):
-			if isinstance(count, (int, float, Float, Integer)):
+			if isinstance(count, (int, float, Integer)):
 				count = int(count)
 			else:
 				count = len(count)
@@ -1223,7 +1223,7 @@ class Formats():
 			self.string = self.string[:count]
 			return removed
 		def remove_last(self, count):
-			if isinstance(count, (int, float, Float, Integer)):
+			if isinstance(count, (int, float, Integer)):
 				count = int(count)
 			else:
 				count = len(count)
@@ -2780,7 +2780,9 @@ class Files():
 			#   Optionals:
 			dictionary=None, # overwrite the start dictionary, leave None to use self.dictionary.
 			save=False, # saves the output & and sets the output to self.dictionary.
-		):  
+		):
+
+			# functions.
 			def __iterate_dict__(dictionary, default):
 				#print("\niterating new dictionary: [{}] & default [{}]\n".format(dictionary, default))
 				for identifier, item in default.items():
