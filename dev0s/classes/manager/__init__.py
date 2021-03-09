@@ -33,7 +33,7 @@ class Manager(object):
 				if not installed.file_path.exists(): install = True
 				elif installed.load() != current.load(): install = True
 				if install: 
-					loader = syst3m.console.Loader(f"Installing library {installed.file_path.name()}")
+					loader = Console.Loader(f"Installing library {installed.file_path.name()}")
 					os.system(f"sudo rm -fr {installed.file_path.path} && sudo cp -r {current.file_path.path} {installed.file_path.path} && sudo chmod +x {installed.file_path.path} && sudo chown {OWNER}:{GROUP} {installed.file_path.path}")
 					if not installed.file_path.exists(): loader.stop(success=False)
 					else: loader.stop()

@@ -1,5 +1,6 @@
 
 # pip requirements.
+wheel
 django
 requests
 pathlib

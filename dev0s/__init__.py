@@ -14,6 +14,7 @@
 
 # imports .
 from dev0s.classes import exceptions
+from dev0s.classes import utils
 from dev0s.classes import color
 from dev0s.classes import console
 from dev0s.classes import env

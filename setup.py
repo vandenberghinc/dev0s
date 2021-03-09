@@ -7,7 +7,7 @@
 from setuptools import setup, find_packages
 setup(
 	name='dev0s',
-	version='2.17.3',
+	version='2.17.6',
 	description='Some description.',
 	url='http://github.com/vandenberghinc/dev0s',
 	author='Daan van den Bergh',
@@ -17,6 +17,7 @@ setup(
 	zip_safe=False,
 	include_package_data=True,
 	install_requires=[
+            'wheel',
             'django',
             'requests',
             'pathlib',

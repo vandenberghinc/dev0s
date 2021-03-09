@@ -35,12 +35,6 @@ class Installation(object):
 	def install(self):
 		os.system("rm -fr /tmp/dev0s && git clone -q https://github.com/vandenberghinc/dev0s.git /tmp/dev0s && bash /tmp/dev0s/requirements/installer")
 		return Response.success(f"Successfully installed {ALIAS}.")
-		#output = syst3m.utils.__execute_script__("rm -fr /tmp/dev0s && git clone -q https://github.com/vandenberghinc/dev0s.git /tmp/dev0s && bash /tmp/dev0s/requirements/installer")
-		#if "Successfully installed" in output:
-		#	return Response.success(f"Successfully installed {ALIAS}.")
-		#else:
-		#	print(output)
-		#	return Response.error(f"Failed to install {ALIAS}.")
 	def uninstall(self):
 		print(f"{color.orange}Root permissions{color.end} required to uninstall DevOS.")
 		os.system(f"sudo rm -fr /usr/local/lib/{ALIAS}")

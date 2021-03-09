@@ -230,7 +230,7 @@ class __Response__(Docs):
 		elif response.__class__.__name__ in ["ResponseObject"]:
 			return response
 		
-		# check syst3m.console.Output.
+		# check Console.Output.
 		elif response.__class__.__name__ in ["Output"]:
 			try:
 				return response.response()
@@ -804,7 +804,7 @@ class ResponseObject(object):
 	# return raw data.
 	def raw(self):
 		return self.dict()
-	# return response self for syst3m.console.Output and other objects that init ResponseObject as self and want it to be converted to response.
+	# return response self for Console.Output and other objects that init ResponseObject as self and want it to be converted to response.
 	def response(self):
 		return self
 		#

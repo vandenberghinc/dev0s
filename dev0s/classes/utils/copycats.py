@@ -4,7 +4,7 @@
 # imports.
 from dev0s.classes.config import *
 
-# the syst3m.console.* functions (exact copy).
+# the Console.* functions (exact copy).
 def argument_present(arguments, default=False, count=1):
 	if isinstance(arguments, str):
 		c = sys.argv.count(arguments)
