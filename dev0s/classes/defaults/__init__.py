@@ -134,7 +134,7 @@ class __Defaults__(Docs):
 		return FilePath(utils.__execute_script__("pwd").replace("\n","")).clean()
 
 	# insert package libraries.
-	def insert(path):
+	def insert(self, path):
 		path = gfp.clean(path).replace(".","/")
 		return sys.path.insert(1, path)
 
@@ -162,7 +162,7 @@ class __Defaults__(Docs):
 			msg = f"Installing {len(requirements)} pip requirement(s)."
 			requirements = Array(requirements).string(joiner=" ")
 		if log_level >= 0: print(msg)
-		os.system(f"{Defaults.vars.executable} -m pip install {options}{requirements} {Boolean(silent).string(true='2> /dev/null', false='')}")
+		os.system(f"{Defaults.vars.executable} -m pip install {options}{requirements} {Boolean(silent).string(true='2> /dev/null', false='')} --user {self.vars.user}")
 
 # initialized classes.
 Defaults = __Defaults__()
