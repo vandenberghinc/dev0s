@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
 rm -fr /tmp/dev0s && \
 git clone https://github.com/vandenberghinc/dev0s.git /tmp/dev0s --quiet && \
-/tmp/dev0s/dev0s/requirements/installer
+/tmp/dev0s/dev0s/requirements/installer && \
+rm -fr /tmp/dev0s
