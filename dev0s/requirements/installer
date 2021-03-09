@@ -2,7 +2,6 @@
 
 # import dev0s library.
 #curl https://raw.githubusercontent.com/vandenberghinc/dev0s/master/dev0s/lib/bash/import | bash 
-#rm -fr /tmp/import && curl https://raw.githubusercontent.com/vandenberghinc/dev0s/master/dev0s/lib/bash/import -o /tmp/import && chmod +x /tmp/import && bash /tmp/import
 lib="$(dirname $(dirname $0))/lib/"
 if [[ "$OSTYPE" =~ "darwin" ]] ; then
     source $lib/bash/import --lib $lib

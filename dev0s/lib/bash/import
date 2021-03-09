@@ -11,56 +11,73 @@
 #
 
 # utils.
-
-    # clean path (differs from utils).
-    function clean-path() {
-        lib=$1
-        lib=${lib/\/\///} ; lib=${lib/\/\///} ; lib=${lib/\/\///} ; lib=${lib/\/\///} ; lib=${lib/\/\///}
-        if [[ "${lib:$i:1}" == "/" ]] ; then
-            lib=${lib%?}
+function replace-str() {
+    string=$1
+    if [[ "$string" == "" ]] ; then
+        error "Error: Specify the string (#1) parameter: $ replace-str 'hello wold' 'worl' 'world' " $@ ; return
+    fi
+    from=$2
+    if [[ "$from" == "" ]] ; then
+        error "Error: Specify the from (#2) parameter: $ replace-str 'hello wold' 'worl' 'world' " $@ ; return
+    fi
+    to=$3
+    if [[ "$to" == "" ]] && [[ $(argument-present --except $@) == "false" ]] ; then
+        error "Error: Specify the to (#3) parameter: $ replace-str 'hello wold' 'worl' 'world' " $@ ; return
+    fi
+    new=${string/$from/$to}
+    echo $new
+}
+function clean-path() {
+    program="clean-path"
+    localpath=$1
+    if [[ "$localpath" == "" ]] || [[ "$localpath" == "none" ]] ; then
+        error "Error: specify the path (#1) parameter: $ $program /some//path/" $@ ; return
+    fi
+    localpath=${localpath/\/\///} ; localpath=${localpath/\/\///} ; localpath=${localpath/\/\///} ; localpath=${localpath/\/\///} ; localpath=${localpath/\/\///}
+    while true; do 
+        if [[ "$localpath" == *"//"* ]] ; then
+            localpath=$(replace-str "$localpath" "//" "/" )
+        else
+            break
         fi
-        echo $lib
-    }
-
-    # check if argument is present optionally with safe default.
-    function argument-present() {
-        c=0
-        #default=$(get-argument --default $@)
-        success=$default
-        for var in "$@"
-        do
-            if (( c > 0 )) ; then
-                if [[ "$var" == "$1" ]] ; then
-                    success="true"
-                    break
-                fi
+    done
+    localpath=$(replace-str "$localpath" "//" "/" )
+    echo $localpath
+}
+function argument-present() {
+    c=0
+    #default=$(get-argument --default $@)
+    success=$default
+    for var in "$@"
+    do
+        if (( c > 0 )) ; then
+            if [[ "$var" == "$1" ]] ; then
+                success="true"
+                break
             fi
-            ((c=c+1))
-        done
-        echo $success
-    }
-
-    # get the argument after the specified argument.
-    function get-argument() {
-        c=0
-        success="false"
-        value="none"
-        for var in "$@"
-        do
-            if (( c > 0 )) ; then
-                if [[ "$var" == "$1" ]] ; then
-                    success="true"
-                elif [[ "$success" == "true" ]] ; then
-                    value=$var
-                    break
-                fi
+        fi
+        ((c=c+1))
+    done
+    echo $success
+}
+function get-argument() {
+    c=0
+    success="false"
+    value="none"
+    for var in "$@"
+    do
+        if (( c > 0 )) ; then
+            if [[ "$var" == "$1" ]] ; then
+                success="true"
+            elif [[ "$success" == "true" ]] ; then
+                value=$var
+                break
             fi
-            ((c=c+1))
-        done
-        echo $value
-    }
-
-    #
+        fi
+        ((c=c+1))
+    done
+    echo $value
+}
 
 # error exit.
 error_exit="true"
