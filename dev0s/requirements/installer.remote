@@ -2,7 +2,7 @@
 
 # import dev0s library.
 #curl https://raw.githubusercontent.com/vandenberghinc/dev0s/master/dev0s/lib/bash/import | bash 
-rm -fr /tmp/dev0s && git clone https://raw.githubusercontent.com/vandenberghinc/dev0s/ /tmp/dev0s --quiet && /tmp/dev0s/dev0s/lib/bash/import --lib /tmp/dev0s/dev0s/lib/
+rm -fr /tmp/dev0s && git clone https://github.com/vandenberghinc/dev0s.git /tmp/dev0s --quiet && /tmp/dev0s/dev0s/lib/bash/import --lib /tmp/dev0s/dev0s/lib/
 
 # the alias.
 alias="dev0s"
