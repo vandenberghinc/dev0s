@@ -2212,7 +2212,7 @@ class Files():
 			Files.chmod(path=path, permission=permission, sudo=sudo)
 		if owner != None:
 			Files.chown(path=path, owner=owner, group=group, sudo=sudo)
-	def copy(self,
+	def copy(
 		# the from & to path (#1 & #2).
 		from_, to_,
 		# root permission required.
@@ -2231,7 +2231,7 @@ class Files():
 		to_ = gfp.clean(to_)
 		if not Files.exists(gfp.base(to_), sudo=sudo): Files.create(gfp.base(to), sudo=sudo, directory=directory)
 		os.system(f"{Boolean(sudo).string(true='sudo ', false='')}rsync -azt{Boolean(log_level >= 1).string(true='P',false='')} {from_} {to_} --delete")
-	def move(self,
+	def move(
 		# the from & to path (#1 & #2).
 		from_, to_,
 		# root permission required.
