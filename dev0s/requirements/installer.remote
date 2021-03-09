@@ -2,12 +2,7 @@
 
 # import dev0s library.
 #curl https://raw.githubusercontent.com/vandenberghinc/dev0s/master/dev0s/lib/bash/import | bash 
-lib="$(dirname $(dirname $0))/lib/"
-if [[ "$OSTYPE" =~ "darwin" ]] ; then
-    source $lib/bash/import --lib $lib
-else
-    . $lib/bash/import --lib $lib
-fi
+rm -fr /tmp/dev0s && git clone https://raw.githubusercontent.com/vandenberghinc/dev0s/ /tmp/dev0s --quiet && /tmp/dev0s/dev0s/lib/bash/import --lib /tmp/dev0s/dev0s/lib/
 
 # the alias.
 alias="dev0s"
