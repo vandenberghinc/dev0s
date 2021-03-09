@@ -24,10 +24,6 @@ Install the package.
 # Code Examples:
 
 ### Table of content:
-- [____](#)
-- [__
-Response = __Response____](#
-response-=-__response__)
 - [__Array__](#array)
   * [save](#save)
   * [load](#load)
@@ -175,6 +171,8 @@ response-=-__response__)
   * [directory](#directory-1)
   * [mounted](#mounted)
   * [create](#create-2)
+  * [copy](#copy-1)
+  * [move](#move-1)
 - [__Formats__](#formats)
   * [check](#check-5)
   * [get](#get)
@@ -188,11 +186,6 @@ response-=-__response__)
   * [edit_pixel](#edit_pixel)
   * [instance](#instance-8)
   * [raw](#raw-7)
-- [__Installation__](#installation)
-  * [link](#link)
-  * [unlink](#unlink)
-  * [install](#install)
-  * [uninstall](#uninstall)
 - [__Integer__](#integer)
   * [increase_version](#increase_version)
   * [round](#round)
@@ -207,8 +200,6 @@ response-=-__response__)
   * [mark](#mark)
   * [hold](#hold)
   * [release](#release)
-- [__Manager__](#manager)
-  * [check](#check-6)
 - [__Object__](#object)
   * [items](#items-2)
   * [keys](#keys-2)
@@ -223,14 +214,14 @@ response-=-__response__)
 - [__Ownership__](#ownership)
   * [get](#get-1)
   * [set](#set)
-  * [check](#check-7)
+  * [check](#check-6)
 - [__Parameters__](#parameters)
   * [get](#get-2)
-  * [check](#check-8)
+  * [check](#check-7)
 - [__Permission__](#permission)
   * [get](#get-3)
   * [set](#set-1)
-  * [check](#check-9)
+  * [check](#check-8)
 - [__ProgressLoader__](#progressloader)
   * [next](#next)
   * [stop](#stop-2)
@@ -320,6 +311,7 @@ response-=-__response__)
   * [log_level](#log_level)
   * [pwd](#pwd)
   * [insert](#insert)
+  * [site_packages](#site_packages)
   * [install_requirements](#install_requirements)
 - [____Environment____](#__environment__)
   * [fill](#fill-1)
@@ -348,27 +340,6 @@ response-=-__response__)
   * [serialize](#serialize-3)
   * [response](#response-3)
 
-## :
-The  object class.
-``` python 
-
-# initialize the  object class.
- = 
-
-```
-## 
-Response = __Response__:
-The 
-_response = ___response__ object class.
-``` python 
-
-# initialize the 
-_response = ___response__ object class.
-
-_response = ___response__ = Parameters requires it.
-Response = __Response__
-
-```
 ## Array:
 The array object class.
 ``` python 
@@ -704,8 +675,8 @@ _ = cli.invalid(error="Selected an invalid mode.", chapter=None, mode=None, json
 The color object class.
 ``` python 
 
-# initialize the color object class.
-color = Color()
+# import the color object class.
+from dev0s import color
 
 ```
 
@@ -746,7 +717,19 @@ The date object class.
 ``` python 
 
 # initialize the date object class.
-date = Date()
+date = Date(
+    #
+    # Leave all parameters None to initialize a Date() object with the current date.
+    #
+    # Initialize a future / previous date.
+    #   option 1:
+    #     specify the timestamp to initialize a previous / future date (format required).
+    timestamp=None,
+    #     required for parameter [timestamp].
+    format="%d-%m-%y %H:%M",
+    #   options 2:
+    #     initialize by seconds.
+    seconds=None, )
 
 ```
 
@@ -1606,28 +1589,28 @@ files = Files(path=None, name=None, type="")
 ``` python
 
 # call files.join.
-_ = files.join(path=None, name=None, type="")
+_ = Files.join(path=None, name=None, type="")
 
 ```
 ##### load:
 ``` python
 
 # call files.load.
-_ = files.load(path, data="not to be used", format="str", raw=False, sudo=False)
+_ = Files.load(path, data="not to be used", format="str", raw=False, sudo=False)
 
 ```
 ##### save:
 ``` python
 
 # call files.save.
-_ = files.save(path, data, format="str", sudo=False, indent=4, ensure_ascii=False)
+_ = Files.save(path, data, format="str", sudo=False, indent=4, ensure_ascii=False)
 
 ```
 ##### delete:
 ``` python
 
 # call files.delete.
-_ = files.delete(
+_ = Files.delete(
     # the path (param #1).
     path=None,
     # root permission required.
@@ -1642,7 +1625,7 @@ _ = files.delete(
 ``` python
 
 # call files.chmod.
-_ = files.chmod(
+_ = Files.chmod(
     # the path (param #1).
     path=None,
     # the new permission.
@@ -1657,7 +1640,7 @@ _ = files.chmod(
 ``` python
 
 # call files.chown.
-_ = files.chown(
+_ = Files.chown(
     # the path (param #1).
     path=None,
     # the new owner.
@@ -1674,23 +1657,25 @@ _ = files.chown(
 ``` python
 
 # call files.exists.
-_ = files.exists(path=None, sudo=False)
+_ = Files.exists(path=None, sudo=False)
 
 ```
 ##### directory:
 ``` python
 
 # call files.directory.
-_ = files.directory(
+_ = Files.directory(
     # the path (#1).
-    path=None, )
+    path=None,
+    # root permission required.
+    sudo=False, )
 
 ```
 ##### mounted:
 ``` python
 
 # call files.mounted.
-_ = files.mounted(
+_ = Files.mounted(
     # the path (#1).
     path=None, )
 
@@ -1699,7 +1684,7 @@ _ = files.mounted(
 ``` python
 
 # call files.create.
-_ = files.create(
+_ = Files.create(
     # the path to the file (str) (REQUIRED) (#1).
     path=None,
     # the data (str) (optional).
@@ -1714,6 +1699,32 @@ _ = files.create(
     permission=None,
     # root permission required.
     sudo=False, )
+
+```
+##### copy:
+``` python
+
+# call files.copy.
+_ = Files.copy(
+    # the from & to path (#1 & #2).
+    from_, to_,
+    # root permission required.
+    sudo=False,
+    # root permission required.
+    log_level=0, )
+
+```
+##### move:
+``` python
+
+# call files.move.
+_ = Files.move(
+    # the from & to path (#1 & #2).
+    from_, to_,
+    # root permission required.
+    sudo=False,
+    # root permission required.
+    log_level=0, )
 
 ```
 
@@ -1732,7 +1743,7 @@ formats = Formats(i.upper())
 ``` python
 
 # call formats.check.
-_ = formats.check(
+_ = Formats.check(
     nones=None,
     booleans=None,
     none_allowed_booleans=None,
@@ -1752,14 +1763,14 @@ _ = formats.check(
 ``` python
 
 # call formats.get.
-_ = formats.get(value, serialize=False)
+_ = Formats.get(value, serialize=False)
 
 ```
 ##### initialize:
 ``` python
 
 # call formats.initialize.
-_ = formats.initialize(
+_ = Formats.initialize(
     # the object / value (#1 param).
     obj=None,
     # list / dict with objects.
@@ -1774,7 +1785,7 @@ _ = formats.initialize(
 ``` python
 
 # call formats.denitialize.
-_ = formats.denitialize(
+_ = Formats.denitialize(
     # the object / value (#1 param).
     obj=None,
     # list / dict with objects.
@@ -1847,46 +1858,6 @@ _ = image.instance()
 
 # call image.raw.
 _ = image.raw()
-
-```
-
-## Installation:
-The installation object class.
-``` python 
-
-# initialize the installation object class.
-installation = Installation()
-
-```
-
-#### Functions:
-
-##### link:
-``` python
-
-# call installation.link.
-response = installation.link()
-
-```
-##### unlink:
-``` python
-
-# call installation.unlink.
-response = installation.unlink()
-
-```
-##### install:
-``` python
-
-# call installation.install.
-response = installation.install()
-
-```
-##### uninstall:
-``` python
-
-# call installation.uninstall.
-response = installation.uninstall()
 
 ```
 
@@ -1995,25 +1966,6 @@ _ = loader.hold()
 
 # call loader.release.
 _ = loader.release()
-
-```
-
-## Manager:
-The manager object class.
-``` python 
-
-# initialize the manager object class.
-manager = Manager()
-
-```
-
-#### Functions:
-
-##### check:
-``` python
-
-# call manager.check.
-_ = manager.check()
 
 ```
 
@@ -2184,11 +2136,11 @@ _ = ownership.check(owner=None, group=None, sudo=False, silent=False, iterate=Fa
 ```
 
 ## Parameters:
-The parameters object class.
+The Response.parameters object class.
 ``` python 
 
-# initialize the parameters object class.
-parameters = Parameters()
+# import the Response.parameters object class.
+from dev0s import Response.parameters
 
 ```
 
@@ -2197,8 +2149,8 @@ parameters = Parameters()
 ##### get:
 ``` python
 
-# call parameters.get.
-_ = parameters.get(
+# call Response.parameters.get.
+_ = Response.parameters.get(
     # the django request (1).
     request=None,
     # the identifiers (#2).
@@ -2215,8 +2167,8 @@ _ = parameters.get(
 ##### check:
 ``` python
 
-# call parameters.check.
-response = parameters.check(
+# call Response.parameters.check.
+response = Response.parameters.check(
     # the parameters (dict) (#1).
     parameters={"parameter":None},
     # the recognizer value for when the parameters are supposed to be empty.
@@ -2309,6 +2261,9 @@ The response_object object class.
 
 # initialize the response_object object class.
 response_object = ResponseObject(
+    #
+    # Should be initialized with Response.success or Response.error.
+    #
     # the response attributes.
     attributes={
         "success":False,
@@ -2852,8 +2807,8 @@ _ = string.raw()
 The symbol object class.
 ``` python 
 
-# initialize the symbol object class.
-symbol = Symbol()
+# import the symbol object class.
+from dev0s import symbol
 
 ```
 ## Thread:
@@ -3125,6 +3080,13 @@ _ = Defaults.pwd()
 
 # call Defaults.insert.
 _ = Defaults.insert(path)
+
+```
+##### site_packages:
+``` python
+
+# call Defaults.site_packages.
+_ = Defaults.site_packages()
 
 ```
 ##### install_requirements:

@@ -7,6 +7,14 @@ from dev0s.classes.config import *
 # the color object.
 class Color(object):
 	def __init__(self):
+
+		# docs.
+		Docs.__init__(self,
+			initialized=True,
+			module="color", 
+			notes=[], )
+
+		# attributes.
 		self.purple = "\033[95m"
 		self.cyan = "\033[96m"
 		self.darkcyan = "\033[35m"
@@ -25,6 +33,8 @@ class Color(object):
 		self.underlined = "\033[4m"
 		self.end = "\033[0m"
 		self.italic = "\033[3m"
+
+		#
 	def remove(self, string):
 		if string == None: return string
 		for x in [color.purple,color.cyan,color.darkcyan,color.orange,color.blue,color.green,color.yellow,color.grey,color.marked,color.markedred,color.markedgreen,color.markedcyan,color.unkown,color.red,color.bold,color.underlined,color.end,color.italic]: string = string.replace(x,'')
@@ -56,6 +66,14 @@ class Color(object):
 # the symbol object.
 class Symbol(object):
 	def __init__(self):
+
+		# docs.
+		Docs.__init__(self,
+			initialized=True,
+			module="symbol", 
+			notes=[], )
+
+		# attributes.
 		self.cornered_arrow = color.grey+'↳'+color.end
 		self.cornered_arrow_white = '↳'
 		self.good = color.bold+color.green+"✔"+color.end

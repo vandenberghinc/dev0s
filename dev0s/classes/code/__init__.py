@@ -450,8 +450,7 @@ class Code():
 			if data == None: data = self.data
 			if data == None: raise Exceptions.InvalidUsage("Define parameter: [data].")
 			data = data.replace("	","    ")
-			if not keep_indent: before="\n"
-			else: before = " "
+			before = "\n"
 			if len(data) > 0 and data[0] != before: data = before+str(data)
 			while True:
 				if "	" in data: data = data.replace("	","    ")
@@ -474,8 +473,13 @@ class Code():
 				elif " \n" in data: data = data.replace(" \n", "\n")
 				else: break
 			classes = []
-			#slices = data.split(f"{before}class ")
-			slices = String(data).split([" class ", "\nclass "])
+			to_slice = []
+			for i in range(100):
+				l = "\n"
+				for _ in range(i): l += " "
+				l += "class "
+				to_slice.append(l)
+			slices = String(data).split(to_slice)
 			if len(slices) == 1:
 				if format == dict:
 					return {}
@@ -730,7 +734,8 @@ class Code():
 			
 			# normalize.
 			data = data.replace("	","    ")
-			if len(data) > 0 and data[0] != "\n": data = "\n"+str(data)
+			before = "\n"
+			if len(data) > 0 and data[0] != before: data = before+str(data)
 			while True:
 				if "	" in data: data = data.replace("	","    ")
 				elif ") :" in data: data = data.replace(") :","):")
@@ -755,7 +760,13 @@ class Code():
 			
 			# slice with all indent (less dependable).
 			if indent == None:
-				slices = String(data).split([" def ", "\ndef "])
+				to_slice = []
+				for i in range(100):
+					l = "\n"
+					for _ in range(i): l += " "
+					l += "def "
+					to_slice.append(l)
+				slices = String(data).split(to_slice)
 
 			# slice by ident line.
 			else:
@@ -958,7 +969,7 @@ class Code():
 					if notes != None:
 						for i in notes: doc += f"{i}\n"
 					doc += (
-						f"from {package} import " + module + "\n" +
+						f"from {package} import " + module.split('.')[0] + "\n" +
 						"")
 				else:
 					doc = (

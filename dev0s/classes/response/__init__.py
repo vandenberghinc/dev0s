@@ -315,9 +315,15 @@ class __Response__(Docs):
 	#
 	
 # the parameters manager object class.
-class Parameters(object):
+class Parameters(Docs):
 	def __init__(self):
-		a=1
+		
+		# docs.
+		Docs.__init__(self,
+			initialized=True,
+			module="Response.parameters", 
+			notes=[], )
+
 		#
 	# get request parameters.
 	def get(self, 
@@ -466,6 +472,9 @@ class Parameters(object):
 # the response & parameters object class.
 class ResponseObject(object):
 	def __init__(self, 
+		#
+		# Should be initialized with Response.success or Response.error.
+		#
 		# the response attributes.
 		attributes={
 			"success":False,
