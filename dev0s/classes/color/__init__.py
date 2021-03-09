@@ -3,6 +3,7 @@
 
 # imports.
 from dev0s.classes.config import *
+from dev0s.classes.utils.copycats import Docs
 
 # the color object.
 class Color(object):
