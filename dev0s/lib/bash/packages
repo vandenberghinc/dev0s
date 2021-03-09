@@ -146,7 +146,7 @@ function install-brew-requirements() {
                 cask="--cask"
                 requirement=${requirement:5}
             fi
-            $sudo_option brew $cask install $requirement -q
+            $sudo_option brew install $cask $requirement -q
         fi
     done
 }
@@ -161,9 +161,9 @@ function install-pip-requirements() {
         error "Error: Specify the requirements (#1) parameter: $ $program /path/to/requirements.txt" $@ ; return
     fi
     if [[ "$(argument-present --user $@)" == "true" ]] ; then
-        user_option="--user $(get-argument --user $@)"
+        _user_="$(get-argument --user $@)"
     else
-        user_option=""
+        _user_=$user
     fi
     echo "Installing requirements file $requirements."
     if [[ "$(empty $venv)" == "false" ]] ; then
@@ -175,15 +175,15 @@ function install-pip-requirements() {
     fi
     if [[ $(argument-present --silent $@) == "true" ]] ; then
         if [[ $(argument-present --sudo $@) == "true" ]] ; then
-            sudo $executive -m pip install -r $requirements $user_option 2> /dev/null
+            sudo $executive -m pip install -r $requirements --user $_user_ 2> /dev/null
         else
-            $executive -m pip install -r $requirements $user_option 2> /dev/null
+            $executive -m pip install -r $requirements --user $_user_ 2> /dev/null
         fi
     else
         if [[ "$sudo_option" == "true" ]] ; then
-            sudo $executive -m pip install -r $requirements $user_option
+            sudo $executive -m pip install -r $requirements --user $_user_
         else
-            $executive -m pip install -r $requirements $user_option
+            $executive -m pip install -r $requirements --user $_user_
         fi
     fi
 }
@@ -360,9 +360,11 @@ function install-package() {
     # python venv.
     if [[ "$(empty $venv)" == "false" ]] ; then
         if [[ ! -d "$venv" ]] ; then
+            echo "Creating environment $venv."
             python3 -m venv $venv
         fi
-        install-pip-requirements $source/$pip_requirements --silent $error_exit_str --venv $venv
+        echo "Installing pip requirements into $venv."
+        install-pip-requirements $source/$pip_requirements --venv $venv --silent $error_exit_str
     fi
 
     # python requirements.
