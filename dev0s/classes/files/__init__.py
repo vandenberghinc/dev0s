@@ -1832,13 +1832,40 @@ class Formats():
 
 	# the date object class.
 	class Date(object):
-		def __init__(self):
+		def __init__(self, 
+			# 
+			# Leave all parameters None to initialize a Date() object with the current date.
+			# 
+			# Initialize a future / previous date.
+			#   option 1:
+			#     specify the timestamp to initialize a previous / future date (format required).
+			timestamp=None, 
+			#     required for parameter [timestamp].
+			format="%d-%m-%y %H:%M",
+			#   options 2:
+			#     initialize by seconds.
+			seconds=None,
+
+
+		):
 
 			# defaults.
 			#self.__class__.__name__ = "Date"
 
+			# by timestamp & format.
+			if timestamp != None and format != None:
+				seconds = time.mktime(datetime.strptime(timestamp, format).timetuple())
+				today = datetime.fromtimestamp(int(seconds))
+
+			# by seconds.
+			elif seconds != None:
+				today = datetime.fromtimestamp(int(seconds))
+
+			# by current.
+			else:
+				today = datetime.today()
+
 			# attributes.
-			today = datetime.today()
 			self.seconds_format = '%S'
 			self.seconds = str(today.strftime(self.seconds_format))
 			self.minute_format = '%M'
@@ -2134,6 +2161,8 @@ class Files():
 	def directory( 
 		# the path (#1).
 		path=None,
+		# root permission required.
+		sudo=False,
 	):
 		if path == None: raise Exceptions.InvalidUsage("Define parameter: path.")
 		path = gfp.clean(path=path, remove_double_slash=True, remove_last_slash=True)
@@ -2183,6 +2212,44 @@ class Files():
 			Files.chmod(path=path, permission=permission, sudo=sudo)
 		if owner != None:
 			Files.chown(path=path, owner=owner, group=group, sudo=sudo)
+	def copy(self,
+		# the from & to path (#1 & #2).
+		from_, to_,
+		# root permission required.
+		sudo=False,
+		# root permission required.
+		log_level=0,
+	):
+		if not Files.exists(from_, sudo=sudo):
+			raise FileNotFoundError(f"Specified copy path [{from_}] does not exist.")
+		directory = False
+		if Files.directory(from_, sudo=sudo):
+			directory = True
+			from_ += "/"
+			to_ += "/"
+		from_ = gfp.clean(from_)
+		to_ = gfp.clean(to_)
+		if not Files.exists(gfp.base(to_), sudo=sudo): Files.create(gfp.base(to), sudo=sudo, directory=directory)
+		os.system(f"{Boolean(sudo).string(true='sudo ', false='')}rsync -azt{Boolean(log_level >= 1).string(true='P',false='')} {from_} {to_} --delete")
+	def move(self,
+		# the from & to path (#1 & #2).
+		from_, to_,
+		# root permission required.
+		sudo=False,
+		# root permission required.
+		log_level=0,
+	):
+		if not Files.exists(from_, sudo=sudo):
+			raise FileNotFoundError(f"Specified move path [{from_}] does not exist.")
+		directory = False
+		if Files.directory(from_, sudo=sudo):
+			directory = True
+			from_ += "/"
+			to_ += "/"
+		from_ = gfp.clean(from_)
+		to_ = gfp.clean(to_)
+		if not Files.exists(gfp.base(to_), sudo=sudo): Files.create(gfp.base(to), sudo=sudo, directory=directory)
+		os.system(f"{Boolean(sudo).string(true='sudo ', false='')}mv {from_} {to_}")
 	#
 	# the file object class.
 	class File(object):

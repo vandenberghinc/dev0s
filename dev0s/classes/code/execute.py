@@ -217,7 +217,7 @@ class Spawn(objects.Object):
 					new = self.child.readline(line).decode()
 					if new == "": 
 						c += 1
-						if c >= 100: break
+						if c >= 25: break
 					else: 
 						output_logs_allowed = True
 						c = 0

@@ -31,7 +31,7 @@ class __Defaults__(Docs):
 			"homes": Directory(gfp.base(path=os.environ.get('HOME'))),
 			"home": Directory(gfp.clean(os.environ.get('HOME')+"/")),
 			"pwd":Directory(gfp.clean(utils.__execute_script__("pwd").replace("\n",""))),
-			"site_packages":Directory(gfp.base(SOURCE_PATH)),
+			"site_packages":self.site_packages(),
 		})
 		if self.vars.os in ["darwin"]:  
 			self.vars.os = "macos"
@@ -137,6 +137,13 @@ class __Defaults__(Docs):
 	def insert(self, path):
 		path = gfp.clean(path).replace(".","/")
 		return sys.path.insert(1, path)
+
+	# get the python site packages location
+	def site_packages(self):
+		path = FilePath(SOURCE_PATH).base()
+		if FilePath(path).name() in ["site-packages", "dist-packages"]:
+			return Directory(path)
+		return Directory(sysconfig.get_paths()["purelib"])
 
 	# install requirements.
 	def install_requirements(self,

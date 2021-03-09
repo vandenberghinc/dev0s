@@ -2,18 +2,55 @@
 # -*- coding: utf-8 -*-
 
 # insert the package for universal imports.
-import os, sys
-from dev0s import *
-
-# settings.
-#SOURCE_PATH = Defaults.source_path(__file__, back=1)
-#BASE = Defaults.source_path(SOURCE_PATH)
-#OS = Defaults.operating_system(supported=["linux", "macos"])
-#sys.path.insert(1, BASE)
+def __get_source_path__(
+	# the path (leave None to use self.path) (param #1).
+	path=None,
+	# the dirs back.
+	back=1,
+):
+	base = path.replace('//','/')
+	if base[len(base)-1] == '/': base = base[:-1]
+	if len(base.split("/")) <= 1: raise ValueError("Path [{}] has no base.".format(base))
+	startslash = True
+	if base[0] != "/":
+		startslash = False
+	base = base.split("/")
+	m, c, s = len(base), 0, ""
+	for i in base:
+		if c >= m-back: break
+		if c == 0:
+			s = f"/{i}/"
+		else:
+			s += f"{i}/"
+		c += 1
+	if startslash:
+		return s
+	else:
+		return s[1:]
+	###### OLD.
+	base = path.replace('//','/')
+	if len(base.split("/")) <= 1: raise ValueError("Path [{}] has no base.".format(base))
+	if base[len(base)-1] == '/': base = base[:-1]
+	for x in range(back, back+1):
+		last = (base.split('/')[len(base.split('/'))-1]).replace('//','/')
+		base = base[:-len("/"+last)]
+	while True:
+		if '//' in base: base = base.replace('//','/')
+		else: break
+	if base[len(base)-1] != "/": base += '/'
+	return base
+	"""splitted, result, count = path.split('/'), "", 0
+	for i in splitted:
+		if count < len(splitted) - 1 - back:
+			result += '/' + i
+		else: result += "/"
+		count += 1
+	"""
+import sys ; sys.path.insert(1, __get_source_path__(__file__, back=2))
 
 # imports.
 from dev0s.classes.config import *
-from dev0s.classes.manager import manager
+from dev0s import *
 
 # the cli object class.
 class CLI_(CLI.CLI):
@@ -51,7 +88,7 @@ class CLI_(CLI.CLI):
 	def start(self):
 		
 		# check arguments.
-		self.arguments.check(exceptions=["--log-level", "--create-alias", "--version"], json=JSON)
+		self.arguments.check(exceptions=["--log-level", "--create-alias", "--version"], json=Defaults.options.json)
 
 		#
 		# BASICS
@@ -59,7 +96,7 @@ class CLI_(CLI.CLI):
 
 		# help.
 		if self.arguments.present(['-h', '--help']):
-			self.docs(success=True, json=JSON)
+			self.docs(success=True, json=Defaults.options.json)
 
 		# version.
 		elif self.arguments.present(['--version']):

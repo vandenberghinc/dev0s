@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # imports.
-from dev0s.files import *
+from dev0s.classes.files import *
 from dev0s.classes import installation
 
 # the manager object class.
