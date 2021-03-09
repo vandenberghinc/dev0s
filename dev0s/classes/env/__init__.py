@@ -2,8 +2,9 @@
 # -*- coding: utf-8 -*-
 
 # imports.
-from dev0s.classes.config import *
 from dev0s.classes.color import color, symbol
+from dev0s.classes.files import *
+from dev0s.classes.response import Response
 from dev0s.classes.utils.copycats import Docs
 
 # the env object class.
