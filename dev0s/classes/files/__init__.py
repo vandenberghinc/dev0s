@@ -2067,24 +2067,50 @@ class Files():
 		else: raise ValueError(f"Unknown format {format}.")
 		if raw: return data
 		else: return Formats.initialize(data)
-	def save(path, data, format="str", sudo=False, indent=4, ensure_ascii=False):
-		# correct format.
-		if format in [str, String, "String", "string", "file"]: format = "str"
-		if format in [dict, Dictionary, "Dictionary", "dict", "array"]: format = "json"
-		if format in [bytes, Bytes, "Bytes"]: format = "bytes"
-		#format = str(format)
-		# match format.
-		data = Formats.denitialize(data)
-		path = gfp.clean(str(path), remove_double_slash=True, remove_last_slash=False)
-		if sudo:
-			real_path = str(path)
-			tmp_path = path = f"/tmp/{String().generate(length=12)}"
+	def save(
+		# the path (str) (#1).
+		path, 
+		# the data (str, dict, list) (#2).
+		data, 
+		# the file format, options: [str, bytes, json].
+		format="str", 
+		# root permission required.
+		sudo=False, 
+		# json options.
+		indent=4, 
+		ensure_ascii=False,
+		# create backups.
+		backups=False,
+		# warning: safe True keeps infinitely trying to save the doc when an KeyboardInterrupt is raised by the user.
+		safe=True,
+		# system functions.
+		__loader__=None,
+		__checks__=True,
+		__keyboard_interrupt__=False,
+		__attempt__=1,
+	):
+		if __checks__:
+			# correct format.
+			if format in [str, String, "String", "string", "file"]: format = "str"
+			if format in [dict, Dictionary, "Dictionary", "dict", "array"]: format = "json"
+			if format in [bytes, Bytes, "Bytes"]: format = "bytes"
+			#format = str(format)
+			# match format.
+			data = Formats.denitialize(data)
+			path = gfp.clean(str(path), remove_double_slash=True, remove_last_slash=False)
+			if sudo:
+				real_path = str(path)
+				tmp_path = path = f"/tmp/{String().generate(length=12)}"
 		if format == "str":
 			file = open(path, "w+") 
 			file.write(data)
 			file.close()
 		elif format == "json":
-			test = json.dumps(data)
+			if __checks__:
+				try:
+					test = json.dumps(data)
+				except:
+					raise Exceptions.JSONDecodeError(f"Unable to dump expected json data: {data}")
 			try:
 				with open(path, 'w+') as json_file:
 					json.dump(data, json_file, ensure_ascii=ensure_ascii, indent=indent)
@@ -2092,11 +2118,23 @@ class Files():
 				with open(path, 'w') as json_file:
 					json.dump(data, json_file, ensure_ascii=ensure_ascii, indent=indent)
 			except KeyboardInterrupt as e:
-				loader = Console.Loader(f"&RED&Do not interrupt!&END& Saving file [{path}].")
-				with open(path, 'w+') as json_file:
-					json.dump(data, json_file, ensure_ascii=ensure_ascii, indent=indent)
-				loader.stop()
-				raise KeyboardInterrupt(e)
+				if __loader__ == None:
+					__loader__ = Console.Loader(f"&RED&Do not interrupt!&END& Saving file [{path}] (attempt: {__attempt__}).")
+				if __attempt__ >= 100:
+					__loader__.stop(success=False)
+					raise KeyboardInterrupt(e)
+				return Files.save(
+					path, data
+					format=format,
+					sudo=sudo,
+					indent=indent,
+					ensure_ascii=ensure_ascii,
+					backups=False,
+					safe=safe,
+					__loader__=__loader__,
+					__checks__=False,
+					__keyboard_interrupt__=str(e),
+					__attempt__=__attempt__+1,)
 		elif format == "bytes":
 			with open(path, "wb") as file:
 				file.write(data)
@@ -2111,6 +2149,10 @@ class Files():
 			#	os.system(f"sudo rsync -aq {gfp.clean(path)} {gfp.clean(real_path)} && rm -fr {tmp_path}")
 			#else:
 			#	os.system(f"sudo rsync -ogq {gfp.clean(path)} {gfp.clean(real_path)} && rm -fr {tmp_path}")
+		if __keyboard_interrupt__ != False:
+			if __loader__ != None:
+				__loader__.stop()
+			raise KeyboardInterrupt(__keyboard_interrupt__)
 	def delete(
 		# the path (param #1).
 		path=None, 
