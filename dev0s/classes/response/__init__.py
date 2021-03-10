@@ -528,7 +528,7 @@ class ResponseObject(object):
 				self.error = self.error[:-1]
 			elif self.error != None and len(self.error) >= len("Error: ") and self.error[:len("Error: ")] in ["Error: "]:
 				self.error = String(self.error[len("Error: "):]).capitalized_word()
-			elif self.error != None and len(self.error) >= len("..") and String(self.error)last("..") in [".."]:
+			elif self.error != None and len(self.error) >= len("..") and String(self.error).last("..") in [".."]:
 				self.error = str(String(self.error).remove_last("."))
 			else: break
 		
