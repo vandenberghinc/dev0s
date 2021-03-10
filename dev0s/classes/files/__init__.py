@@ -1976,7 +1976,7 @@ class Formats():
 			#
 		# int representation.
 		def __int__(self):
-			return self.to_seconds(self.seconds_timestamp, format=self.seconds_timestamp_format)
+			return int(self.to_seconds(self.seconds_timestamp, format=self.seconds_timestamp_format))
 		# float representation.
 		def __float__(self):
 			return float(self.to_seconds(self.seconds_timestamp, format=self.seconds_timestamp_format))
