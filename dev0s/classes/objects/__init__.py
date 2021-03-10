@@ -370,7 +370,7 @@ class Thread(Object, threading.Thread):
 		# the response dict (leave message None to use).
 		response={},
 		# print the response as json.
-		json=Defaults.options.json,
+		json=JSON,
 		# optionals:
 		# the active log level (leave None to use self.log_level).
 		log_level=None,
