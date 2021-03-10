@@ -105,7 +105,7 @@ class __Defaults__(Docs):
 			if l_alias != None: alias = l_alias
 			#file = f"""package={executable}/\nargs=""\nfor var in "$@" ; do\n   	if [ "$args" == "" ] ; then\n   		args=$var\n   	else\n   		args=$args" "$var\n   	fi\ndone\npython3 $package $args\n"""
 			sudo = Boolean("--sudo" in sys.argv).string(true="sudo ",false="")
-			file = f"""#!/usr/bin/env python3\nimport os, sys, platform\npackage="{executable}"\nvenv={venv}\nsys.argv.pop(0)\narguments = sys.argv\ns = ""\nfor i in arguments:\n	if s == "": \n		if " " in i: s = "'"+i+"'"\n		else: s = i\n	else: \n		if " " in i: s += " '"+i+"'"\n		else: s += " "+i\nif venv != None: os.system(f"\{venv\}/bin/python3 "+package+" "+s)\nelif str(platform.system()).lower() in ["darwin"] and os.path.exists("/usr/bin/python3"): os.system("/usr/bin/python3 "+package+" "+s)\nelse:  os.system("python3 "+package+" "+s)\n#os.system("python3 "+package+" "+s)"""
+			file = f"""#!/usr/bin/env python3\nimport os, sys, platform\npackage="{executable}"\nvenv={venv}\nsys.argv.pop(0)\narguments = sys.argv\ns = ""\nfor i in arguments:\n	if s == "": \n		if " " in i: s = "'"+i+"'"\n		else: s = i\n	else: \n		if " " in i: s += " '"+i+"'"\n		else: s += " "+i\n"""+"""if venv != None: os.system(f"{venv}/bin/python3 "+package+" "+s)\nelif str(platform.system()).lower() in ["darwin"] and os.path.exists("/usr/bin/python3"): os.system("/usr/bin/python3 "+package+" "+s)\nelse:  os.system("python3 "+package+" "+s)\n#os.system("python3 "+package+" "+s)"""
 			os.system(f"{sudo}touch {path}")
 			os.system(f"{sudo}chmod +x {path}")
 			os.system(f"{sudo}chown {self.vars.user}:{self.vars.group} {path}")
