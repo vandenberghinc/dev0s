@@ -773,7 +773,7 @@ def execute(
 	# handler.
 	if delete: Files.delete(path)
 	if serialize:
-		try: response = Response.ResponseObject(json=output)
+		try: response = Response.ResponseObject(output)
 		except Exception as e: 
 			if loader != None: loader.stop(success=False)
 			return OutputObject(error=f"Failed to serialize (output: {output}).", log_level=log_level)
@@ -832,7 +832,7 @@ def execute(
 				return OutputObject(error=f"Failed to execute {response_str}, (output: {output}), (error: {error_}).", log_level=log_level)
 		if len(output) > 0 and output[len(output)-1] == "\n": output = output[:-1]
 		if serialize:
-			try: response = Response.ResponseObject(json=output)
+			try: response = Response.ResponseObject(output)
 			except Exception as e: 
 				if loader != None: loader.stop(success=False)
 				return OutputObject(error=f"Failed to serialize (output: {output}).", log_level=log_level)

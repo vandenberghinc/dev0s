@@ -44,7 +44,7 @@ class Requests():
 		if original_request_object.status_code != 200:
 			return Response.error(f"Invalid request ({url}) [{original_request_object.status_code}]: {original_request_object.text}")
 		if serialize:
-			try: response = Response.ResponseObject(json=original_request_object.json())
+			try: response = Response.ResponseObject(original_request_object.json())
 			except Exception as e: 
 				return Response.error(f"Unable to serialize output: {original_request_object}, error: {e}.")
 			return response
