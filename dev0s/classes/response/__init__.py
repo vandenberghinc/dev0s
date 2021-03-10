@@ -311,6 +311,23 @@ class __Response__(Docs):
 			return response
 			
 		#
+	def __serialize__(self, variable):
+		if isinstance(variable, (dict,Dictionary)):
+			new = {}
+			for key,value in variable.items():
+				new[key] = self.__serialize__(value)
+			variable = new
+		elif variable in [None, "None", "none", "null"]: variable = None
+		elif variable in [True, "True", "true", "TRUE"]: variable = True
+		elif variable in [False, "False", "false", "FALSE"]: variable = False
+		elif isinstance(variable, str):
+			if "." in variable:
+				try: variable = float(variable)
+				except: a=1
+			else:
+				try: variable = int(variable)
+				except: a=1
+		return variable
 
 	#
 	
@@ -577,11 +594,11 @@ class ResponseObject(object):
 	# assign dict.
 	def assign(self, dictionary):
 		if isinstance(dictionary, (dict, Dictionary)):
-			for key,value in dictionary.items():
+			for key,value in Response.__serialize__(dictionary).items():
 				self[key] = value
 		elif isinstance(dictionary, (tuple, list, Array)):
 			for key,value in dictionary:
-				self[key] = value
+				self[key] = Response.__serialize__(value)
 		else:
 			raise Exceptions.InvalidUsage("The dictionary parameter must be a dict or tuple.")
 		return self
