@@ -33,10 +33,10 @@ class Requests():
 		
 		# url.
 		url = f"{Boolean(Requests.https).string(true='https', false='http')}://"+gfp.clean(f"{url}/", remove_double_slash=True, remove_last_slash=False, remove_first_slash=True)
-		if len(url) >= len("https://https://") and String(url).fist("https://https://") == "https://https://": url = str(String(url).remove_first("https://"))
-		elif len(url) >= len("https://http://") and String(url).fist("https://http://") == "https://http://": url = str(String(url).remove_first("https://"))
-		elif len(url) >= len("http://https://") and String(url).fist("http://https://") == "http://https://": url = str(String(url).remove_first("http://"))
-		elif len(url) >= len("http://http://") and String(url).fist("http://http://") == "http://http://": url = str(String(url).remove_first("http://"))
+		if len(url) >= len("https://https://") and String(url).first("https://https://") == "https://https://": url = str(String(url).remove_first("https://"))
+		elif len(url) >= len("https://http://") and String(url).first("https://http://") == "https://http://": url = str(String(url).remove_first("https://"))
+		elif len(url) >= len("http://https://") and String(url).first("http://https://") == "http://https://": url = str(String(url).remove_first("http://"))
+		elif len(url) >= len("http://http://") and String(url).first("http://http://") == "http://http://": url = str(String(url).remove_first("http://"))
 		if data != {}: url += Requests.encode(data)
 
 		# request.
