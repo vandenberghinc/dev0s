@@ -288,12 +288,18 @@ class __Response__(Docs):
 		#
 
 	# system functions.
-	def __log_to_file__(self, message):
+	def log_to_file(self, message, raw=False):
 
 		# init.
 		try:
+			while True:
+				if len(message) > 0 and message[len(message)-1] == "\n": message = message[:-1]
+				else: break
 			with open(self.log_file, "a") as file:
-				file.write(f'{Date().seconds_timestamp} - {message}\n')
+				if raw:
+					file.write(f'{message}\n')
+				else:
+					file.write(f'{Date().seconds_timestamp} - {message}\n')
 			response = self.response()
 			response["success"] = True
 			response["message"] = "Succesfully logged the message."
@@ -310,6 +316,10 @@ class __Response__(Docs):
 			response["error"] = f"Failed to log the message, error: {e}."
 			return response
 			
+		#
+	def __log_to_file__(self, message, raw=False):
+		self.log("Depricated, Response.__log_to_file__ has moved to Response.log_to_file", mode="alert")
+		return self.log_to_file(message, raw=raw)
 		#
 	def __serialize__(self, variable):
 		if isinstance(variable, (dict,Dictionary)):

@@ -2088,6 +2088,7 @@ class Files():
 		__checks__=True,
 		__keyboard_interrupt__=False,
 		__attempt__=1,
+		__real_path__=None,
 	):
 		if __checks__:
 			# correct format.
@@ -2099,7 +2100,7 @@ class Files():
 			data = Formats.denitialize(data)
 			path = gfp.clean(str(path), remove_double_slash=True, remove_last_slash=False)
 			if sudo:
-				real_path = str(path)
+				__real_path__ = str(path)
 				tmp_path = path = f"/tmp/{String().generate(length=12)}"
 		if format == "str":
 			file = open(path, "w+") 
@@ -2134,7 +2135,8 @@ class Files():
 					__loader__=__loader__,
 					__checks__=False,
 					__keyboard_interrupt__=str(e),
-					__attempt__=__attempt__+1,)
+					__attempt__=__attempt__+1,
+					__real_path__=__real_path__,)
 		elif format == "bytes":
 			with open(path, "wb") as file:
 				file.write(data)
@@ -2142,13 +2144,13 @@ class Files():
 		if sudo:
 			if os.path.isdir(path) and path[len(path)-1] != "/": 
 				path += "/"
-				if real_path[len(real_path)-1] != "/": real_path += "/"
-			os.system(f"sudo rsync -aq {gfp.clean(path)} {gfp.clean(real_path)} && rm -fr {tmp_path}")
-			#print(f"sudo mv {gfp.clean(path)} {gfp.clean(real_path)}")
-			#os.system(f"sudo mv {gfp.clean(path)} {gfp.clean(real_path)}")
-			#	os.system(f"sudo rsync -aq {gfp.clean(path)} {gfp.clean(real_path)} && rm -fr {tmp_path}")
+				if __real_path__[len(__real_path__)-1] != "/": __real_path__ += "/"
+			os.system(f"sudo rsync -aq {gfp.clean(path)} {gfp.clean(__real_path__)} && rm -fr {tmp_path}")
+			#print(f"sudo mv {gfp.clean(path)} {gfp.clean(__real_path__}")
+			#os.system(f"sudo mv {gfp.clean(path)} {gfp.clean(__real_path__}")
+			#	os.system(f"sudo rsync -aq {gfp.clean(path)} {gfp.clean(__real_path__} && rm -fr {tmp_path}")
 			#else:
-			#	os.system(f"sudo rsync -ogq {gfp.clean(path)} {gfp.clean(real_path)} && rm -fr {tmp_path}")
+			#	os.system(f"sudo rsync -ogq {gfp.clean(path)} {gfp.clean(__real_path__} && rm -fr {tmp_path}")
 		if __keyboard_interrupt__ != False:
 			if __loader__ != None:
 				__loader__.stop()
