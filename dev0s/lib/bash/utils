@@ -275,6 +275,7 @@ function python-alias() {
     program="python-alias"
     source=$1
     alias=$2
+    venv="$(get-argument --venv $@)"
 
     # checks.
     if [[ "$source" == "" ]] || [[ "$source" == "none" ]] ; then
@@ -293,6 +294,11 @@ function python-alias() {
     echo '#!/usr/bin/env python3 ' > /usr/local/bin/$alias
     echo """import os, sys """ >> /usr/local/bin/$alias
     echo """package='$source' """ >> /usr/local/bin/$alias
+    if [[ "$(empty $venv)" == "false" ]] ; then
+        echo """venv='$venv' """ >> /usr/local/bin/$alias
+    else
+        echo """venv=None """ >> /usr/local/bin/$alias
+    fi
     echo """sys.argv.pop(0) """ >> /usr/local/bin/$alias
     echo """arguments = sys.argv """ >> /usr/local/bin/$alias
     echo """s = '' """ >> /usr/local/bin/$alias
@@ -303,7 +309,8 @@ function python-alias() {
     echo """    else: """ >> /usr/local/bin/$alias
     echo """        if ' ' in i: s += f\" '{i}'\" """ >> /usr/local/bin/$alias
     echo """        else: s += f' {i}' """ >> /usr/local/bin/$alias
-    echo """if os.path.exists('/usr/bin/python3'): os.system(f'/usr/bin/python3 {package} {s}') """ >> /usr/local/bin/$alias
+    echo """if venv != None: os.system(f'{venv}/bin/python3 {package} {s}') """ >> /usr/local/bin/$alias
+    echo """elif 'darwin' in str(os.env['OSTYPE']) and os.path.exists('/usr/bin/python3'): os.system(f'/usr/bin/python3 {package} {s}') """ >> /usr/local/bin/$alias
     echo """else:  os.system(f'python3 {package} {s}') """ >> /usr/local/bin/$alias
     #echo """os.system(f'python3 {package} {s}') """ >> /usr/local/bin/$alias
 

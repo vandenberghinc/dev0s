@@ -382,7 +382,11 @@ function install-package() {
     # install alias.
     if [[ "$create_alias" == "true" ]] ; then
         echo "Creating alias $alias..."
-        python-alias $lib $alias
+        if [[ "$(empty $venv)" == "false" ]] ; then
+            python-alias $lib $alias --venv $venv
+        else 
+            python-alias $lib $alias
+        fi
     fi
 
     # regular log for confirmation:
