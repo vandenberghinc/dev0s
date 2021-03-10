@@ -530,7 +530,7 @@ class Code():
 									while True:
 										if ("\nclass " in class_code or " class " in class_code or (len(class_code) >= len("class ") and class_code[:len("class ")] == "class ")) and class_code != data and len(class_code) > 0:
 											# get the depth of the class inside the class.
-											inside_class_code_indent = class_code.line_indent(line=class_code.split("\n")[1])
+											inside_class_code_indent = String(class_code).line_indent(line=class_code.split("\n")[1])
 											inside_class_code_depth = 0
 											for line in class_code.split("\n"):
 												if str(String(line).line_indent(line=line)) == str(0):

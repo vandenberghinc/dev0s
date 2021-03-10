@@ -95,6 +95,7 @@ OutputObject = Code.OutputObject
 Version = Code.Version 
 Script = Code.Script
 Python = Code.Python
+Docs = Code.Docs
 
 # _____________________________________________________________________
 #
