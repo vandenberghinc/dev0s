@@ -125,7 +125,7 @@ class Code():
 			#self.__class__.__name__ = "Version"
 
 			# check self instance.
-			if isinstance(value, Formats.Version):
+			if isinstance(value, Version):
 				self.value = value.value
 
 			# init.
@@ -190,7 +190,7 @@ class Code():
 			else:
 				raise Exceptions.FormatError(f"Can not add object {self.__class__} & {count.__class__}, a version should be incremented with a count (example: 1).")
 			value = self.increase(value=self.value, count=count)
-			return Formats.Version(value)
+			return Version(value)
 		def __concat__(self, count):
 			if isinstance(vercount, (int, float)):
 				a=1
@@ -199,7 +199,7 @@ class Code():
 			else:
 				raise Exceptions.FormatError(f"Can not concat object {self.__class__} & {count.__class__}, a version should be incremented with a count (example: 1).")
 			value = self.increase(value=self.value, count=count)
-			return Formats.Version(value)
+			return Version(value)
 		def __pos__(self, count):
 			if isinstance(count, (int, float)):
 				a=1
@@ -208,7 +208,7 @@ class Code():
 			else:
 				raise Exceptions.FormatError(f"Can not pos object {self.__class__} & {count.__class__}, a version should be incremented with a count (example: 1).")
 			value = self.increase(value=self.value, count=count)
-			return Formats.Version(value)
+			return Version(value)
 		def __iadd__(self, count):
 			if isinstance(count, (int, float)):
 				a=1
@@ -369,7 +369,7 @@ class Code():
 		def assign(self, string):
 			if isinstance(data, (int, float)):
 				a=1
-			elif isinstance(data, (Formats.String)):
+			elif isinstance(data, (String)):
 				data = data.string
 			elif isinstance(data, self.__class__):
 				data = data.data
@@ -1332,7 +1332,7 @@ class Code():
 		def assign(self, string):
 			if isinstance(data, (int, float)):
 				a=1
-			elif isinstance(data, (Formats.String)):
+			elif isinstance(data, (String)):
 				data = data.string
 			elif isinstance(data, self.__class__):
 				data = data.data
@@ -1347,3 +1347,8 @@ class Code():
 	
 
 	#
+
+# shortcuts.
+Version = Code.Version
+Script = Code.Script
+Python = Code.Python
