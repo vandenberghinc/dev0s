@@ -129,9 +129,9 @@ class __Response__(Docs):
 				else:
 					msg = msg
 			elif mode == "warning":
-				msg = f"&RED&:Warning&END&: {msg}"
+				msg = f"&RED&Warning&END&: {msg}"
 			elif mode == "alert":
-				msg = f"&ORANGE&:Alert&END&: {msg}"
+				msg = f"&ORANGE&Alert&END&: {msg}"
 			return msg
 			#
 		msg, _error_ = None, False
@@ -174,9 +174,9 @@ class __Response__(Docs):
 			else:
 				print(f"{color.fill(msg)}")
 		if save: 
-			self.__log_to_file__(msg)
+			self.log_to_file(msg)
 		elif save_errors and _error_:
-			self.__log_to_file__(msg)
+			self.log_to_file(msg)
 
 		#
 	def load_logs(self, format="webserver", options=["webserver", "cli", "array", "string"]):
@@ -316,10 +316,6 @@ class __Response__(Docs):
 			response["error"] = f"Failed to log the message, error: {e}."
 			return response
 			
-		#
-	def __log_to_file__(self, message, raw=False):
-		self.log("Depricated, Response.__log_to_file__ has moved to Response.log_to_file", mode="alert")
-		return self.log_to_file(message, raw=raw)
 		#
 	def __serialize__(self, variable):
 		if isinstance(variable, (dict,Dictionary)):
