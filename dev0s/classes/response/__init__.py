@@ -320,7 +320,7 @@ class __Response__(Docs):
 		elif variable in [None, "None", "none", "null"]: variable = None
 		elif variable in [True, "True", "true", "TRUE"]: variable = True
 		elif variable in [False, "False", "false", "FALSE"]: variable = False
-		elif isinstance(variable, str):
+		elif isinstance(variable, (String,str)):
 			if "." in variable:
 				try: variable = float(variable)
 				except: a=1
@@ -492,38 +492,31 @@ class ResponseObject(object):
 		#
 		# Should be initialized with Response.success or Response.error.
 		#
-		# the response attributes.
+		# the response attributes (dict or dict in str format).
 		attributes={
 			"success":False,
 			"message":None,
 			"error":None,
 		},
-		# import a dumped json response (str) (ignores attributes).
-		json=None,
 	):
 
 		# check self instance.
 		if isinstance(attributes, ResponseObject):
-			#attributes = attributes.dict()
-			#self = attributes
 			attributes = attributes.dict()
-		elif isinstance(json, ResponseObject):
-			json = json.dict()
-
-		# assign attributes.
-		if json != None:
-			if isinstance(json, str):
+		elif attributes.__class__.__name__ in ["OutputObject"]:
+			attributes = attributes.response()
+		elif isinstance(attributes, (str,String)):
 				try:
-					self.assign(pypi_json.loads(json))
+					self.assign(pypi_json.loads(attributes))
 				except:
 					try:
-						self.assign(ast.literal_eval(json))
+						self.assign(ast.literal_eval(attributes))
 					except:
-						self.assign(pypi_json.loads(String(json).slice_dict()))
-			elif isinstance(json, dict):
-				self.assign(json)
-			elif json != None:
-				raise Exceptions.InvalidUsage("The ResponseObject.json parameter must be str / dict format.")
+						self.assign(pypi_json.loads(String(attributes).slice_dict()))
+			elif isinstance(attributes, dict):
+				self.assign(attributes)
+			elif attributes != None:
+				raise Exceptions.InvalidUsage("The ResponseObject.attributes parameter must be dict or dict in str format.")
 		else:
 			self.assign(attributes)
 
