@@ -513,12 +513,10 @@ class ResponseObject(object):
 						self.assign(ast.literal_eval(attributes))
 					except:
 						self.assign(pypi_json.loads(String(attributes).slice_dict()))
-			elif isinstance(attributes, dict):
-				self.assign(attributes)
-			elif attributes != None:
-				raise Exceptions.InvalidUsage("The ResponseObject.attributes parameter must be dict or dict in str format.")
-		else:
+		elif isinstance(attributes, (dict,Dictionary)):
 			self.assign(attributes)
+		else:
+			raise Exceptions.InvalidUsage(f"<ResponseObject.attributes>: parameter [attributes] must be a [dict, dict in str format], not [{attributes.__class__.__name__}].")
 
 		# clean message & error.
 		try:
