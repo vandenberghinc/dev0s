@@ -307,7 +307,7 @@ class WebServer(Thread):
 		self.system_cache.save(path=f"{self.id}/daemon", data="*stopped*", format="str")
 	def fork(self, timeout=15, sleeptime=1):
 		if self.running:
-			return _response_.error(f"The {self.id} is already running.")
+			return _response_.success(f"The {self.id} is already running.")
 		if self.log_level <= 0:
 			print(f"Starting the {self.id}.")
 		serialized = self.dict(keys={
@@ -334,10 +334,10 @@ class WebServer(Thread):
 		if success:
 			return _response_.success(f"Successfully started the {self.id}.")
 		else:
-			return _response_.error(f"The {self.id} is already running.")
+			return _response_.error(f"Failed to start the {self.id}.")
 	def stop(self):
 		if not self.running: 
-			return _response_.error(f"{self.__traceback__(function='stop')}: The {self.id} is not running.")
+			return _response_.success(f"{self.__traceback__(function='stop')}: The {self.id} is not running.")
 		processes = defaults.processes(includes=f"--dev0s-webserver-tag {self.tag}")
 		if not processes.success: return response
 		if len(processes.processes) <= 1:
