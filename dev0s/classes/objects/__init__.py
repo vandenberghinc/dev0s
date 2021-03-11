@@ -316,7 +316,7 @@ class Thread(Object, threading.Thread):
 		#else:
 		#	raise Exceptions.InvalidUsage("Define one of the following parameters: [message:str, error:str, response:ResponseObject].")
 		self.__status__ = "stopping"
-		if msg != None log_level >= required_log_level or save:
+		if msg != None and log_level >= required_log_level or save:
 			Response.log(response=self.__response__, save=save, log_level=log_level, required_log_level=required_log_level)
 		return self.__response__
 		#
