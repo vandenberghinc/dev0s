@@ -81,6 +81,8 @@ class RSA(object):
 			if Files.exists(public_key_path):
 				loader.stop(success=False)
 				return _response_.error(f"Public key [{public_key_path}] already exists.")
+			if not Files.exists(directory):
+				Files.create(directory, directory=True)
 		else:
 			if log_level >= 0: loader = console.Loader("Generating key")
 		
