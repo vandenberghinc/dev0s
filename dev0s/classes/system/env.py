@@ -83,13 +83,13 @@ class Env(Docs):
 			else:
 				exports = export
 			for export in exports:
-				if format == "json" or ".json" in export or String(export).last("/json") == "/json":
+				if format == "json" or ".json" in export or gfp.name(export) == "json":
 					format = "json"
 					try:
 						exported = Files.load(export, format="json")
 					except FileNotFoundError:
 						exported = {}
-				elif format == "bash" or ".sh" in export or String(export).last("/bash") == "/bash":
+				elif format == "bash" or ".sh" in export or gfp.name(export) == "bash":
 					format = "bash"
 					try:
 						exported = Files.load(export, format="str")
@@ -100,7 +100,7 @@ class Env(Docs):
 						elif len(exported) > 0 and String(exported).last("\n") == "\n": exported = str(String(exported).remove_last("\n"))
 						else: break
 				else:
-					raise Exceptions.InvalidUsage(f"Export file [{export}] must contain an .json / .sh extension or must be named 'bash' / 'json' (last: {String(export).last('/json')}).")
+					raise Exceptions.InvalidUsage(f"Export file [{export}] must contain an .json / .sh extension or must be named 'bash' / 'json'.")
 				for key,value in dictionary.items():
 					if format == "json":
 						exported[str(key)] = value
