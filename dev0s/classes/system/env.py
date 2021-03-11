@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # imports.
+from dev0s.classes.defaults.exceptions import Exceptions
 from dev0s.classes.defaults.color import color, symbol
 from dev0s.classes.defaults.files import *
 from dev0s.classes.response import response as _response_
@@ -58,7 +59,15 @@ class Env(Docs):
 		#
 	
 	# export env.
-	def export(self, env=None, export=None):
+	def export(self, 
+		# the environment to export (dict).
+		env=None, 
+		# the export path (str) or paths (list).
+		# the paths must have .json / .sh extension or be named 'json' / 'bash' when parameter [format] is undefined.
+		export=None,
+		# the export format.
+		format=None,
+	):
 		if env == None: return _response_.error("Define parameter: env.")
 		dictionary = {}
 		if isinstance(env, (dict, Dictionary)):
@@ -67,13 +76,53 @@ class Env(Docs):
 		for key,value in dictionary.items():
 			os.environ[str(key)] = str(value)
 		if export != None:
-			try:
-				exported = Files.load(export, format="json")
-			except FileNotFoundError:
-				exported = {}
-			for key,value in dictionary.items():
-				exported[str(key)] = value
-			Files.save(export, exported, format="json")
+			if isinstance(export, (str,String,FilePath)):
+				exports = [str(export)]
+			elif not isinstance(export, (list, Array)):
+				raise Exceptions.InvalidUsage(f"<dev0s.system.env>: Parameter export requires to be a [str, list, FilePath], not [{export.__class__.__name__}].")
+			else:
+				exports = export
+			for export in exports:
+				if ".json" in export or (len(export) >= len("/json") and String(export).last("/json") == "/json"):
+					format = "json"
+					try:
+						exported = Files.load(export, format="json")
+					except FileNotFoundError:
+						exported = {}
+				elif ".sh" in export or (len(export) >= len("/bash") and String(export).last("/bash") == "/bash"):
+					format = "bash"
+					try:
+						exported = Files.load(export, format="str")
+					except FileNotFoundError:
+						exported = ""
+					while True:
+						if "\n\n" in exported: exported = exported.replace("\n\n","\n")
+						elif len(exported) > 0 and String(exported).last("\n") == "\n": exported = str(String(exported).remove_last("\n"))
+						else: break
+				else:
+					raise Exceptions.InvalidUsage("The export file must contain an .json / .sh extension or must be named 'bash' / 'json'.")
+				for key,value in dictionary.items():
+					if format == "json":
+						exported[str(key)] = value
+					elif format == "bash":
+						if f'export {key.upper()}="' in exported:
+							l = ""
+							for i in exported.split("\n"):
+								if f'export {key.upper()}="' in line:
+									l += f'export {key.upper()}="{value}"\n'
+								else:
+									l += line+"\n"
+							exported = l
+						else:
+							exported += '\n'+f'export {key.upper()}="{value}"\n'
+				if format == "json":
+					Files.save(export, exported, format="json")
+				elif format == "bash":
+					while True:
+						if "\n\n" in exported: exported = exported.replace("\n\n","\n")
+						elif len(exported) > 0 and String(exported).last("\n") == "\n": exported = str(String(exported).remove_last("\n"))
+						else: break
+					Files.save(export, exported, format="str")
 		return _response_.success(f"Successfully exported {len(dictionary)} env variables.")
 		#
 	
