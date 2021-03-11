@@ -300,6 +300,7 @@ class Thread(Object, threading.Thread):
 		required_log_level=Response.log_level,
 	):
 		if log_level == None: log_level = self.log_level
+		msg = None
 		if isinstance(message, (str,String)):
 			self.__response__ = Response.success(message, args, log_level=-1, save=False)
 			msg = message
@@ -312,10 +313,10 @@ class Thread(Object, threading.Thread):
 				msg = response["message"]
 			else:
 				msg = response["error"]
-		else:
-			raise Exceptions.InvalidUsage("Define one of the following parameters: [message:str, error:str, response:ResponseObject].")
+		#else:
+		#	raise Exceptions.InvalidUsage("Define one of the following parameters: [message:str, error:str, response:ResponseObject].")
 		self.__status__ = "stopping"
-		if log_level >= required_log_level or save:
+		if msg != None log_level >= required_log_level or save:
 			Response.log(response=self.__response__, save=save, log_level=log_level, required_log_level=required_log_level)
 		return self.__response__
 		#
@@ -336,6 +337,7 @@ class Thread(Object, threading.Thread):
 		required_log_level=Response.log_level,
 	):
 		if log_level == None: log_level = self.log_level
+		msg = None
 		if isinstance(message, (str,String)):
 			self.__response__ = Response.success(message, args, log_level=-1, save=False)
 			msg = message
@@ -348,10 +350,10 @@ class Thread(Object, threading.Thread):
 				msg = response["message"]
 			else:
 				msg = response["error"]
-		else:
-			raise Exceptions.InvalidUsage("Define one of the following parameters: [message:str, error:str, response:ResponseObject].")
+		#else:
+		#	raise Exceptions.InvalidUsage("Define one of the following parameters: [message:str, error:str, response:ResponseObject].")
 		self.__status__ = "crashed"
-		if log_level >= required_log_level or save:
+		if msg != None and log_level >= required_log_level or save:
 			Response.log(response=self.__response__, save=save, log_level=log_level, required_log_level=required_log_level)
 		return self.__response__
 		#
