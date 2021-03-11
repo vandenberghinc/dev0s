@@ -148,6 +148,8 @@ def execute(
 	optional=False, 
 	#
 	# Logging.
+	# the loader (str, Loader).
+	loader=None,
 	#   the log level.
 	log_level=defaults.options.log_level,
 	#
@@ -160,6 +162,11 @@ def execute(
 	# checks,
 	if input != None and not isinstance(input, (dict, Dictionary, list, Array)): 
 		raise Exceptions.InvalidUsage(f"<dev0s.code.execute>: Parameter [input] requires to be be a [dict, Dictionary, list, Array], not [{iput.__class__.__name__}].")
+
+	# loader.
+	stop_loader_on_success = isinstance(loader, (str,String))
+	if isinstance(loader, (str,String)) and 2 > log_level >= 0:
+		loader = console.Loader(loader)
 
 	# vars.
 	delete = False
@@ -197,18 +204,24 @@ def execute(
 	
 	# start.
 	response = spawn.start()
-	if not response.success: return OutputObject(error=f"Failed to start {response_str}, error: {response.error}", log_level=log_level)
+	if not response.success: 
+		if isinstance(loader, console.Loader): loader.stop(success=False)
+		return OutputObject(error=f"Failed to start {response_str}, error: {response.error}", log_level=log_level)
 	
 	# check crashed
 	response = spawn.crashed()
-	if not response.success:  return OutputObject(error=response.error, log_level=log_level)
+	if not response.success:  
+		if isinstance(loader, console.Loader): loader.stop(success=False)
+		return OutputObject(error=response.error, log_level=log_level)
 
 	# has already exited.
 	elif spawn.exit_status in [0]:
 		
 		# get output.
 		response = spawn.wait(timeout=1.0)
-		if not response.success: return OutputObject(error=response.error, log_level=log_level) # exit status.
+		if not response.success: 
+			if isinstance(loader, console.Loader): loader.stop(success=False)
+			return OutputObject(error=response.error, log_level=log_level) # exit status.
 		output = response.output
 
 		#
@@ -220,7 +233,9 @@ def execute(
 		for i in range(10):
 			if spawn.running: break
 			time.sleep(1)
-		if not spawn.running: return OutputObject(error=f"Unable to start {response_str}.", log_level=log_level)
+		if not spawn.running: 
+			if isinstance(loader, console.Loader): loader.stop(success=False)
+			return OutputObject(error=f"Unable to start {response_str}.", log_level=log_level)
 
 		# str input.
 		if isinstance(input, (list, Array)):
@@ -266,6 +281,7 @@ def execute(
 			if not spawn.expecting:
 				expecting = False
 				if not optional:
+					if isinstance(loader, console.Loader): loader.stop(success=False)
 					if log_level >= 1:
 						return OutputObject(error=f"Failed to send expected input {str_input} to {response_str}, child is not expecting any input [{spawn.child}].", log_level=log_level)
 					else:
@@ -293,6 +309,7 @@ def execute(
 								if optional:
 									break
 								else:
+									if isinstance(loader, console.Loader): loader.stop(success=False)
 									return OutputObject(error=f"Failed to send one of the expected input(s) {str_input}, error: {response.error}", log_level=log_level)
 
 				# send one of the keys (dict instance).
@@ -302,12 +319,14 @@ def execute(
 						if "End of file" in response.error:
 							error_end_of_file = True
 						elif not optional:
+							if isinstance(loader, console.Loader): loader.stop(success=False)
 							return OutputObject(error=f"Failed to send one of the expected input(s) {str_input}, error: {response.error}", log_level=log_level)
 
 				""" check no input left (does not work properly).
 				if not error_end_of_file and spawn.expecting:
 					try: after = spawn.child.after.decode()
 					except : after = spawn.child.after
+					if isinstance(loader, console.Loader): loader.stop(success=False)
 					return OutputObject(error=f"Failed to execute {response_str}, still expecting: [{after}].", log_level=log_level)
 				"""		
 
@@ -317,13 +336,18 @@ def execute(
 
 			# check crashed.
 			response = spawn.crashed()
-			if not response.success:  return OutputObject(error=response.error, log_level=log_level)
+			if not response.success:  
+				if isinstance(loader, console.Loader): loader.stop(success=False)
+				return OutputObject(error=response.error, log_level=log_level)
 
 			# always await sync.
 			response = spawn.wait()
-			if not response.success: return OutputObject(error=response.error, log_level=log_level)
+			if not response.success: 
+				if isinstance(loader, console.Loader): loader.stop(success=False)
+				return OutputObject(error=response.error, log_level=log_level)
 			output = response.output
 			if error_end_of_file != None and error_end_of_file: 
+				if isinstance(loader, console.Loader): loader.stop(success=False)
 				if log_level >= 1:
 					return OutputObject(error=f"Failed to send expected input {str_input} to {response_str} (#234343) (output: {output}) (child: {spawn.child}).", log_level=log_level)
 				else:
@@ -333,7 +357,9 @@ def execute(
 			if kill and spawn.running:
 				if log_level >= 8: print(f"Killing process {response_str}.")
 				response = spawn.kill()
-				if not response.success: return OutputObject(error=f"Failed to kill {response_str}, error: {response.error}", log_level=log_level)
+				if not response.success: 
+					if isinstance(loader, console.Loader): loader.stop(success=False)
+					return OutputObject(error=f"Failed to kill {response_str}, error: {response.error}", log_level=log_level)
 
 		# async.
 		elif async_:
@@ -341,8 +367,11 @@ def execute(
 			# check exit status.
 			response = spawn.read(wait=False)
 			if not response.success: 
-				if not response.success: return OutputObject(error=f"Failed to retrieve output from spawn {response_str}, error: {response.error}", log_level=log_level)
+				if not response.success: 
+					if isinstance(loader, console.Loader): loader.stop(success=False)
+					return OutputObject(error=f"Failed to retrieve output from spawn {response_str}, error: {response.error}", log_level=log_level)
 			if spawn.child.exitstatus not in [0, None]:
+				if isinstance(loader, console.Loader): loader.stop(success=False)
 				return OutputObject(error=f"{response_str} returned exit status: [{spawn.child.exitstatus}] (output: {self.read(wait=False, __safe__=True).output}).", log_level=log_level)
 
 			# await async.
@@ -350,17 +379,22 @@ def execute(
 
 				# await.
 				response = spawn.wait()
-				if not response.success: return OutputObject(error=response.error, log_level=log_level) # exit status.
+				if not response.success: 
+					if isinstance(loader, console.Loader): loader.stop(success=False)
+					return OutputObject(error=response.error, log_level=log_level) # exit status.
 				output = response.output
 
 				if spawn.child.exitstatus not in [0, None]:
+					if isinstance(loader, console.Loader): loader.stop(success=False)
 					return OutputObject(error=f"{response_str} returned exit status: [{spawn.child.exitstatus}] (output: {self.read(wait=False, __safe__=True).output}).", log_level=log_level)
 				
 				# check kill.
 				if kill and spawn.running:
 					if log_level >= 8: print(f"Killing process {response_str}.")
 					response = spawn.kill()
-					if not response.success: return OutputObject(error=f"Failed to kill {response_str}, error: {response.error}", log_level=log_level)
+					if not response.success: 
+						if isinstance(loader, console.Loader): loader.stop(success=False)
+						return OutputObject(error=f"Failed to kill {response_str}, error: {response.error}", log_level=log_level)
 
 	# handler.
 	if delete: Files.delete(path)
@@ -368,9 +402,12 @@ def execute(
 		try: response = _response_.ResponseObject(output)
 		except Exception as e: 
 			if loader != None: loader.stop(success=False)
+			if isinstance(loader, console.Loader): loader.stop(success=False)
 			return OutputObject(error=f"Failed to serialize (output: {output}).", log_level=log_level)
 		if not response.success: 
+			if isinstance(loader, console.Loader): loader.stop(success=False)
 			return OutputObject(error=f"Encoutered an error in the serialized response, error: {response.error}", log_level=log_level)
+	if stop_loader_on_success and isinstance(loader, console.Loader): loader.stop()
 	return OutputObject(message=f"Succesfully executed {response_str}.", log_level=log_level, attributes={
 		"output":output,
 		"process":spawn,
