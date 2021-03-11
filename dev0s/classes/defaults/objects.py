@@ -85,7 +85,7 @@ class Object(Traceback):
 			for key,value in keys.items():
 				skip = False
 				try:
-					dict_value = dictionary[key]
+					dict_value = self[key]
 				except:
 					dict_value = value
 					skip = False
@@ -99,11 +99,11 @@ class Object(Traceback):
 				skip = False
 				if safe:
 					try:
-						dict_value = dictionary[key]
+						dict_value = self[key]
 					except:
 						skip = True
 				else:
-					dict_value = dictionary[key]
+					dict_value = self[key]
 				if not skip:
 					selected[key] = dict_value
 			return selected.items()
@@ -128,7 +128,7 @@ class Object(Traceback):
 			for key,value in keys.items():
 				skip = False
 				try:
-					dict_value = dictionary[key]
+					dict_value = self[key]
 				except:
 					dict_value = value
 					skip = False
@@ -142,11 +142,11 @@ class Object(Traceback):
 				skip = False
 				if safe:
 					try:
-						dict_value = dictionary[key]
+						dict_value = self[key]
 					except:
 						skip = True
 				else:
-					dict_value = dictionary[key]
+					dict_value = self[key]
 				if not skip:
 					selected[key] = dict_value
 			return list(selected.keys())
@@ -231,7 +231,7 @@ class Object(Traceback):
 		# with safe disabled it throws an error when one of the specified keys does not exist.
 		safe=True,
 	):
-		return self.dict(keys=keys)
+		return self.dict(keys=keys, safe=safe)
 	def dict(self, 
 		# the keys to get (leave default to unpack all keys).
 		#	list instance: checks if the key is present if not it throws an error when [safe] is disabled
@@ -241,7 +241,7 @@ class Object(Traceback):
 		safe=True,
 	):
 		dictionary = {}
-		for key, value in self.items(keys=keys):
+		for key, value in self.items(keys=keys, safe=safe):
 			dictionary[key] = value
 		return dictionary
 
