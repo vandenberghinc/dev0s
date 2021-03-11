@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # imports.
-import os, sys, requests, ast, json, pathlib, platform, random, shutil, zipfile, pwd, grp, subprocess, time, threading, sysconfig
+import os, sys, requests, ast, json, pathlib, platform, random, shutil, zipfile, pwd, grp, subprocess, time, threading, sysconfig, urllib, flask, logging, multiprocessing
 from datetime import datetime
 
 # settings.
@@ -66,10 +66,8 @@ OS = __get_operating_system__()
 # file settings.
 USER = OWNER = os.environ.get("USER")
 GROUP = "root"
-HOME = f"/home/{OWNER}/"
-if OS in ["macos"]: 
-	GROUP = "wheel"
-	HOME = f"/Users/{OWNER}/"
+HOME = os.environ.get('HOME')+"/"
+if OS in ["macos"]:  GROUP = "wheel"
 
 # options.
 ERROR_TRACEBACK = os.environ.get("R3SPONSE_ERROR_TRACEBACK")

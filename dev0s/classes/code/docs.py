@@ -11,7 +11,7 @@ class Docs(object):
 		# boolean inidicating if the object is initialized by default.
 		initialized=True,
 		# the full module path in import style (when initializing).
-		module="Code.Docs",
+		module="dec0s.Docs",
 		# the notes that will apread above the class_ initialization (leave [] to use default.
 		notes=[],
 	):

@@ -4,7 +4,7 @@
 # imports.
 from dev0s.classes.config import *
 
-# the Console.* functions (exact copy).
+# the console.* functions (exact copy).
 def argument_present(arguments, default=False, count=1):
 	if isinstance(arguments, str):
 		c = sys.argv.count(arguments)
@@ -69,7 +69,7 @@ class Docs(object):
 		# boolean inidicating if the object is initialized by default.
 		initialized=True,
 		# the full module path in import style (when initializing).
-		module="Code.Docs",
+		module="dev0s.Docs",
 		# the notes that will apread above the class_ initialization (leave [] to use default.
 		notes=[],
 	):

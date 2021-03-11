@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 
 # imports.
-from dev0s.classes.exceptions import Exceptions
-from dev0s.classes.files import *
+from dev0s.classes.defaults.exceptions import Exceptions
+from dev0s.classes.defaults.files import *
 from dev0s.classes.utils.copycats import Docs
 
 # pip imports.
@@ -12,13 +12,13 @@ import json as pypi_json
 import traceback as _traceback_
 
 # the response manager class.
-class __Response__(Docs):
+class Response(object):
 	def __init__(self):	
 
 		# docs.
 		Docs.__init__(self,
 			initialized=True,
-			module="Response", 
+			module="dev0s.response", 
 			notes=[], )
 
 		# set log file.
@@ -47,7 +47,7 @@ class __Response__(Docs):
 		required_log_level=None, 
 		# save the error to the logs file.
 		save=False,
-		# return as a django JsonResponse.
+		# return as a django Jsonresponse.
 		django=False,
 	):
 		response = self.response({
@@ -73,7 +73,7 @@ class __Response__(Docs):
 		required_log_level=None, 
 		# save the error to the erros file.
 		save=False,
-		# return as a django JsonResponse.
+		# return as a django Jsonresponse.
 		django=False,
 		# raise error for developer traceback.
 		traceback=ERROR_TRACEBACK,
@@ -159,7 +159,7 @@ class __Response__(Docs):
 			comparison = log_level != None and log_level >= required_log_level
 		except TypeError as e:
 			if "not supported between instances of 'dict' and 'int'" in f"{e}":
-				raise TypeError(f"You most likely returned a Response.error when you meant a Response.success, error: {e}")
+				raise TypeError(f"You most likely returned a response.error when you meant a response.success, error: {e}")
 			else:
 				raise TypeError(e)
 		if comparison:
@@ -224,16 +224,16 @@ class __Response__(Docs):
 			#	#print(f"Serialized generator output instance: [{response.__class__.__name__}].")
 			#	#return response
 			#except Eception as e:
-			#	return Response.error(f"An error occured during the execution of generator [{response}], error: {e}")
+			#	return _response_.error(f"An error occured during the execution of generator [{response}], error: {e}")
 
 		# check ResponseObject.
 		elif response.__class__.__name__ in ["ResponseObject"]:
 			return response
 		
-		# check Console.Output.
-		elif response.__class__.__name__ in ["Output"]:
+		# check Output.
+		elif response.__class__.__name__ in ["OutputObject"]:
 			try:
-				return response.response()
+				return _response_.response()
 			except AttributeError:
 				return response
 
@@ -338,13 +338,13 @@ class __Response__(Docs):
 	#
 	
 # the parameters manager object class.
-class Parameters(Docs):
+class Parameters(object):
 	def __init__(self):
 		
 		# docs.
 		Docs.__init__(self,
 			initialized=True,
-			module="Response.parameters", 
+			module="dev0s.response.parameters", 
 			notes=[], )
 
 		#
@@ -363,12 +363,12 @@ class Parameters(Docs):
 		traceback=None,
 	):
 		if request == None:
-			raise Exceptions.InvalidUsage("<Response.paramters.get>: Define parameter: [request].")
+			raise Exceptions.InvalidUsage("<dev0s.response.paramters.get>: Define parameter: [request].")
 		
 		# single parameter.
 		if isinstance(parameters, (str,String)):
 			parameters = str(parameters)
-			response = Response.response()
+			response = response.response()
 			format = None
 			if ":" in parameters:
 				parameters,format = parameters.split(":")
@@ -381,9 +381,9 @@ class Parameters(Docs):
 				variable = request.GET.get(parameters)
 			if variable in ["", None]:
 				if traceback != None:
-					return variable, Response.error(f"{traceback}: Define parameter: [{parameters}].")
+					return variable, response.error(f"{traceback}: Define parameter: [{parameters}].")
 				else:
-					return variable, Response.error(f"Define parameter: [{parameters}].")
+					return variable, response.error(f"Define parameter: [{parameters}].")
 			elif format != None:
 				if format in ["str", "string"]: variable = str(variable)
 				elif format in ["int", "integer"]: variable = int(variable)
@@ -393,10 +393,10 @@ class Parameters(Docs):
 				elif format in ["float", "double"]: variable = float(variable)
 				elif format in ["array", "list"]: variable = variable.split(",")
 				else:
-					raise ValueError(f"Unrecognized <Response.parameters.get> format: {format}.")
+					raise ValueError(f"Unrecognized <dev0s.response.parameters.get> format: {format}.")
 			
 			# handler.
-			return variable, Response.success(f"Succesfully retrieved request parameter [{parameters}].", {
+			return variable, response.success(f"Succesfully retrieved request parameter [{parameters}].", {
 				"key":parameters,
 				"value":variable,
 			})
@@ -419,7 +419,7 @@ class Parameters(Docs):
 				for key in parameters:
 					try: params[key]
 					except: params[key] = default
-			return params, Response.success(f"Succesfully retrieved {len(params)} request parameter(s).")
+			return params, response.success(f"Succesfully retrieved {len(params)} request parameter(s).")
 
 		# dict recursive.
 		elif isinstance(parameters, (dict, Dictionary, ResponseObject)):
@@ -440,7 +440,7 @@ class Parameters(Docs):
 				for key,default in parameters.items():
 					try: params[key]
 					except: params[key] = default
-			return params, Response.success(f"Succesfully retrieved {len(params)} request parameter(s).")
+			return params, response.success(f"Succesfully retrieved {len(params)} request parameter(s).")
 
 
 		# invalid.
@@ -464,9 +464,9 @@ class Parameters(Docs):
 			name,parameter = parameters
 			if parameter == default: 
 				if traceback != None:
-					return Response.error(f"{traceback}: Define parameter [{name}].")
+					return _response_.error(f"{traceback}: Define parameter [{name}].")
 				else:
-					return Response.error(f"Define parameter [{name}].")
+					return _response_.error(f"Define parameter [{name}].")
 			if ":" in name:
 				name,formats = name.split(":")
 				while True:
@@ -475,15 +475,15 @@ class Parameters(Docs):
 				formats = formats.split(",")
 				param_format = Formats.get(parameter, serialize=True)
 				if param_format not in formats:
-					return Response.error(f"Incorrect parameter [{name}:{param_format}] format, correct format(s): {Array(path=False, array=formats).string(joiner=', ')}.")
-			return Response.success(f"Succesfully checked parameter [{name}].")
+					return _response_.error(f"Incorrect parameter [{name}:{param_format}] format, correct format(s): {Array(path=False, array=formats).string(joiner=', ')}.")
+			return _response_.success(f"Succesfully checked parameter [{name}].")
 
 		# recursive.
 		elif isinstance(parameters, (dict,Dictionary,ResponseObject)):
 			for id, value in parameters.items():
 				response = self.check(parameters=(id, value), default=default, traceback=traceback)
 				if response["error"] != None: return response
-			return Response.success(f"Succesfully checked {len(parameters)} parameter(s).")
+			return _response_.success(f"Succesfully checked {len(parameters)} parameter(s).")
 		# invalid.
 		else: 
 			raise Exceptions.InstanceError(f"Parameter [parameters] requires to be a [dict, Dictionary, tuple] not [{parameters.__class__.__name__}].")
@@ -496,7 +496,7 @@ class Parameters(Docs):
 class ResponseObject(object):
 	def __init__(self, 
 		#
-		# Should be initialized with Response.success or Response.error.
+		# Should be initialized with response.success or response.error.
 		#
 		# the response attributes (dict or dict in str format).
 		attributes={
@@ -548,10 +548,10 @@ class ResponseObject(object):
 		# check error passed as success response. & reversed
 		if self.message != None and len(self.message) >= len("Failed") and self.message[:len("Failed")] == "Failed":
 			#_traceback_.print_exc() 
-			raise ValueError("A success response may not start with (failed ...). You most likely called an Response.success return while you meant Response.error.")
+			raise ValueError("A success response may not start with (failed ...). You most likely called an response.success return while you meant response.error.")
 		if self.error != None and len(self.error) >= len("Success") and self.error[:len("Success")] == "Success":
 			#_traceback_.print_exc() 
-			raise ValueError("An error response may not start with (success ...). You most likely called an Response.error return while you meant Response.success.")
+			raise ValueError("An error response may not start with (success ...). You most likely called an response.error return while you meant response.success.")
 		
 		#
 	# clean default values.
@@ -588,16 +588,17 @@ class ResponseObject(object):
 	# assign dict.
 	def assign(self, dictionary):
 		if isinstance(dictionary, (dict, Dictionary)):
-			for key,value in Response.__serialize__(dictionary).items():
+			for key,value in response.__serialize__(dictionary).items():
 				self[key] = value
 		elif isinstance(dictionary, (tuple, list, Array)):
 			for key,value in dictionary:
-				self[key] = Response.__serialize__(value)
+				self[key] = response.__serialize__(value)
 		else:
 			raise Exceptions.InvalidUsage("The dictionary parameter must be a dict or tuple.")
 		return self
 	# crash the error message.
-	def crash(self, error="ValueError", traceback=True, json=False):
+	def crash(self, error="ValueError", traceback=True, json=False, error_only=False):
+		if error_only and self["error"] == None: return None
 		if json:
 			self.log(error=self["error"], json=json)
 			sys.exit(1)
@@ -618,13 +619,13 @@ class ResponseObject(object):
 		#   unpack all keys from the dict & when not present return the key's value as default.
 		keys,
 	):
-		defaults = {}
+		defaults_ = {}
 		if isinstance(keys, (dict, Files.Dictionary, ResponseObject)):
 			if isinstance(keys, dict):
-				defaults = dict(keys)
+				defaults_ = dict(keys)
 				keys = list(keys.keys())
 			else:
-				defaults = keys.dict()
+				defaults_ = keys.dict()
 				keys = keys.keys()
 		elif isinstance(keys, str):
 			keys = [keys]
@@ -635,7 +636,7 @@ class ResponseObject(object):
 				value = self[key]
 			except KeyError: 
 				try:
-					value = defaults[key]
+					value = defaults_[key]
 				except KeyError: 
 					set = False
 			if not set:
@@ -824,11 +825,12 @@ class ResponseObject(object):
 	# return raw data.
 	def raw(self):
 		return self.dict()
-	# return response self for Console.Output and other objects that init ResponseObject as self and want it to be converted to response.
+	# return response self for OutputObject and other objects that init ResponseObject as self and want it to be converted to response.
 	def response(self):
 		return self
 		#
 
 # initialized objects.
 # must be initialized as Response since object class Parameters requires it.
-Response = __Response__()
+response = Response()
+_response_ = response

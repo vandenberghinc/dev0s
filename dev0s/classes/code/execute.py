@@ -1,521 +1,113 @@
 
 # imports
-from dev0s.classes.exceptions import Exceptions
-from dev0s.classes.color import color
-from dev0s.classes.files import *
-from dev0s.classes.response import Response, ResponseObject
-from dev0s.classes import objects
-from dev0s.classes.defaults import Defaults
+from dev0s.classes.defaults.exceptions import Exceptions
+from dev0s.classes.defaults.color import color
+from dev0s.classes.defaults.files import *
+from dev0s.classes.response import ResponseObject
+from dev0s.classes.response import response as _response_
+from dev0s.classes.defaults import objects
+from dev0s.classes.defaults.defaults import defaults
 
 # pip imports.
 import pexpect
 import signal as _signal_
 
-# the spawn object class (for inputs).
-class Spawn(objects.Object):
-	def __init__(self,
-		#
-		# Should be initialized with function: Code.execute
-		#
-		# the full command (str) (#1).
-		command="ls",
-		# asynchronous.
-		async_=False,
-		# the log level.
-		log_level=Defaults.options.log_level,
-		# additional attributes.
-		attributes={},
-		# system options.
-		response_str=None,
-	):
-
-		# defaults.
-		objects.Object.__init__(self, traceback="Code.execute.spawn")
-		self.assign(attributes)
-
-		# args.
-		self.command = command
-		self.async_ = async_
-		self.log_level = log_level
-		self.response_str = response_str
-
-		# vars.
-		self.child = None
-		self.__secrets__ = []
-
-		#
-
-	# start the process.
-	def start(self):
-		try:
-			self.child = pexpect.spawn(self.command)
-		except Exception as e:
-			return Response.error(f"Failed to spawn {self.response_str}, error: {e}.")
-		# check exit status.
-		if self.child.exitstatus not in [0, None]:
-			return OutputObject(error=f"{self.response_str} returned exit status: [{spawn.child.exitstatus}] (output: {self.read(wait=False, __safe__=True).output}).")
-		self.__output__ = ""
-		return Response.success(f"Successfully spawned {self.response_str}.")
-		#
-
-	# check expect input and optionally send input.
-	def expect(self,
-		# the expected data parameter (#1).
-		#	str instantce: expect a single identifier.
-		#	list instance: expect one of the provided identifiers & return the found one if success.
-		expect=["Password*"],
-		# the optional data to send (#2).
-		#	none instance: do not send anything.
-		#	str instance: the data to send.
-		#	list/tuple instance: send value of index from expected expect (required expect to be a list, Array & the indexes of [expect, send] be match).
-		send=None,
-		# the timeout (float).
-		timeout=1.0,
-	):
-		# check none timeout.
-		if timeout == None: timeout = 1.0
-
-		# single expect.
-		if isinstance(expect, str):
-			if isinstance(send, (list, Array)): 
-				raise Exceptions.InvalidUsage(f"{self.__traceback__(function='expect', parameter='send')}: parameter [send] requires to be be a [str, String] when parameter [expect] is a [{expect.__class__.__name__}], not [{send.__class__.__name__}].")
-
-			""" add to lines to output (before) (adds nothing when empty) (do not use self.expecting before adding the output). """
-			response = self.read(wait=False)
+# kill pids.
+def kill(
+	# option 1:
+	# the process id.
+	pid=None, 
+	# option 2:
+	# all processes that includes.
+	includes=None,
+	# root permission required.
+	sudo=False,
+	# loader.
+	log_level=0,
+):
+	# kill includes.
+	loader = None
+	if includes != None:
+		response = processes(includes=includes, sudo=sudo)
+		if not response.success: return response
+		c = 0
+		for pid, info in response.processes.items():
+			response = kill(sudo=sudo, pid=pid, loader=loader)
 			if not response.success: return response
-
-			""" check expect & send if provided. """
-			c = 1
-			try:
-				#if self.async_:
-				#	g = yield from self.child.expect(expect, timeout=timeout, async_=True)
-				#	r = next(g)
-				#else:
-				r = self.child.expect(expect, timeout=timeout)
-				if not isinstance(r, (int, Integer, float)):
-					return Response.error(f"Expected [{expect}] is not the child's expected input (#873465).")
-				c = 2
-				if self.log_level >= 8: print(f"Found expected: {expect}")
-				if send != None:
-					if self.log_level >= 8: print(f"Attempting to send: {send}")
-					#if self.async_:
-					#	g = yield from self.child.sendline(str(send), async_=True)
-					#	r = next(g)
-					#else:
-					r = self.child.sendline(str(send))
-					self.__secrets__.append(str(send))
-					if self.log_level >= 8: print(f"Succesfully sended: {send}")
-			except pexpect.exceptions.TIMEOUT:
-				if c == 1:
-					return Response.error(f"Expected [{expect}] is not the child's expected input, error: Timeout (during epxecting).")
-				else:
-					return Response.error(f"Failed to send expected [{expect}], error: Timeout (during sending input).")
-			except pexpect.exceptions.EOF:
-				if c == 1:
-					return Response.error(f"Expected [{expect}] is not the child's expected input, error: End of file (during epxecting).")
-				else:
-					return Response.error(f"Failed to send expected [{expect}], error: End of file (during sending input).")
-			except Exception as e:
-				if c == 1:
-					return Response.error(f"Expected [{expect}] is not the child's expected input, error: {e}.")
-				else:
-					return Response.error(f"Failed to send expected [{expect}], error: {e}.")
-
-			
-			""" add to lines to output (after) (adds nothing when empty) (do not use self.expecting before adding the output). """
-			response = self.read(wait=False)
-			if not response.success: return response
-
-			# handler.
-			if send != None:
-				return Response.success(f"Successfully send expected input ({expect}).")
-			else:
-				return Response.success(f"Successfully retrieved expected input ({expect}).")
-
-		# list expect.
-		elif isinstance(expect, (list, Array)):
-			index = 0
-			for _expect_ in expect:
-				if isinstance(send, (list,Array)):
-					try:
-						_send_ = str(send[index])
-					except:
-						raise Exceptions.InvalidUsage(f"{self.__traceback__(function='expect', parameter='send')}: parameter [send] and parameter [expect] do not have the same indexes.")
-				else:
-					_send_ = str(send)
-				if self.log_level >= 8: print(f"Checking optional expect: {_expect_}")
-				response = self.expect(expect=_expect_, timeout=timeout, send=_send_)
-				if not response.success and "is not the child's expected input" not in response.error: return response
-				elif response.success:
-					return Response.success(f"Successfully {Boolean(send).string(true='send', false='retrieved')} the expected input(s).", {
-						"expected":_expect_,
-						"index":index,
-					})
-				index += 1
-			return Response.error(f"None of the specified input was expected.")
-
-		# invalid usage.
+			c += 1
+		if c == 0:
+			return _response_.error(f"No processes found.")
+		elif c == 1:
+			return _response_.success(f"Successfully killed {c} process.")
 		else:
-			raise Exceptions.InvalidUsage(f"{self.__traceback__(function='expect', parameter='expect')}: parameter [expect] requires to be be a [Dictionary], not [{config.__class__.__name__}].")
+			return _response_.success(f"Successfully killed {c} processes.")
 
-	# read output.
-	def read(self, 
-		# with await False it reads only the printed output regardless the status & never throws timeout.
-		wait=False, 
-		# the timeout, leave None for no timeout.
-		timeout=None,
-		# the live boolean (bool) (prints live logs to console when enabled) (leave None to use self.log_level >= 1).
-		live=None, 
-		# system variables.
-		#   safe True always a response.output variable upon error the response.output is "".
-		__safe__=False,
-	):
-
-		# clean line.
-		def clean_line(line):
-			if isinstance(line, bytes): line = line.decode()
-			if line in [" password:"]: return None
-			for secret in self.__secrets__:
-				for strip_last in [secret]:
-					if secret not in ["", " ", "  ", "   ", "    "] and len(line) >= len(strip_last) and line[-len(strip_last):] == strip_last: 
-						return line[:-len(strip_last)]
-			return line
-		def clean_output(output):
-			_output_, b = "", output.replace("\r","").replace("\t","").split("\n")
-			c, m = 0, len(b)-1
-			for line in b: 
-				l = clean_line(line)
-				if l not in [None]:
-					if c < m: _output_ += l+"\n"
-					else: _output_ += l
-				c += 1
-			return _output_
-		def log_output(output):
-			while True:
-				if len(output) >= 1 and output[len(output)-1] == "\n": output = output[:-1]
-				else: break	
-			print(output)
-
-		# checks.
-		if live == None: live = self.log_level >= 1
-
-		# old timeout.
-		old = self.child.timeout
-
-		# version 2: reads only the printed lines and stops when the timeout is hit so there is no timeout required. 
-		output_logs_allowed = True
-		if not wait:
-			self.child.timeout = 0.25
-			output_logs_allowed = False
-			output, c = "", 0
-			for line in range(1000000000):
-				try:
-					#if self.async_:
-					#	g = yield from self.child.readline(line, async_=True)
-					#	output += next(g).decode()
-					#else:
-					new = self.child.readline(line).decode()
-					if new == "": 
-						c += 1
-						if c >= 25: break
-					else: 
-						output_logs_allowed = True
-						c = 0
-						output += new
-				except pexpect.exceptions.TIMEOUT:
-					break
-				except pexpect.exceptions.EOF:
-					break
-				except Exception as e:
-					if timeout != None: self.child.timeout = old
-					e = str(e)
-					if self.log_level <= 0: e = str(e).split("\n")[0] # strip the full child from the pexpect error message.
-					while True:
-						if len(e) >= 1 and e[len(e)-1] == ".": e = e[:-1]
-						else: break
-					if "Timeout" in str(e):
-						response = Response.error(f"{e} (most likely the command is still expecting input).")
-						if __safe__: response.output = ""
-						return response
-					else:
-						response = Response.error(f"{e}.")	
-						if __safe__: response.output = ""
-						return response
-
-		# version 1: throws an error when unable to read output if timeout is defined, so it can be used to detect if input is expected. 
+	# kill pid.
+	else:
+		if log_level >= 1:
+			loader = console.Loader(f"Killing process {pid}.")
+		_sudo_ = Boolean(sudo).string(true="sudo ", false="")
+		output = utils.__execute_script__(f"{_sudo_}kill {pid}")
+		if output in ["terminated",""]:
+			if output in [""]:
+				response = processes(includes=pid)
+				if not response.success: response
+				try: 
+					response.processes[pid]
+					if log_level >= 1: loader.stop(success=False)
+					return _response_.error(f"Failed to stop process {pid}.", log_level=log_level)
+				except KeyError: a=1
+			if log_level >= 1: loader.stop()
+			return _response_.success(f"Successfully killed process {pid}.")
 		else:
+			if log_level >= 1: loader.stop(success=False)
+			return _response_.error(f"Failed to stop process {pid}, error: {output}", log_level=log_level)
 
-			# handle output.
-			self.child.timeout = timeout
-			try:
-				#output = self.child.read().decode()
-				output = ""
-				#if self.async_:
-				#	g = yield from self.child.readlines(async_=True)
-				#	lines = next(x)
-				#else:
-				lines = self.child.readlines()
-				if lines == []:
-					output_logs_allowed = False
-				else:
-					for i in lines: output += i.decode()
-			except Exception as e:
-				self.child.timeout = old
-				e = str(e)
-				if self.log_level <= 0: e = str(e).split("\n")[0] # strip the full child from the pexpect error message.
-				while True:
-					if len(e) >= 1 and e[len(e)-1] == ".": e = e[:-1]
-					else: break
-				if "Timeout" in str(e):
-					response = Response.error(f"{e} (most likely the command is still expecting input).")
-					if __safe__: response.output = ""
-					return response
-				else:
-					response = Response.error(f"{e}.")
-					if __safe__: response.output = ""
-					return response
-
-		# clean output.
-		output = clean_output(output)
-		if output_logs_allowed and live: log_output(output)
-
-		# handler.
-		self.child.timeout = old
-		self.__output__ += output
-		self.__output__ = clean_output(self.__output__)
-		return Response.success("Successfully retrieved the child's output.", {
-			"output":str(self.__output__),
-			"new_output":output,
-		})
-
-
-		#
-
-	# kill the process.
-	def kill(self):
-		
-		# handle output.
-		killed = None
-		try:
-			#if self.async_:
-			#	g = yield from self.child.terminate(force=True, async_=True)
-			#	killed = next(x)
-			#else:
-			killed = self.child.terminate(force=True)
-		except Exception as e:
-			return Response.error(f"Failed to kill process [{self.command}], error: {e}.")
-		if killed == None:
-			return Response.error(f"Failed to kill process [{self.command}] (#452983).")
-		if not killed:
-			return Response.error(f"Unable to kill process [{self.command}].")
-		else:
-			return Response.success(f"Successfully killed process [{self.command}].")
-
-		#
-
-	# wait for the process to finish.
-	def wait(self, 
-		# the live boolean (bool) (prints live logs to console when enabled) (leave None to use self.log_level >= 1).
-		live=None, 
-		sleeptime=3,
-		# the timeout (leave None to ignore).
-		timeout=None,
-	):
-		
-		# checks.
-		if live == None: live = self.log_level >= 1
-
-		# live
-		if live:
-			while self.running:
-				response = self.read(wait=False, live=live)
-				if not response.success: return response
-				if self.running:
-					time.sleep(sleeptime)
-			return self.wait(live=False, timeout=timeout)
-
-		# not live.
-		else:
-
-			# read & wait with no timeout
-			response = self.read(wait=True, timeout=timeout)
-			if response.success:
-				while True:
-					if len(response.output) > 0 and response.output[len(response.output)-1] == "\n": response.output = response.output[:-1]
-					else: break
-			return response
-
-		#
-
-	# check if process is crashed.
-	def crashed(self):
-		response = self.read(wait=False)
-		if not response.success:  return response
-		if self.exit_status not in [0, None]:
-			return Response.error(f"{self.response_str} returned exit status: [{self.exit_status}] (output: {self.read(wait=False, __safe__=True).output}).")
-		return Response.success(f"{self.response_str} is not crashed.")
-
-	# is expecting input.
-	@property
-	def expecting(self):
-
-		# version 2.
-		if self.exit_status not in [None]: return False
-		elif self.child.closed: return False
-		elif not self.running: return False
-		else:
-
-
-			""" add to lines to output (adds nothing when empty) (to prevent the output reset called the proceeding code) . """
-			response = self.read(wait=False)
-			if not response.success: return response
-
-			""" output throws timeout error when still expecting & when with success a process has finiished. """
-			response = self.read(wait=True, timeout=1.0) 
-			if not response.success:
-				if "still expecting input" in response.error: return True
-				else: raise ValueError(f"Unkown behaviour while detecting @spawn.expecting, error: {response.error}")
-			else: return False
-
-			#
-		raise ValueError(f"Unable to determine is spawn is expecting, child: {self.child}.")
-
-		""" version 1.
-		try:
-			# renaming "" to pexpect.EOF removes the output.
-			self.child.expect("", timeout=1)
-			return False
-		except pexpect.exceptions.EOF:
-			return True
-		except:
-			return False
-		raise ValueError(f"Unable to determine is spawn is expecting, child: {self.child}.")
-		"""
-
-	# is running.
-	@property
-	def running(self):
-		"""if self.async_:
-			boolean = yield from self.child.isalive(async_=True)
-		else:
-			boolean = self.child.isalive()
-		"""
-		boolean = self.child.isalive()
-		return boolean
-		#
-	# exit status.
-	@property
-	def exit_status(self):
-		"""if self.async_:
-			boolean = yield from self.child.exitstatus
-		else:
-			boolean = self.child.exitstatus
-		"""
-		boolean = self.child.exitstatus
-		return boolean
-		#
-	# output property.
-	@property
-	def output(self):
-		return self.__output__
-	
-
-	#
-
-# the output object class (very similair to the ResponseObject).
-class OutputObject(ResponseObject):
-	def __init__(self, 
-		#
-		# The return object from function: Code.execute
-		# The OutputObject object is very similair to the ResponseObject.
-		#
-		# the success message (param #1).
-		message=None,
-		# the attributes (param #2).
-		attributes={},
-		# the error message (param #3).
-		error=None,
-		# the log level.
-		log_level=Defaults.options.log_level,
-	):
-		dictionary = {
-			"success":error == None,
-			"message":message,
-			"error":error,
-			"log_level":log_level,
-		}
-		for key,value in attributes.items():
-			dictionary[key] = value
-		ResponseObject.__init__(self, dictionary)
-		if self.success:
-			try: 
-				if self.output == None: raise AttributeError("")
-			except AttributeError: self.output = ""
-		else: self.output = str(self.error) # keep this way for system functions.
-		self.lines = self.output.split("\n")
-
-	# representations.
-	def __len__(self):
-		return len(self.output)
-		#
-	def __bool__(self):
-		return bool(self.success)
-		#
-
-		#
-
-	# support '==' & '!=' operator.
-	def __eq__(self, dictionary):
-		if dictionary.__class__.__name__ in ["str", "String", "NoneType", "int", "float", "Integer"]:
-			return str(self.output) != str(dictionary)
-		elif isinstance(dictionary, dict):
-			return str(self.sort()) == str(Dictionary(dictionary).sort())
-		elif isinstance(dictionary, Dictionary):
-			return str(self.sort()) == str(dictionary.sort())
-		else:
-			try:
-				return str(self.sort()) == str(dictionary.sort())
-			except:
-				return False
-	def __ne__(self, dictionary):
-		if dictionary.__class__.__name__ in ["str", "String", "NoneType", "int", "float", "Integer"]:
-			return str(self.output) != str(dictionary)
-		elif isinstance(dictionary, dict):
-			return str(self.sort()) != str(Dictionary(dictionary).sort())
-		elif isinstance(dictionary, Dictionary):
-			return str(self.sort()) != str(dictionary.sort())
-		else:
-			try:
-				return str(self.sort()) != str(dictionary.sort())
-			except:
-				return False
-
-	# support 'in' operator.
-	def __contains__(self, string):
-		if isinstance(string, (list, Array)):
-			for i in string:
-				if str(i) in str(self.output):
-					return True
-			return False
-		else:
-			return str(string) in str(self.output)
-		#
-
-	# object instance.
-	def instance(self):
-		return "OutputObject"
-		#
-	# assign to ResponseObject.
-	def response(self):
-		return Response.response(self.dict())
-		#
-
-	#
+# list all processes.
+def processes(
+	# root permission.
+	sudo=False,
+	# all processes that include a str.
+	includes=None,
+	# banned process names.
+	banned=["grep"],
+):
+	_sudo_ = Boolean(sudo).string(true="sudo ", false="")
+	if isinstance(includes, str):
+		command = f"""{_sudo_}ps -ax | grep "{includes}" | """
+	else:
+		command = f"""{_sudo_}ps -ax | """
+	#output = utils.__execute_script__(command + """awk '{print $1"|"$2"|"$3"|"$4"}' """)
+	output = utils.__execute_script__(command + """awk '{$3="";print $0}' """)
+	processes = {}
+	for line in output.split("\n"):
+		if line not in ["", " "]:
+			array = line.split(" ")
+			pid = array.pop(0)
+			tty = array.pop(0)
+			for i in array:
+				process = array[0]
+				if process not in ["", " "]: break
+				else: array.pop(0)
+			command = Array(array).string(joiner=" ")
+			#try:
+			#	pid,tty,_,process,command = line.split("|")
+			#except ValueError: raise ValueError(f"Unable to unpack process line: [{line}], expected format: [4] seperator: [|].")
+			if process not in banned:
+				processes[pid] = {
+					"pid":pid,
+					"tty":tty,
+					"process":process,
+					"command":command,
+				}
+	return _response_.success(f"Successfully listed {len(processes)} processes.", {
+		"processes":processes,
+	})
 
 # execute.
 def execute(
 	# Notes:
-	#   returns a dev0s.Code.OutputObject object (very similair to ResponseObject).
+	#   returns a dev0s.code.OutputObject object (very similair to ResponseObject).
 	#
 	# Mode:
 	#   option 1:
@@ -557,7 +149,7 @@ def execute(
 	#
 	# Logging.
 	#   the log level.
-	log_level=Defaults.options.log_level,
+	log_level=defaults.options.log_level,
 	#
 	# System functions.
 	#   add additional attributes to the spawn object.
@@ -567,7 +159,7 @@ def execute(
 
 	# checks,
 	if input != None and not isinstance(input, (dict, Dictionary, list, Array)): 
-		raise Exceptions.InvalidUsage(f"<Code.execute>: Parameter [input] requires to be be a [dict, Dictionary, list, Array], not [{iput.__class__.__name__}].")
+		raise Exceptions.InvalidUsage(f"<dev0s.code.execute>: Parameter [input] requires to be be a [dict, Dictionary, list, Array], not [{iput.__class__.__name__}].")
 
 	# vars.
 	delete = False
@@ -585,7 +177,7 @@ def execute(
 
 	# checks.
 	#if async_: 
-	#	raise Exceptions.InvalidUsage(f"<Code.execute>: Parameters [input] & [async] are not compatible, select either one.")
+	#	raise Exceptions.InvalidUsage(f"<dev0s.code.execute>: Parameters [input] & [async] are not compatible, select either one.")
 
 	# spawn.
 	l = []
@@ -659,15 +251,15 @@ def execute(
 				if not response.success:
 					if "None of the specified inputs were expected." in response.error:
 						if optional:
-							return Response.error(f"Unable to find the expected input but still success since it is optional.")
+							return _response_.error(f"Unable to find the expected input but still success since it is optional.")
 						else:
-							return Response.error(f"Specified input [{Array(expect).string(joiner=', ')}] was not expected.")
+							return _response_.error(f"Specified input [{Array(expect).string(joiner=', ')}] was not expected.")
 					else: return response
 				if log_level >= 8:
 					print("Send response message:",response.message)
 
 				# success.
-				return Response.success("Success.")
+				return _response_.success("Success.")
 
 			""" check expecting. """
 			expecting = True
@@ -773,7 +365,7 @@ def execute(
 	# handler.
 	if delete: Files.delete(path)
 	if serialize:
-		try: response = Response.ResponseObject(output)
+		try: response = _response_.ResponseObject(output)
 		except Exception as e: 
 			if loader != None: loader.stop(success=False)
 			return OutputObject(error=f"Failed to serialize (output: {output}).", log_level=log_level)
@@ -832,7 +424,7 @@ def execute(
 				return OutputObject(error=f"Failed to execute {response_str}, (output: {output}), (error: {error_}).", log_level=log_level)
 		if len(output) > 0 and output[len(output)-1] == "\n": output = output[:-1]
 		if serialize:
-			try: response = Response.ResponseObject(output)
+			try: response = _response_.ResponseObject(output)
 			except Exception as e: 
 				if loader != None: loader.stop(success=False)
 				return OutputObject(error=f"Failed to serialize (output: {output}).", log_level=log_level)
@@ -844,5 +436,517 @@ def execute(
 				"pid":None,
 			})
 	"""
+
+# the spawn object class (for inputs).
+class Spawn(objects.Object):
+	def __init__(self,
+		#
+		# Should be initialized with function: dev0s.code.execute
+		#
+		# the full command (str) (#1).
+		command="ls",
+		# asynchronous.
+		async_=False,
+		# the log level.
+		log_level=defaults.options.log_level,
+		# additional attributes.
+		attributes={},
+		# system options.
+		response_str=None,
+	):
+
+		# defaults.
+		objects.Object.__init__(self, traceback="dev0s.code.execute.spawn")
+		self.assign(attributes)
+
+		# args.
+		self.command = command
+		self.async_ = async_
+		self.log_level = log_level
+		self.response_str = response_str
+
+		# vars.
+		self.child = None
+		self.__secrets__ = []
+
+		#
+
+	# start the process.
+	def start(self):
+		try:
+			self.child = pexpect.spawn(self.command)
+		except Exception as e:
+			return _response_.error(f"Failed to spawn {self.response_str}, error: {e}.")
+		# check exit status.
+		if self.child.exitstatus not in [0, None]:
+			return OutputObject(error=f"{self.response_str} returned exit status: [{spawn.child.exitstatus}] (output: {self.read(wait=False, __safe__=True).output}).")
+		self.__output__ = ""
+		return _response_.success(f"Successfully spawned {self.response_str}.")
+		#
+
+	# check expect input and optionally send input.
+	def expect(self,
+		# the expected data parameter (#1).
+		#	str instantce: expect a single identifier.
+		#	list instance: expect one of the provided identifiers & return the found one if success.
+		expect=["Password*"],
+		# the optional data to send (#2).
+		#	none instance: do not send anything.
+		#	str instance: the data to send.
+		#	list/tuple instance: send value of index from expected expect (required expect to be a list, Array & the indexes of [expect, send] be match).
+		send=None,
+		# the timeout (float).
+		timeout=1.0,
+	):
+		# check none timeout.
+		if timeout == None: timeout = 1.0
+
+		# single expect.
+		if isinstance(expect, str):
+			if isinstance(send, (list, Array)): 
+				raise Exceptions.InvalidUsage(f"{self.__traceback__(function='expect', parameter='send')}: parameter [send] requires to be be a [str, String] when parameter [expect] is a [{expect.__class__.__name__}], not [{send.__class__.__name__}].")
+
+			""" add to lines to output (before) (adds nothing when empty) (do not use self.expecting before adding the output). """
+			response = self.read(wait=False)
+			if not response.success: return response
+
+			""" check expect & send if provided. """
+			c = 1
+			try:
+				#if self.async_:
+				#	g = yield from self.child.expect(expect, timeout=timeout, async_=True)
+				#	r = next(g)
+				#else:
+				r = self.child.expect(expect, timeout=timeout)
+				if not isinstance(r, (int, Integer, float)):
+					return _response_.error(f"Expected [{expect}] is not the child's expected input (#873465).")
+				c = 2
+				if self.log_level >= 8: print(f"Found expected: {expect}")
+				if send != None:
+					if self.log_level >= 8: print(f"Attempting to send: {send}")
+					#if self.async_:
+					#	g = yield from self.child.sendline(str(send), async_=True)
+					#	r = next(g)
+					#else:
+					r = self.child.sendline(str(send))
+					self.__secrets__.append(str(send))
+					if self.log_level >= 8: print(f"Succesfully sended: {send}")
+			except pexpect.exceptions.TIMEOUT:
+				if c == 1:
+					return _response_.error(f"Expected [{expect}] is not the child's expected input, error: Timeout (during epxecting).")
+				else:
+					return _response_.error(f"Failed to send expected [{expect}], error: Timeout (during sending input).")
+			except pexpect.exceptions.EOF:
+				if c == 1:
+					return _response_.error(f"Expected [{expect}] is not the child's expected input, error: End of file (during epxecting).")
+				else:
+					return _response_.error(f"Failed to send expected [{expect}], error: End of file (during sending input).")
+			except Exception as e:
+				if c == 1:
+					return _response_.error(f"Expected [{expect}] is not the child's expected input, error: {e}.")
+				else:
+					return _response_.error(f"Failed to send expected [{expect}], error: {e}.")
+
+			
+			""" add to lines to output (after) (adds nothing when empty) (do not use self.expecting before adding the output). """
+			response = self.read(wait=False)
+			if not response.success: return response
+
+			# handler.
+			if send != None:
+				return _response_.success(f"Successfully send expected input ({expect}).")
+			else:
+				return _response_.success(f"Successfully retrieved expected input ({expect}).")
+
+		# list expect.
+		elif isinstance(expect, (list, Array)):
+			index = 0
+			for _expect_ in expect:
+				if isinstance(send, (list,Array)):
+					try:
+						_send_ = str(send[index])
+					except:
+						raise Exceptions.InvalidUsage(f"{self.__traceback__(function='expect', parameter='send')}: parameter [send] and parameter [expect] do not have the same indexes.")
+				else:
+					_send_ = str(send)
+				if self.log_level >= 8: print(f"Checking optional expect: {_expect_}")
+				response = self.expect(expect=_expect_, timeout=timeout, send=_send_)
+				if not response.success and "is not the child's expected input" not in response.error: return response
+				elif response.success:
+					return _response_.success(f"Successfully {Boolean(send).string(true='send', false='retrieved')} the expected input(s).", {
+						"expected":_expect_,
+						"index":index,
+					})
+				index += 1
+			return _response_.error(f"None of the specified input was expected.")
+
+		# invalid usage.
+		else:
+			raise Exceptions.InvalidUsage(f"{self.__traceback__(function='expect', parameter='expect')}: parameter [expect] requires to be be a [Dictionary], not [{config.__class__.__name__}].")
+
+	# read output.
+	def read(self, 
+		# with await False it reads only the printed output regardless the status & never throws timeout.
+		wait=False, 
+		# the timeout, leave None for no timeout.
+		timeout=None,
+		# the live boolean (bool) (prints live logs to console when enabled) (leave None to use self.log_level >= 1).
+		live=None, 
+		# system variables.
+		#   safe True always a response.output variable upon error the response.output is "".
+		__safe__=False,
+	):
+
+		# clean line.
+		def clean_line(line):
+			if isinstance(line, bytes): line = line.decode()
+			if line in [" password:"]: return None
+			for secret in self.__secrets__:
+				for strip_last in [secret]:
+					if secret not in ["", " ", "  ", "   ", "    "] and len(line) >= len(strip_last) and line[-len(strip_last):] == strip_last: 
+						return line[:-len(strip_last)]
+			return line
+		def clean_output(output):
+			_output_, b = "", output.replace("\r","").replace("\t","").split("\n")
+			c, m = 0, len(b)-1
+			for line in b: 
+				l = clean_line(line)
+				if l not in [None]:
+					if c < m: _output_ += l+"\n"
+					else: _output_ += l
+				c += 1
+			return _output_
+		def log_output(output):
+			while True:
+				if len(output) >= 1 and output[len(output)-1] == "\n": output = output[:-1]
+				else: break	
+			print(output)
+
+		# checks.
+		if live == None: live = self.log_level >= 1
+
+		# old timeout.
+		old = self.child.timeout
+
+		# version 2: reads only the printed lines and stops when the timeout is hit so there is no timeout required. 
+		output_logs_allowed = True
+		if not wait:
+			self.child.timeout = 0.25
+			output_logs_allowed = False
+			output, c = "", 0
+			for line in range(1000000000):
+				try:
+					#if self.async_:
+					#	g = yield from self.child.readline(line, async_=True)
+					#	output += next(g).decode()
+					#else:
+					new = self.child.readline(line).decode()
+					if new == "": 
+						c += 1
+						if c >= 25: break
+					else: 
+						output_logs_allowed = True
+						c = 0
+						output += new
+				except pexpect.exceptions.TIMEOUT:
+					break
+				except pexpect.exceptions.EOF:
+					break
+				except Exception as e:
+					if timeout != None: self.child.timeout = old
+					e = str(e)
+					if self.log_level <= 0: e = str(e).split("\n")[0] # strip the full child from the pexpect error message.
+					while True:
+						if len(e) >= 1 and e[len(e)-1] == ".": e = e[:-1]
+						else: break
+					if "Timeout" in str(e):
+						response = _response_.error(f"{e} (most likely the command is still expecting input).")
+						if __safe__: response.output = ""
+						return response
+					else:
+						response = _response_.error(f"{e}.")	
+						if __safe__: response.output = ""
+						return response
+
+		# version 1: throws an error when unable to read output if timeout is defined, so it can be used to detect if input is expected. 
+		else:
+
+			# handle output.
+			self.child.timeout = timeout
+			try:
+				#output = self.child.read().decode()
+				output = ""
+				#if self.async_:
+				#	g = yield from self.child.readlines(async_=True)
+				#	lines = next(x)
+				#else:
+				lines = self.child.readlines()
+				if lines == []:
+					output_logs_allowed = False
+				else:
+					for i in lines: output += i.decode()
+			except Exception as e:
+				self.child.timeout = old
+				e = str(e)
+				if self.log_level <= 0: e = str(e).split("\n")[0] # strip the full child from the pexpect error message.
+				while True:
+					if len(e) >= 1 and e[len(e)-1] == ".": e = e[:-1]
+					else: break
+				if "Timeout" in str(e):
+					response = _response_.error(f"{e} (most likely the command is still expecting input).")
+					if __safe__: response.output = ""
+					return response
+				else:
+					response = _response_.error(f"{e}.")
+					if __safe__: response.output = ""
+					return response
+
+		# clean output.
+		output = clean_output(output)
+		if output_logs_allowed and live: log_output(output)
+
+		# handler.
+		self.child.timeout = old
+		self.__output__ += output
+		self.__output__ = clean_output(self.__output__)
+		return _response_.success("Successfully retrieved the child's output.", {
+			"output":str(self.__output__),
+			"new_output":output,
+		})
+
+
+		#
+
+	# kill the process.
+	def kill(self):
+		
+		# handle output.
+		"""
+		killed = None
+		try:
+			#if self.async_:
+			#	g = yield from self.child.terminate(force=True, async_=True)
+			#	killed = next(x)
+			#else:
+			killed = self.child.terminate(force=True)
+		except Exception as e:
+			return _response_.error(f"Failed to kill process [{self.command}], error: {e}.")
+		if killed == None:
+			return _response_.error(f"Failed to kill process [{self.command}] (#452983).")
+		if not killed:
+		"""
+		
+		# handle output.
+		response = kill(pid=self.pid, log_level=self.log_level)
+		if not response.success:
+			return _response_.error(f"Unable to kill process [{self.command}].")
+		else:
+			return _response_.success(f"Successfully killed process [{self.command}].")
+
+		#
+
+	# wait for the process to finish.
+	def wait(self, 
+		# the live boolean (bool) (prints live logs to console when enabled) (leave None to use self.log_level >= 1).
+		live=None, 
+		sleeptime=3,
+		# the timeout (leave None to ignore).
+		timeout=None,
+	):
+		
+		# checks.
+		if live == None: live = self.log_level >= 1
+
+		# live
+		if live:
+			while self.running:
+				response = self.read(wait=False, live=live)
+				if not response.success: return response
+				if self.running:
+					time.sleep(sleeptime)
+			return self.wait(live=False, timeout=timeout)
+
+		# not live.
+		else:
+
+			# read & wait with no timeout
+			response = self.read(wait=True, timeout=timeout)
+			if response.success:
+				while True:
+					if len(response.output) > 0 and response.output[len(response.output)-1] == "\n": response.output = response.output[:-1]
+					else: break
+			return response
+
+		#
+
+	# check if process is crashed.
+	def crashed(self):
+		response = self.read(wait=False)
+		if not response.success:  return response
+		if self.exit_status not in [0, None]:
+			return _response_.error(f"{self.response_str} returned exit status: [{self.exit_status}] (output: {self.read(wait=False, __safe__=True).output}).")
+		return _response_.success(f"{self.response_str} is not crashed.")
+
+	# is expecting input.
+	@property
+	def expecting(self):
+
+		# version 2.
+		if self.exit_status not in [None]: return False
+		elif self.child.closed: return False
+		elif not self.running: return False
+		else:
+
+
+			""" add to lines to output (adds nothing when empty) (to prevent the output reset called the proceeding code) . """
+			response = self.read(wait=False)
+			if not response.success: return response
+
+			""" output throws timeout error when still expecting & when with success a process has finiished. """
+			response = self.read(wait=True, timeout=1.0) 
+			if not response.success:
+				if "still expecting input" in response.error: return True
+				else: raise ValueError(f"Unkown behaviour while detecting @spawn.expecting, error: {response.error}")
+			else: return False
+
+			#
+		raise ValueError(f"Unable to determine is spawn is expecting, child: {self.child}.")
+
+		""" version 1.
+		try:
+			# renaming "" to pexpect.EOF removes the output.
+			self.child.expect("", timeout=1)
+			return False
+		except pexpect.exceptions.EOF:
+			return True
+		except:
+			return False
+		raise ValueError(f"Unable to determine is spawn is expecting, child: {self.child}.")
+		"""
+
+	# is running.
+	@property
+	def running(self):
+		"""if self.async_:
+			boolean = yield from self.child.isalive(async_=True)
+		else:
+			boolean = self.child.isalive()
+		"""
+		boolean = self.child.isalive()
+		return boolean
+		#
+	# exit status.
+	@property
+	def exit_status(self):
+		"""if self.async_:
+			boolean = yield from self.child.exitstatus
+		else:
+			boolean = self.child.exitstatus
+		"""
+		boolean = self.child.exitstatus
+		return boolean
+		#
+	# output property.
+	@property
+	def output(self):
+		return self.__output__
+	# pid.
+	@property
+	def pid(self):
+		return self.child.pid
+	
+
+	#
+
+# the output object class (very similair to the ResponseObject).
+class OutputObject(ResponseObject):
+	def __init__(self, 
+		#
+		# The return object from function: dec0s.code.execute
+		# The OutputObject object is very similair to the ResponseObject.
+		#
+		# the success message (param #1).
+		message=None,
+		# the attributes (param #2).
+		attributes={},
+		# the error message (param #3).
+		error=None,
+		# the log level.
+		log_level=defaults.options.log_level,
+	):
+		dictionary = {
+			"success":error == None,
+			"message":message,
+			"error":error,
+			"log_level":log_level,
+		}
+		for key,value in attributes.items():
+			dictionary[key] = value
+		ResponseObject.__init__(self, dictionary)
+		if self.success:
+			try: 
+				if self.output == None: raise AttributeError("")
+			except AttributeError: self.output = ""
+		else: self.output = str(self.error) # keep this way for system functions.
+		self.lines = self.output.split("\n")
+
+	# representations.
+	def __len__(self):
+		return len(self.output)
+		#
+	def __bool__(self):
+		return bool(self.success)
+		#
+
+		#
+
+	# support '==' & '!=' operator.
+	def __eq__(self, dictionary):
+		if dictionary.__class__.__name__ in ["str", "String", "NoneType", "int", "float", "Integer"]:
+			return str(self.output) != str(dictionary)
+		elif isinstance(dictionary, dict):
+			return str(self.sort()) == str(Dictionary(dictionary).sort())
+		elif isinstance(dictionary, Dictionary):
+			return str(self.sort()) == str(dictionary.sort())
+		else:
+			try:
+				return str(self.sort()) == str(dictionary.sort())
+			except:
+				return False
+	def __ne__(self, dictionary):
+		if dictionary.__class__.__name__ in ["str", "String", "NoneType", "int", "float", "Integer"]:
+			return str(self.output) != str(dictionary)
+		elif isinstance(dictionary, dict):
+			return str(self.sort()) != str(Dictionary(dictionary).sort())
+		elif isinstance(dictionary, Dictionary):
+			return str(self.sort()) != str(dictionary.sort())
+		else:
+			try:
+				return str(self.sort()) != str(dictionary.sort())
+			except:
+				return False
+
+	# support 'in' operator.
+	def __contains__(self, string):
+		if isinstance(string, (list, Array)):
+			for i in string:
+				if str(i) in str(self.output):
+					return True
+			return False
+		else:
+			return str(string) in str(self.output)
+		#
+
+	# object instance.
+	def instance(self):
+		return "OutputObject"
+		#
+	# assign to ResponseObject.
+	def response(self):
+		return _response_.response(self.dict())
+		#
+
+	#
+
 
 #

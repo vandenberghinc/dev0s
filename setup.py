@@ -7,7 +7,7 @@
 from setuptools import setup, find_packages
 setup(
 	name='dev0s',
-	version='3.4.7',
+	version='3.4.9',
 	description='Some description.',
 	url='http://github.com/vandenberghinc/dev0s',
 	author='Daan van den Bergh',
@@ -22,4 +22,14 @@ setup(
             'requests',
             'pathlib',
             'pexpect',
+            'certifi',
+            'chardet',
+            'idna',
+            'pycryptodome',
+            'urllib3',
+            'flask',
+            'selenium',
+            'jinja2',
+            'werkzeug',
+            'click',
         ])

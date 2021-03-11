@@ -50,14 +50,14 @@ import sys ; sys.path.insert(1, __get_source_path__(__file__, back=2))
 
 # imports.
 from dev0s.classes.config import *
-from dev0s import *
+from dev0s.shortcuts import *
 
 # the cli object class.
-class CLI_(CLI.CLI):
+class CLI(dev0s.cli.CLI):
 	def __init__(self):
 		
 		# cli.
-		CLI.CLI.__init__(self,
+		dev0s.cli.CLI.__init__(self,
 			modes={
 				"Installation":"",
 				"    --install":"Install the DevOS library.",
@@ -66,7 +66,7 @@ class CLI_(CLI.CLI):
 				"    --link":"Link (activate) the DevOS library.",
 				"    --unlink":"Unlink (deactivate) the DevOS library.",
 				"    --update":"Update the DevOS library.",
-				"Defaults":"",
+				"defaults.":"",
 				"    --version":"Show the dev0s version.",
 				"    -h / --help":"Show the documentation.",
 			},
@@ -78,9 +78,6 @@ class CLI_(CLI.CLI):
 		before = s[1]
 		self.documentation = s[0]
 		self.documentation += "\nAdditional Libraries:"
-		self.documentation += "\n    $ syst3m --help : Show the syst3m documentation."
-		self.documentation += "\n    $ netw0rk --help : Show the netw0rk documentation."
-		self.documentation += "\n    $ encrypti0n --help : Show the encrypti0n documentation."
 		self.documentation += "\n    $ ssht00ls --help : Show the ssht00ls documentation."
 		self.documentation += "\nAuthor:"+before
 
@@ -88,7 +85,7 @@ class CLI_(CLI.CLI):
 	def start(self):
 		
 		# check arguments.
-		self.arguments.check(exceptions=["--log-level", "--create-alias", "--version"], json=Defaults.options.json)
+		self.arguments.check(exceptions=["--log-level", "--create-alias", "--version", "--non-interactive"], json=dev0s.defaults.options.json)
 
 		#
 		# BASICS
@@ -96,7 +93,7 @@ class CLI_(CLI.CLI):
 
 		# help.
 		if self.arguments.present(['-h', '--help']):
-			self.docs(success=True, json=Defaults.options.json)
+			self.docs(success=True, json=dev0s.defaults.options.json)
 
 		# version.
 		elif self.arguments.present(['--version']):
@@ -105,29 +102,29 @@ class CLI_(CLI.CLI):
 		# install.
 		elif self.arguments.present('--install'):
 			response = manager.installation.install()
-			if response.message != None and "Successfully installed " not in response.message: Response.log(response=response)
+			if response.message != None and "Successfully installed " not in response.message: dev0s.response.log(response=response)
 
 		# uninstall.
 		elif self.arguments.present('--uninstall'):
 			response = manager.installation.uninstall()
-			Response.log(response=response)
+			dev0s.response.log(response=response)
 
 		# reinstall.
 		elif self.arguments.present('--reinstall'):
 			response = manager.installation.uninstall()
-			Response.log(response=response)
+			dev0s.response.log(response=response)
 			response = manager.installation.install()
-			if response.message != None and "Successfully installed " not in response.message: Response.log(response=response)
+			if response.message != None and "Successfully installed " not in response.message: dev0s.response.log(response=response)
 
 		# link.
 		elif self.arguments.present('--link'):
 			response = manager.installation.link()
-			Response.log(response=response)
+			dev0s.response.log(response=response)
 
 		# unlink.
 		elif self.arguments.present('--unlink'):
 			response = manager.installation.unlink()
-			Response.log(response=response)
+			dev0s.response.log(response=response)
 
 		# invalid.
 		else: self.invalid()
@@ -140,5 +137,5 @@ class CLI_(CLI.CLI):
 	
 # main.
 if __name__ == "__main__":
-	cli = CLI_()
+	cli = CLI()
 	cli.start()

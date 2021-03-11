@@ -3,26 +3,35 @@
 
 # imports.
 from dev0s.classes.response import *
-from dev0s.classes import objects
+from dev0s.classes.defaults import objects
+from dev0s.classes.response import response as _response_
+from dev0s.classes.code.docs import Docs
 
 # pip imports.
 import urllib
 import requests as __requests__
 
 # the requests class.
-class Requests():
+class Requests(Docs):
+	def __init__(self):
+		
+		# docs.
+		Docs.__init__(self,
+			initialized=True,
+			module="dev0s.requests", 
+			notes=[], )
 
-	# variables.
-	https = True
-	allow_redirects = True
+		# attributes.
+		self.https = True
+		self.allow_redirects = True
 
 	# utils.
-	def encode(data):
+	def encode(self, data):
 		return f"?{urllib.parse.urlencode(data)}"
 		#
 
 	# get.
-	def get(
+	def get(self,
 		# the url (str) (#1).
 		url=None,
 		# the sended post data (dict) (#2).
@@ -32,21 +41,21 @@ class Requests():
 	):
 		
 		# url.
-		url = f"{Boolean(Requests.https).string(true='https', false='http')}://"+gfp.clean(f"{url}/", remove_double_slash=True, remove_last_slash=False, remove_first_slash=True)
+		url = f"{Boolean(self.https).string(true='https', false='http')}://"+gfp.clean(f"{url}/", remove_double_slash=True, remove_last_slash=False, remove_first_slash=True)
 		if len(url) >= len("https://https://") and String(url).first("https://https://") == "https://https://": url = str(String(url).remove_first("https://"))
 		elif len(url) >= len("https://http://") and String(url).first("https://http://") == "https://http://": url = str(String(url).remove_first("https://"))
 		elif len(url) >= len("http://https://") and String(url).first("http://https://") == "http://https://": url = str(String(url).remove_first("http://"))
 		elif len(url) >= len("http://http://") and String(url).first("http://http://") == "http://http://": url = str(String(url).remove_first("http://"))
-		if data != {}: url += Requests.encode(data)
+		if data != {}: url += self.encode(data)
 
 		# request.
-		original_request_object = __requests__.get(url, allow_redirects=Requests.allow_redirects)
+		original_request_object = __requests__.get(url, allow_redirects=self.allow_redirects)
 		if original_request_object.status_code != 200:
-			return Response.error(f"Invalid request ({url}) [{original_request_object.status_code}]: {original_request_object.text}")
+			return _response_.error(f"Invalid request ({url}) [{original_request_object.status_code}]: {original_request_object.text}")
 		if serialize:
-			try: response = Response.ResponseObject(original_request_object.json())
+			try: response = _response_.ResponseObject(original_request_object.json())
 			except Exception as e: 
-				return Response.error(f"Unable to serialize output: {original_request_object}, error: {e}.")
+				return _response_.error(f"Unable to serialize output: {original_request_object}, error: {e}.")
 			return response
 		return original_request_object
 
@@ -62,8 +71,14 @@ class Requests():
 			},
 		):
 			
+			# docs.
+			Docs.__init__(self,
+				initialized=False,
+				module="dev0s.requests.RestAPI", 
+				notes=[], )
+
 			# defaults.
-			objects.Object.__init__(self, traceback="Requests.RestAPI")
+			objects.Object.__init__(self, traceback="dev0s.requests.RestAPI")
 			
 			# attributes.
 			self.url = url
@@ -81,13 +96,16 @@ class Requests():
 				url = gfp.clean(f"{self.url}/{url}/", remove_double_slash=True, remove_last_slash=False)
 			
 			# request.
-			return Requests.get(serialize=True, url=url, data=data)
+			return requests.get(serialize=True, url=url, data=data)
 
 			#
 
 		#
 
 	#
+
+# initialized classes.
+requests = Requests()
 
 #
 

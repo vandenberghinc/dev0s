@@ -1,101 +1,27 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-#
-# Should be imported as:
-# 
-#
 
 # _____________________________________________________________________
 #
 # Imports 
 #   * imported by import order.
-# 	* keep full writen due to import order.
 # 
-
-# imports .
-from dev0s.classes import exceptions
 from dev0s.classes import utils
-from dev0s.classes import color
+from dev0s.classes.defaults.exceptions import Exceptions as exceptions
+from dev0s.classes.defaults.color import color, symbol
 from dev0s.classes import console
-from dev0s.classes import env
-from dev0s.classes import files
-from dev0s.classes import response
-from dev0s.classes import objects
-from dev0s.classes import defaults
+from dev0s.classes.system.env import env
+from dev0s.classes.defaults import files
+from dev0s.classes.response import response
+from dev0s.classes.defaults.defaults import defaults
+from dev0s.classes.defaults import objects
+from dev0s.classes import database
 from dev0s.classes import cli
-from dev0s.classes import requests as _requests_
+from dev0s.classes.requests import requests
 from dev0s.classes import code
-
-# _____________________________________________________________________
-#
-# Shortcuts (also in order):
-#   * should be imported as:
-#       from dev0s import *
-#
-
-# exceptions.
-Exceptions = exceptions.Exceptions
-
-# color.
-symbol = color.symbol
-color = color.color
-
-# console.
-Console = console.Console
-Loader = Console.Loader
-ProgressLoader = Console.ProgressLoader
-
-# environment.
-Environment = env.Environment
-
-# files & formats.
-gfp = files.gfp
-gdate = files.gdate
-Files = files.Files
-Formats = files.Formats
-Generate = Formats.Generate
-FilePath = Formats.FilePath 
-String = Formats.String 
-Boolean = Formats.Boolean 
-Integer = Formats.Integer 
-Date = Formats.Date
-File = Files.File
-Directory = Files.Directory
-Zip = Files.Zip
-Image = Files.Image
-Bytes = Files.Bytes
-Dictionary = Files.Dictionary
-Array = Files.Array
-
-# objects.
-Traceback = objects.Traceback
-Object = objects.Object
-Thread = objects.Thread
-
-# response.
-Response = response.Response
-ResponseObject = Response.ResponseObject
-
-# defaults.
-Defaults = defaults.Defaults
-
-# cli.
-CLI = cli
-CLI.CLI = CLI.CLI
-
-# requests.
-Requests = _requests_.Requests
-RestAPI = Requests.RestAPI
-
-# code.
-Code = code.Code
-execute = Code.execute
-Spawn = Code.Spawn
-OutputObject = Code.OutputObject
-Version = Code.Version 
-Script = Code.Script
-Python = Code.Python
-Docs = Code.Docs
+from dev0s.classes.network import network
+from dev0s.classes.system import System as system
+from dev0s.classes.encryption import Encryption as encryption
 
 # _____________________________________________________________________
 #
@@ -104,8 +30,7 @@ Docs = Code.Docs
 #
 
 # source, base & version.
-source = Directory(gfp.base(__file__))
-base = Directory(source.fp.base())
-version = Version(Files.load(source.join(".version")))
+source = files.Directory(files.gfp.base(__file__))
+base = files.Directory(source.fp.base())
+version = code.Version(files.Files.load(source.join(".version")))
 
-#

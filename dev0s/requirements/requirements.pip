@@ -5,6 +5,16 @@ django
 requests
 pathlib
 pexpect
+certifi
+chardet
+idna
+pycryptodome
+urllib3
+flask
+selenium
+jinja2
+werkzeug
+click
 
 # inc requirements.
 

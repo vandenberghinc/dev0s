@@ -2,10 +2,10 @@
 # -*- coding: utf-8 -*-
 
 # imports.
-from dev0s.classes.files import *
-from dev0s.classes.exceptions import *
+from dev0s.classes.defaults.files import *
+from dev0s.classes.defaults.exceptions import *
 from dev0s.classes import utils
-from dev0s.classes.response import Response
+from dev0s.classes.response import response as _response_
 import datetime 
 
 # argument functions.
@@ -123,10 +123,10 @@ class CLI(object):
 				error = response["error"]
 		if message != None: 
 			success = True
-			Response.log(message=message, json=json)
+			_response_.log(message=message, json=json)
 		elif error != None: 
 			success = False
-			Response.log(error=error, json=json)
+			_response_.log(error=error, json=json)
 		if success: sys.exit(0)
 		else: sys.exit(1)
 
@@ -448,7 +448,7 @@ class CLI(object):
 					]:
 						format_error = f"""Specified an invalid format type [{i}], valid formats: {str([str, bool, int, float, tuple, dict, list, object]).replace("'",'')}."""
 						if json:
-							Response.log(error=empty_error, json=True)
+							_response_.log(error=empty_error, json=True)
 							sys.exit(1)
 						else:
 							self.docs(stop=False, chapter=chapter, mode=mode, notes=notes)
@@ -479,7 +479,7 @@ class CLI(object):
 				if argument not in sys.argv:
 					if required:
 						if json:
-							Response.log(error=empty_error, json=True)
+							_response_.log(error=empty_error, json=True)
 							sys.exit(1)
 						else:
 							self.docs(stop=False, chapter=chapter, mode=mode, notes=notes)
@@ -528,7 +528,7 @@ class CLI(object):
 									if error or x_format not in format:
 										format_error = f"""Provided an incorrect [{argument}] format: [{value}:{x_format}], valid format options: {str(format).replace("'",'')}."""
 										if json:
-											Response.log(error=format_error, json=True)
+											_response_.log(error=format_error, json=True)
 											sys.exit(1)
 										else:
 											self.docs(stop=False, chapter=chapter, mode=mode, notes=notes)
@@ -540,7 +540,7 @@ class CLI(object):
 					if failed:
 						if required:
 							if json:
-								Response.log(error=empty_error, json=True)
+								_response_.log(error=empty_error, json=True)
 								sys.exit(1)
 							else:
 								self.docs(stop=False, chapter=chapter, mode=mode, notes=notes)
@@ -552,7 +552,7 @@ class CLI(object):
 				# should not happen.
 				if required:
 					if json:
-						Response.log(error=empty_error, json=True)
+						_response_.log(error=empty_error, json=True)
 						sys.exit(1)
 					else:
 						self.docs(stop=False, chapter=chapter, mode=mode, notes=notes)
@@ -587,7 +587,7 @@ class CLI(object):
 						if i not in exceptions and f" {i}: " not in self.modes_str and f" {i}: " not in self.options_str and f" {i} " not in self.modes_str and f" {i} " not in self.options_str:
 							error = f"Argument [{i}] is not a valid mode nor option."
 							if json:
-								response.log(error=error, json=True)
+								_response_.log(error=error, json=True)
 								sys.exit(1)
 							else: 
 								self.docs(stop=False)
