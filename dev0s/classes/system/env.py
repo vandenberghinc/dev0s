@@ -65,7 +65,7 @@ class Env(Docs):
 		# the export path (str) or paths (list).
 		# the paths must have .json / .sh extension or be named 'json' / 'bash' when parameter [format] is undefined.
 		export=None,
-		# the export format.
+		# the export format (str) (leave None to be detected by parameter [export]).
 		format=None,
 	):
 		if env == None: return _response_.error("Define parameter: env.")
@@ -83,13 +83,13 @@ class Env(Docs):
 			else:
 				exports = export
 			for export in exports:
-				if ".json" in export or (len(export) >= len("/json") and String(export).last("/json") == "/json"):
+				if format == "json" or ".json" in export or (len(export) >= len("/json") and String(gfp.clean(export, remove_last_slash=True)).last("/json") == "/json"):
 					format = "json"
 					try:
 						exported = Files.load(export, format="json")
 					except FileNotFoundError:
 						exported = {}
-				elif ".sh" in export or (len(export) >= len("/bash") and String(export).last("/bash") == "/bash"):
+				elif format == "bash" or ".sh" in export or (len(export) >= len("/bash") and String(gfp.clean(export, remove_last_slash=True)).last("/bash") == "/bash"):
 					format = "bash"
 					try:
 						exported = Files.load(export, format="str")
