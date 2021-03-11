@@ -75,9 +75,12 @@ class RSA(object):
 		if not self.memory:
 			if log_level >= 0: 
 				loader = console.Loader(f"Generating key {self.directory}")
-			if Files.exists(directory): 
+			if Files.exists(private_key_path):
 				loader.stop(success=False)
-				return _response_.error(f"Key [{directory}] already exists.")
+				return _response_.error(f"Private key [{private_key_path}] already exists.")
+			if Files.exists(public_key_path):
+				loader.stop(success=False)
+				return _response_.error(f"Public key [{public_key_path}] already exists.")
 		else:
 			if log_level >= 0: loader = console.Loader("Generating key")
 		
