@@ -368,7 +368,6 @@ class Parameters(object):
 		# single parameter.
 		if isinstance(parameters, (str,String)):
 			parameters = str(parameters)
-			response = response.response()
 			format = None
 			if ":" in parameters:
 				parameters,format = parameters.split(":")
@@ -381,9 +380,9 @@ class Parameters(object):
 				variable = request.GET.get(parameters)
 			if variable in ["", None]:
 				if traceback != None:
-					return variable, response.error(f"{traceback}: Define parameter: [{parameters}].")
+					return variable, _response_.error(f"{traceback}: Define parameter: [{parameters}].")
 				else:
-					return variable, response.error(f"Define parameter: [{parameters}].")
+					return variable, _response_.error(f"Define parameter: [{parameters}].")
 			elif format != None:
 				if format in ["str", "string"]: variable = str(variable)
 				elif format in ["int", "integer"]: variable = int(variable)
@@ -396,7 +395,7 @@ class Parameters(object):
 					raise ValueError(f"Unrecognized <dev0s.response.parameters.get> format: {format}.")
 			
 			# handler.
-			return variable, response.success(f"Succesfully retrieved request parameter [{parameters}].", {
+			return variable, _response_.success(f"Succesfully retrieved request parameter [{parameters}].", {
 				"key":parameters,
 				"value":variable,
 			})
@@ -419,7 +418,7 @@ class Parameters(object):
 				for key in parameters:
 					try: params[key]
 					except: params[key] = default
-			return params, response.success(f"Succesfully retrieved {len(params)} request parameter(s).")
+			return params, _response_.success(f"Succesfully retrieved {len(params)} request parameter(s).")
 
 		# dict recursive.
 		elif isinstance(parameters, (dict, Dictionary, ResponseObject)):
@@ -440,7 +439,7 @@ class Parameters(object):
 				for key,default in parameters.items():
 					try: params[key]
 					except: params[key] = default
-			return params, response.success(f"Succesfully retrieved {len(params)} request parameter(s).")
+			return params, _response_.success(f"Succesfully retrieved {len(params)} request parameter(s).")
 
 
 		# invalid.
