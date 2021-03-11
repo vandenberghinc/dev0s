@@ -148,7 +148,7 @@ class AsymmetricAES(object):
 			string = string.decode()
 		
 		# encrypt data with aes.
-		passphrase = utils.__generate_shell_string__(characters=64, numerical_characters=True)
+		passphrase = String().generate(length=64, digits=True, capitalize=True)
 		aes = AES(passphrase=passphrase)
 		response = aes.encrypt(string)
 		if not response.success: return response

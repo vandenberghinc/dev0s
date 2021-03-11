@@ -7,7 +7,6 @@ pathlib
 pexpect
 certifi
 chardet
-idna
 pycryptodome
 urllib3
 flask

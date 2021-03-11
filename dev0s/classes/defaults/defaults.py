@@ -48,7 +48,7 @@ class Defaults(Docs):
 			"log_level": int(cli.get_argument("--log-level", required=False, default=env.get_integer("LOG_LEVEL", default=0))),
 			"cli": env.get_boolean("CLI", default=False),
 			"json": cli.arguments_present(["-j", "--json"]),
-			"interactive": not cli.arguments_present(["--non-interactive"]) and env.get("INTERACTIVE", format=bool, default=False) == True,
+			"interactive": self.interactive(),
 			"forced": cli.arguments_present(["--forced", "-f", "--force"], default=env.get("FORCED", default=False, format=bool)),
 			"quiet": cli.arguments_present(["--quiet", "-q", "-s", "--silent"], default=env.get("QUIET", default=False, format=bool)),
 		})
@@ -172,6 +172,11 @@ class Defaults(Docs):
 			requirements = Array(requirements).string(joiner=" ")
 		if log_level >= 0: print(msg)
 		os.system(f"{self.vars.executable} -m pip install {options}{requirements} {Boolean(silent).string(true='2> /dev/null', false='')} --user {self.vars.user}")
+
+	# interactive.
+	def interactive(self, default=False):
+		if cli.arguments_present(["--non-interactive"]): return False
+		return env.get("INTERACTIVE", format=bool, default=default)
 
 # initialized classes.
 defaults = Defaults()

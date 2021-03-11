@@ -749,7 +749,7 @@ class Spawn(objects.Object):
 	def wait(self, 
 		# the live boolean (bool) (prints live logs to console when enabled) (leave None to use self.log_level >= 1).
 		live=None, 
-		sleeptime=3,
+		sleeptime=1,
 		# the timeout (leave None to ignore).
 		timeout=None,
 	):
