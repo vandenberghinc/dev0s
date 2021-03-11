@@ -1210,7 +1210,10 @@ class Formats():
 				count = int(count)
 			else:
 				count = len(count)
-			return self.string[count:]
+			if len(self.string) >= count:
+				return self.string[count:]
+			else:
+				return None
 			#
 		
 		# remove first / last n characters of the string.
