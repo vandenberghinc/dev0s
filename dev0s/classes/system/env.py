@@ -100,7 +100,7 @@ class Env(Docs):
 						elif len(exported) > 0 and String(exported).last("\n") == "\n": exported = str(String(exported).remove_last("\n"))
 						else: break
 				else:
-					raise Exceptions.InvalidUsage("The export file must contain an .json / .sh extension or must be named 'bash' / 'json'.")
+					raise Exceptions.InvalidUsage(f"Export file [{export}] must contain an .json / .sh extension or must be named 'bash' / 'json'.")
 				for key,value in dictionary.items():
 					if format == "json":
 						exported[str(key)] = value
