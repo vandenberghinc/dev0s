@@ -115,7 +115,7 @@ class Env(Docs):
 					elif format == "bash":
 						if f'export {key.upper()}="' in exported:
 							l = ""
-							for i in exported.split("\n"):
+							for line in exported.split("\n"):
 								if f'export {key.upper()}="' in line:
 									l += f'export {key.upper()}="{value}"\n'
 								else:
