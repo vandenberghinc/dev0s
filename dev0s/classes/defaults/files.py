@@ -3703,15 +3703,23 @@ class Files():
 				else:
 					names.append(gfp.name(path=_path_))
 			return names
-		def oldest_path(self):
+		def oldest(self):
 			files = []
 			for i in os.listdir(self.file_path.path):
 				if i not in [".DS_Store"]:
 					path = f'{self.file_path.path}/{i}'.replace("//",'/')
 					files.append(path)
 			if len(files) == 0: return False
-			return min(files, key=os.path.getctime)
-		def random_path(self):
+			return min(files, key=os.path.getctime) # oldest is min (this is not a code error)
+		def newest(self):
+			files = []
+			for i in os.listdir(self.file_path.path):
+				if i not in [".DS_Store"]:
+					path = f'{self.file_path.path}/{i}'.replace("//",'/')
+					files.append(path)
+			if len(files) == 0: return False
+			return max(files, key=os.path.getctime) # newest is max (this is not a code error)
+		def random(self):
 			files = []
 			for i in os.listdir(self.file_path.path):
 				if i not in [".DS_Store"]:
@@ -3719,7 +3727,7 @@ class Files():
 					files.append(path)
 			if len(files) == 0: return False
 			return files[random.randrange(0, len(files))]
-		def generate_path(self, length=24, type="/"):
+		def generate(self, length=24, type="/"):
 			path, paths = None, self.paths()
 			for x in range(1000):
 				path = self.join(utils.generate.shell_string(length=length), type)
