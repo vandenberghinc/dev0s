@@ -355,6 +355,12 @@ class Thread(Object, threading.Thread):
 			return _response_.error(f"Unable to start thread {self}.", log_level=self.log_level, required_log_level=0)
 		return _response_.success(f"Successfully started thread {self.id}.", log_level=self.log_level, required_log_level=0)
 	def safe_stop(self, timeout=120, sleeptime=1):
+		
+		# check already crashed.
+		if self.crashed:
+			return _response_.error(f"Thread {self.id} has crashed, error: {self.response.error}")
+
+		# send stop.
 		self.log(f"Stopping thread {self.id}.")
 		self.send_stop()
 		for i in range(int(timeout/sleeptime)):
@@ -362,6 +368,8 @@ class Thread(Object, threading.Thread):
 			time.sleep(sleeptime)
 		if not self.stopped: 
 			return _response_.error(f"Unable to stop thread {self}.")
+
+		# handle stop functions.
 		found = False
 		try:
 			response = self.stop()
@@ -374,6 +382,8 @@ class Thread(Object, threading.Thread):
 			except AttributeError: response = None
 		if isinstance(response, ResponseObject) and not response.success:
 			return response
+
+		# handler.
 		return _response_.success(f"Successfully stopped thread {self.id}.", required_log_level=0)
 
 		#

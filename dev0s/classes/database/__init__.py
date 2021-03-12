@@ -56,21 +56,43 @@ class Database(Traceback):
 		#
 
 	# functions.
-	def load(self, path=None, format="json"):
+	def load(self, 
+		# the sub path (str, FilePath).
+		path=None, 
+		# the data format [str, json] (str).
+		format="json", 
+		default=None,
+	):
 		if path == None: return _response_.error(self.__traceback__(function="load")+" Define parameter: [path].")
+		path = str(path)
+		subpath = path
 		path = gfp.clean(f"{self.path}/{path}")
 		format = self.__serialize_format__(format)
+		if default != None and not Files.exists(path):
+			response = self.save(path=subpath, data=default, format=format)
+			if not response.success: return response
 		try:
 			data = Files.load(path=path, format=format)
 		except Exception as e: return _response_.error(str(e))
 		return _response_.success(f"Successfully loaded [{path}].", {
 			"data":data,
 		})
-	def save(self, path=None, data=None, overwrite=False, format="json"):
+	def save(self, 
+		# the sub path (str, FilePath).
+		path=None, 
+		# the data to save (str, integer, boolean, dict, list)
+		data=None, 
+		# the data format [str, json] (str).
+		format="json",
+		# with overwrite disabled the json format data is appended to the existing data.
+		overwrite=False, 
+	):
 		if path == None: return _response_.error(self.__traceback__(function="save")+" Define parameter: [path].")
 		if data == None: return _response_.error(self.__traceback__(function="save")+" Define parameter: [data].")
+		path = str(path)
 		path = gfp.clean(f"{self.path}/{path}")
 		format = self.__serialize_format__(format)
+		if format == "str": data = str(data)
 		try:
 			if not Files.exists(path=gfp.base(path)): Files.create(path=gfp.base(path), directory=True)
 		except ValueError: a=1
@@ -99,8 +121,9 @@ class Database(Traceback):
 			Files.save(path=path, data=data, format=format)
 		except Exception as e: return _response_.error(str(e))
 		return _response_.success(f"Successfully saved [{path}].")
-	def delete(self, path=None, data=None):
+	def delete(self, path=None):
 		if path == None: return _response_.error(self.__traceback__(function="delete")+" Define parameter: [path].")
+		path = str(path)
 		path = gfp.clean(f"{self.path}/{path}")
 		try:
 			Files.delete(path=path)
@@ -115,11 +138,13 @@ class Database(Traceback):
 	):
 
 		# checks.
-		if path == None: return _response_.error(self.__traceback__(function="names")+" Define parameter: [path].")
+		#if path == None: return _response_.error(self.__traceback__(function="names")+" Define parameter: [path].")
+		if path == None: path = self.path
+		else: path = self.join(path)
 		
 		# names.
 		names = []
-		for i in Directory(path=self.join(path)).paths(): names.append(gfp.name(i))
+		for i in Directory(path=path).paths(): names.append(gfp.name(i))
 
 		# handler.
 		return names
@@ -137,6 +162,7 @@ class Database(Traceback):
 		format = str(format).lower()
 		if format in ["json", "dict", "array", "dictionary"]: format = "json"
 		elif format in ["string", "str", "String"]: format = "str"
+		if format not in ["str", "json"]: raise Exceptions.InvalidUsage(f"{self.__traceback__()}: Format [{format}] is not a valid option, options: [str, json].")
 		return format
 
 	#
