@@ -128,6 +128,7 @@ fi
 #echo "dev0s library: $lib"
 
 # import utils.
+echo "dev0s lib: $lib."
 export DEVOS_LIB=$lib
 if [[ "$OSTYPE" == "darwin"* ]] ; then
     source $lib/bash/utils --lib $DEVOS_LIB
