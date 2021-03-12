@@ -7,6 +7,8 @@ from dev0s.classes.defaults.defaults import defaults
 from dev0s.classes.code.docs import Docs
 from dev0s.classes.defaults.exceptions import Exceptions
 from dev0s.classes.response import response as _response_
+from dev0s.classes import code
+import requests as __requests__
 
 # the database class.
 class Database(Traceback):
@@ -218,7 +220,7 @@ class WebServer(Thread):
 			"cache_id":self.id,
 		})
 		try:
-			response = requests.get(f'http://{self.host}:{self.port}/set?{encoded}', timeout=timeout)
+			response = __requests__.get(f'http://{self.host}:{self.port}/set?{encoded}', timeout=timeout)
 		except Exception as e:
 			return _response_.error(f"Failed to connect with {self.host}:{self.port}, error: {e}")
 		try:
@@ -235,7 +237,7 @@ class WebServer(Thread):
 			"cache_id":self.id,
 		})
 		try:
-			response = requests.get(f'http://{self.host}:{self.port}/get?{encoded}', timeout=timeout)
+			response = __requests__.get(f'http://{self.host}:{self.port}/get?{encoded}', timeout=timeout)
 		except Exception as e:
 			return _response_.error(f"Failed to connect with {self.host}:{self.port}, error: {e}")
 		try:
@@ -251,7 +253,7 @@ class WebServer(Thread):
 		@app.route('/get')
 		def get():
 			token = flask.request.args.get('token')
-			if token != Cache(path=flask.request.args.get('cache')).get(flask.request.args.get('cache_id'), id="token"):
+			if token != Database(path=flask.request.args.get('cache')).load(Files.join(flask.request.args.get('cache_id'), "token")):
 				return _response_.error(f"Provided an invalid token {token}.").json()
 			group = flask.request.args.get('group')
 			id = flask.request.args.get('id')
@@ -273,7 +275,7 @@ class WebServer(Thread):
 		@app.route('/set')
 		def set():
 			token = flask.request.args.get('token')
-			if token != Cache(path=flask.request.args.get('cache')).get(flask.request.args.get('cache_id'), id="token"):
+			if token != Database(path=flask.request.args.get('cache')).load(Files.join(flask.request.args.get('cache_id'), "token")):
 				return _response_.error(f"Provided an invalid token {token}.").json()
 			group = flask.request.args.get('group')
 			id = flask.request.args.get('id')
@@ -291,7 +293,7 @@ class WebServer(Thread):
 		@app.route('/active')
 		def active():
 			token = flask.request.args.get('token')
-			if token != Cache(path=flask.request.args.get('cache')).get(flask.request.args.get('cache_id'), id="token"):
+			if token != Database(path=flask.request.args.get('cache')).load(Files.join(flask.request.args.get('cache_id'), "token")):
 				return _response_.error(f"Provided an invalid token {token}.").json()
 			return _response_.success(f"Active.").json()
 		#def run__(self, app, host, port):
@@ -338,13 +340,13 @@ class WebServer(Thread):
 	def stop(self):
 		if not self.running: 
 			return _response_.success(f"{self.__traceback__(function='stop')}: The {self.id} is not running.")
-		processes = defaults.processes(includes=f"--dev0s-webserver-tag {self.tag}")
+		processes = code.processes(includes=f"--dev0s-webserver-tag {self.tag}")
 		if not processes.success: return response
 		if len(processes.processes) <= 1:
 			return _response_.error(f"Unable to find the pid of the {self.id}.")
 		for pid, info in processes.processes.items():
 			if info["process"] not in ["grep"]:
-				response = defaults.kill(pid=pid)
+				response = code.kill(pid=pid)
 				if not response.success: return response
 		return _response_.error(f"Successfully stopped the {self.id}.")
 	# threading functions.
@@ -397,9 +399,9 @@ class WebServer(Thread):
 			"cache_id":self.id,
 		})
 		try:
-			requests.get(f'http://{self.host}:{self.port}/active?{encoded}', timeout=timeout)
+			__requests__.get(f'http://{self.host}:{self.port}/active?{encoded}', timeout=timeout)
 			return True
-		except requests.exceptions.ConnectionError:
+		except __requests__.exceptions.ConnectionError:
 			return False
 	# system functions.
 	def __serialize__(self, dictionary, safe=False):
