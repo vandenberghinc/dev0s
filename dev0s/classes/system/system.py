@@ -51,7 +51,7 @@ class User(object):
 
 		# arguments.
 		self.username = username
-		self.home_directory = f"{HOME_BASE}{self.username}/"
+		self.home_directory = f"{defaults.vars.homes}{self.username}/"
 
 		#
 	def create(self):
