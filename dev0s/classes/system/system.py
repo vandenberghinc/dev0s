@@ -6,6 +6,7 @@ from dev0s.classes.config import *
 from dev0s.classes.response import response as _response_
 from dev0s.classes import code
 from dev0s.classes.code.docs import Docs
+from dev0s.classes.defaults.defaults import defaults
 
 """
 missing imports / variables:
