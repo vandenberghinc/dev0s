@@ -5,9 +5,13 @@ from dev0s.classes.defaults.color import color, symbol
 import getpass
 _input_ = input
 
-# replace last line.
-def print_replace(msg):
-	print(msg, end="\r")
+# log with safe replace.
+def log(msg, back=0):
+	#print(msg, end="\r")
+	print(msg)
+	for _ in range(back):
+		sys.stdout.write("\033[F") # cursor up one line
+	sys.stdout.write("\033[K") # clear to the end of line
 
 # input.
 def input(message, yes_no=False, check=False, password=False, default=None):
@@ -36,7 +40,7 @@ def input(message, yes_no=False, check=False, password=False, default=None):
 		if check:
 			if password:
 				if getpass.getpass("Enter the same passphrase: ") != password:
-					print("Passphrases do not match.")
+					log("Passphrases do not match.")
 					return default
 				else:
 					return password
@@ -64,7 +68,7 @@ class Loader(threading.Thread):
 					self.stop(success=False)
 					raise KeyboardInterrupt(f"{e}")
 			else:
-				print(self.message+".")
+				log(self.message+".")
 	def run(self):
 		if self.log_level >= 0: 
 			self.running = True
@@ -78,9 +82,9 @@ class Loader(threading.Thread):
 						if not self.released: break
 						elif not self.running: break
 						if self.message != self.last_message:
-							print_replace(self.__empty_message__(length=len(f"{self.last_message} ...   ")))
+							#log(self.__empty_message__(length=len(f"{self.last_message} ...   ")), back=1)
 							self.message = self.__clean_message__(self.message)
-						print_replace(f"{self.message} ... {i}")
+						log(f"{self.message} ... {i}", back=1)
 						self.last_message = self.message
 						if not self.released: break
 						elif not self.running: break
@@ -104,16 +108,16 @@ class Loader(threading.Thread):
 				if self.running != "stopped": raise ValueError(f"Unable to stop loader [{self.message}].")
 			if not quiet:
 				if self.interactive:
-					print_replace(self.__empty_message__(length=len(f"{self.last_message} ...   ")))
+					#log(self.__empty_message__(length=len(f"{self.last_message} ...   ")), back=1)
 					if success:
-						print(f"{message} ... done")
+						log(f"{message} ... done")
 					else:
-						print(f"{message} ... {color.red}failed{color.end}")
+						log(f"{message} ... {color.red}failed{color.end}")
 				else:
 					if success:
-						print(f"{message}. done")
+						log(f"{message}. done")
 					else:
-						print(f"{message}. {color.red}failed{color.end}")
+						log(f"{message}. {color.red}failed{color.end}")
 	def mark(self, new_message=None, old_message=None, success=True, response=None):
 		if self.log_level >= 0: 
 			if response != None:
@@ -123,16 +127,16 @@ class Loader(threading.Thread):
 					success = False
 			if old_message == None: old_message = self.message
 			if self.interactive:
-				print_replace(self.__empty_message__(length=len(f"{self.last_message} ...   ")))
+				#log(self.__empty_message__(length=len(f"{self.last_message} ...   ")), back=1)
 				if success:
-					print(f"{old_message} ... done")
+					log(f"{old_message} ... done")
 				else:
-					print(f"{old_message} ... {color.red}failed{color.end}")
+					log(f"{old_message} ... {color.red}failed{color.end}")
 			else:
 				if success:
-					print(f"{old_message}. done")
+					log(f"{old_message}. done")
 				else:
-					print(f"{old_message}. {color.red}failed{color.end}")
+					log(f"{old_message}. {color.red}failed{color.end}")
 			if new_message != None: self.message = new_message
 	def hold(self):
 		if self.log_level >= 0: 
@@ -175,7 +179,7 @@ class ProgressLoader(threading.Thread):
 			self.progress = p
 			self.last_message = f"{self.message} ... {self.progress}%"
 			if self.log_level >= 0:
-				print_replace(self.last_message)
+				log(self.last_message, back=1)
 	def stop(self, message=None, success=True, response=None):
 		if self.log_level >= 0:
 			if response == None:
@@ -187,11 +191,11 @@ class ProgressLoader(threading.Thread):
 					success = False
 					message = "Error: "+response["error"]
 			if self.last_message != None:
-				print_replace(self.__empty_message__(length=len(f"{self.last_message}")))
+				log(self.__empty_message__(length=len(f"{self.last_message}")), back=1)
 			if success:
-				print(f"{message} ... done")
+				log(f"{message} ... done")
 			else:
-				print(f"{message} ... {color.red}failed{color.end}")
+				log(f"{message} ... {color.red}failed{color.end}")
 	def __empty_message__(self, length=len("hello world")):
 		s = ""
 		for i in range(length): s += " "

@@ -382,16 +382,17 @@ class Parameters(object):
 				else:
 					return variable, _response_.error(f"Define parameter: [{parameters}].")
 			elif format != None:
-				if format in ["str", "string"]: variable = str(variable)
-				elif format in ["int", "integer"]: variable = int(variable)
-				elif format in ["bool", "boolean"]: 
+				if format.lower() in ["str", "string"]: variable = str(variable)
+				elif format.lower() in ["int", "integer"]: variable = int(variable)
+				elif format.lower() in ["bool", "boolean"]: 
 					if variable in ["true", "True", "TRUE", True]: variable = True
 					else: variable = False
-				elif format in ["float", "double"]: variable = float(variable)
-				elif format in ["array", "list"]: variable = variable.split(",")
+				elif format.lower() in ["float", "double"]: variable = float(variable)
+				elif format.lower() in ["array", "list"]: variable = variable.split(",")
 				else:
 					raise ValueError(f"Unrecognized <dev0s.response.parameters.get> format: {format}.")
-			
+			if variable == "None": variable = None
+
 			# handler.
 			return variable, _response_.success(f"Succesfully retrieved request parameter [{parameters}].", {
 				"key":parameters,
