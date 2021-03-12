@@ -11,6 +11,28 @@
 #
 
 # utils.
+function error() {
+    # usage: error "Define parameter ..." $@ ; return
+    # don't forget to pass the $@ argument to detect --error-exit etc.
+    #
+    error="$1"
+    if [[ "$OS" != "macos" ]] ; then
+        error="$(tr '[:lower:]' '[:upper:]' <<< ${error:0:1})${error:1}"
+    fi
+    if [[ ${error:0:7} == "Error: " ]] ; then
+        error=${error:7}
+    fi
+    if [[ "$OS" != "macos" ]] ; then
+        error="$(tr '[:lower:]' '[:upper:]' <<< ${error:0:1})${error:1}"
+    fi
+    if [[ "$(argument-present --error-exit $@)" == "true" ]] ; then
+        echo "Error: $error"
+        exit 1
+    else
+        echo "Error: $error"
+        return 
+    fi
+}
 function replace-str() {
     string=$1
     if [[ "$string" == "" ]] ; then

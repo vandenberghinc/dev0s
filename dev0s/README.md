@@ -96,6 +96,7 @@ Install the package.
   * [insert](#insert)
   * [site_packages](#site_packages)
   * [install_requirements](#install_requirements)
+  * [interactive](#interactive)
 - [__Dictionary__](#dictionary)
   * [load](#load-3)
   * [save](#save-3)
@@ -1142,6 +1143,13 @@ _ = dev0s.defaults.install_requirements(
     log_level=None, )
 
 ```
+##### interactive:
+``` python
+
+# call dev0s.defaults.interactive.
+_ = dev0s.defaults.interactive(default=False)
+
+```
 
 ## Dictionary:
 The dictionary object class.
@@ -1518,7 +1526,14 @@ _ = dev0s.system.env.import_(env=None)
 ``` python
 
 # call dev0s.system.env.export.
-_ = dev0s.system.env.export(env=None, export=None)
+_ = dev0s.system.env.export(
+    # the environment to export (dict).
+    env=None,
+    # the export path (str) or paths (list).
+    # the paths must have .json / .sh extension or be named 'json' / 'bash' when parameter [format] is undefined.
+    export=None,
+    # the export format (str) (leave None to be detected by parameter [export]).
+    format=None, )
 
 ```
 ##### get:
@@ -2766,8 +2781,6 @@ _ = dev0s.response.parameters.get(
     #    list instance: return a parameters object & return an error response when a parameter is undefined.
     #    dict instance: return a parameters object & return the parameter's value from the dict as a default when undefined.
     parameters=[],
-    # default return value (dict instance of parameters overwrites the default parameter).
-    default=None,
     # traceback id.
     traceback=None, )
 
@@ -3480,7 +3493,7 @@ _ = Spawn.kill()
 _ = Spawn.wait(
     # the live boolean (bool) (prints live logs to console when enabled) (leave None to use spawn.log_level >= 1).
     live=None,
-    sleeptime=3,
+    sleeptime=1,
     # the timeout (leave None to ignore).
     timeout=None, )
 
