@@ -108,7 +108,7 @@ if [[ "$(argument-present --no-error-exit $@)" == "true" ]] ; then
 fi
 
 # library variable.
-lib=$(clean-path $(get-argument --lib $@))
+lib=$(get-argument --lib $@)
 if [[ "$lib" == "none" ]] || [[ "$lib" == "" ]] ; then
 
     # default lib.
@@ -123,12 +123,12 @@ if [[ "$lib" == "none" ]] || [[ "$lib" == "" ]] ; then
             if [[ "$error_exit" == "true" ]] ; then exit 1 ; else return ; fi
         fi
     fi
-
+else
+    lib=$(clean-path $lib)
 fi
 #echo "dev0s library: $lib"
 
 # import utils.
-echo "dev0s lib: $lib."
 export DEVOS_LIB=$lib
 if [[ "$OSTYPE" == "darwin"* ]] ; then
     source $lib/bash/utils --lib $DEVOS_LIB
