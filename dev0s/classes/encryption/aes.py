@@ -212,14 +212,14 @@ class AsymmetricAES(object):
 		if not response.success: return response
 
 		# encrypt.
-		data = utils.__load_bytes__(input)
+		data = Files.load(input, format="bytes")
 		if base64_encoding:
 			data = base64.b64encode(data)
 		response = self.encrypt(data, decode=False)
 		if not response.success: return response
 
 		# write out.
-		try: utils.__save_bytes__(output, response["encrypted"])
+		try: Files.save(output, response["encrypted"], format="bytes")
 		except: return _response_.error(f"Failed to write out encrypted file {output}.")
 
 		# remove.
@@ -242,14 +242,14 @@ class AsymmetricAES(object):
 		if not response.success: return response
 
 		# encrypt.
-		response = self.decrypt(utils.__load_bytes__(input), decode=False)
+		response = self.decrypt(Files.load(input, format="bytes"), decode=False)
 		if not response.success: return response
 
 		# write out.
 		decrypted = response.decrypted
 		if base64_encoding:
 			decrypted = base64.b64decode(decrypted)
-		try: utils.__save_bytes__(output, decrypted)
+		try: Files.save(output, decrypted, format="bytes")
 		except: return _response_.error(f"Failed to write out decrypted file {output}.")
 
 		# remove.
@@ -569,7 +569,7 @@ class Database(object):
 			response = self.aes.encrypt(content)
 			if not response.success: return response
 			try:
-				content = utils.__save_bytes__(str(self.path), f"{self.format} ".encode()+response.encrypted)
+				content = Files.save(str(self.path), f"{self.format} ".encode()+response.encrypted, format="bytes")
 			except Exception as e: return _response_.error(f"Failed to save content {self.path}, {e}.")
 			return _response_.success(f"Successfully saved content {self.path}.")
 
@@ -615,7 +615,7 @@ class Database(object):
 			response = self.aes.encrypt(content)
 			if not response.success: return response
 			try:
-				content = utils.__save_bytes__(str(self.path), f"{self.format} ".encode()+response.encrypted)
+				content = Files.save(str(self.path), f"{self.format} ".encode()+response.encrypted, format="bytes")
 			except Exception as e: return _response_.error(f"Failed to save content {self.path}, {e}.")
 			return _response_.success(f"Successfully saved content {self.path}.")
 
@@ -661,7 +661,7 @@ class Database(object):
 			response = self.aes.encrypt(content)
 			if not response.success: return response
 			try:
-				content = utils.__save_bytes__(str(self.path), f"{self.format} ".encode()+response.encrypted)
+				content = Files.save(str(self.path), f"{self.format} ".encode()+response.encrypted, format="bytes")
 			except Exception as e: return _response_.error(f"Failed to save content {self.path}, {e}.")
 			return _response_.success(f"Successfully saved content {self.path}.")
 

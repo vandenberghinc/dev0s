@@ -251,9 +251,9 @@ class RSA(object):
 			return _response_.error("Can not encrypt data since the public key is not activated yet.")
 
 		# encrypt.
-		bytes = utils.__load_bytes__(path)
+		bytes = Files.load(path, format="bytes")
 		encrypted = self.__encrypt_blob__(bytes, self.public_key_object)
-		utils.__save_bytes__(path, encrypted)
+		Files.save(path, encrypted, format="bytes")
 
 		# layers.
 		if layers-1 > 0:
@@ -347,9 +347,9 @@ class RSA(object):
 			return _response_.error("Can not decrypt data since the private key is not activated yet.")
 
 		# encrypt.
-		bytes = utils.__load_bytes__(path)
+		bytes = Files.load(path, format="bytes")
 		decrypted = self.__decrypt_blob__(bytes, self.private_key_object)
-		utils.__save_bytes__(path, decrypted)
+		Files.save(path, decrypted, format="bytes")
 		
 		# layers.
 		if layers-1 > 0:

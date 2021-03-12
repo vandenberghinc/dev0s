@@ -357,8 +357,6 @@ class Parameters(object):
 		#	list instance: return a parameters object & return an error response when a parameter is undefined.
 		#	dict instance: return a parameters object & return the parameter's value from the dict as a default when undefined.
 		parameters=[], 
-		# default return value (dict instance of parameters overwrites the default parameter).
-		default=None, 
 		# traceback id.
 		traceback=None,
 	):
@@ -409,7 +407,7 @@ class Parameters(object):
 				param = param.split(":")[0]
 				if response["error"] != None: 
 					if optional:
-						params[param] = default
+						params[param] = None
 					else:
 						return params, response
 				else: 
@@ -417,7 +415,7 @@ class Parameters(object):
 			if optional:
 				for key in parameters:
 					try: params[key]
-					except: params[key] = default
+					except: params[key] = None
 			return params, _response_.success(f"Succesfully retrieved {len(params)} request parameter(s).")
 
 		# dict recursive.
