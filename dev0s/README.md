@@ -11,9 +11,7 @@ Supported Operating Systems: macos & linux.<br>
 ## Table of content:
   * [Description](#description)
   * [Installation](#installation)
-  * [Imports.](#imports.)
-  * [dev0s.response usage.](#dev0s.response-usage.)
-  * [dev0s.cli.CLI Usage.](#dev0s.cli.cli-usage.)
+  * [Custom Code Examples.](#custom-code-examples.)
   * [Code Examples](#code-examples)
 
 # Description:
@@ -24,7 +22,9 @@ Install the package.
 
 	curl -s https://raw.githubusercontent.com/vandenberghinc/dev0s/master/dev0s/requirements/installer.remote | bash 
 
-# Imports.
+# Custom Code Examples.
+
+#### Imports.
 Importing the dev0s library.
 
 ```python
@@ -34,7 +34,7 @@ from dev0s.shortcuts import *
 
 ```
 
-# dev0s.response usage.
+#### dev0s.response usage.
 An example function that returns a ResponseObject class.
 
 ```python
@@ -62,9 +62,9 @@ else:
 
 ```
 
-# dev0s.cli.CLI Usage.
+#### dev0s.cli.CLI Usage.
 
-### Simple Example.
+##### Simple Example.
 
 Simple CLI.CLI code example.
 
@@ -108,7 +108,7 @@ if __name__ == "__main__":
 	cli.start()
 ```
 
-### Advanced Example.
+##### Advanced Example.
 
 Advanced CLI.CLI code example.
 
