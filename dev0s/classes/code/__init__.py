@@ -898,9 +898,15 @@ class Python(Files.File):
 			c = 0
 			for i in info["functions"]:
 				if "__init__" not in i["name"]:
-					if module != None:
-						i["name"] = i["name"].replace(f"{old_init_name}.", f"{module}.")
-						i["raw_name"] = i["raw_name"].replace(f"{old_init_name}.", f"{module}.")
+					#if module != None:
+					#	i["name"] = i["name"].replace(f"{old_init_name}.", f"{module}.")
+					#	i["raw_name"] = i["raw_name"].replace(f"{old_init_name}.", f"{module}.")
+					if "." in info["name"]:
+						l = info["name"].split(".")[len(info["name"].split("."))-1]
+					else:
+						l = info["name"]
+					i["name"] = f'{initialized_name}.{l}'
+					#i["raw_name"] = f'{initialized_name}.{l}'
 					i["parameters"] = clean_params(i["parameters"]).replace("self.", initialized_name+".") # just for the self / initialized_name replacement.
 					if i["type"] == "property":
 						properties.append(i)
@@ -923,7 +929,7 @@ class Python(Files.File):
 			parameters = clean_params(info["parameters"])
 			doc = (
 				"\n# call " + info["name"] + "." + "\n" +
-				f"{info['return']} = " + info["name"] + parameters + "\n" +
+				f"{info['return']} = " + info['name'] + parameters + "\n" +
 				"")
 			if "__init__" in info["name"]:
 				return ""
