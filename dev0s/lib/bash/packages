@@ -128,25 +128,21 @@ function install-brew-requirements() {
         error "Error: Specify the requirements (#1) parameter: $ $program /path/to/requirements.txt" $@ ; return
     fi
 
-    # sudo option.
-    sudo_option=$(argument-present --sudo $@)
-    if [[ "$sudo_option" == "true" ]] ; then
-        sudo_option="sudo "
-    else
-        sudo_option=""
-    fi
-
     # iterate requirements.
     echo "Installing requirements file $requirements."
     cat $requirements | while read requirement ; do
         if [[ "$requirement" != "" ]] && [[ ${requirement:0:1} != "#" ]] && [[ "$requirement" != "\n" ]] && [[ "$requirement" != " " ]] ; then
             requirement=$(replace-str $requirement " " "" --except )
-            cask=""
+            cask="false"
             if [[ ${requirement:0:5} == "cask:" ]] ; then
-                cask="--cask"
+                cask="true"
                 requirement=${requirement:5}
             fi
-            $sudo_option brew install $cask $requirement -q
+            if [[ "$cask" == "true" ]] ; then
+                brew install $requirement --cask -q
+            else
+                brew install $requirement -q
+            fi
         fi
     done
 }
