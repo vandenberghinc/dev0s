@@ -4,7 +4,6 @@
 # imports.
 from dev0s.classes.defaults.objects import *
 from dev0s.classes.defaults.defaults import defaults
-from dev0s.classes.code.docs import Docs
 from dev0s.classes.defaults.exceptions import Exceptions
 from dev0s.classes.response import response as _response_
 from dev0s.classes import code

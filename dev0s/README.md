@@ -594,7 +594,6 @@ if __name__ == "__main__":
   * [get](#get-2)
   * [initialize](#initialize)
   * [denitialize](#denitialize)
-- [__Function__](#function)
 - [__Generate__](#generate)
   * [int](#int)
   * [string](#string-1)
@@ -637,6 +636,13 @@ if __name__ == "__main__":
   * [port_in_use](#port_in_use)
   * [free_port](#free_port)
 - [__Object__](#object)
+  * [items](#items)
+  * [keys](#keys)
+  * [values](#values)
+  * [assign](#assign-4)
+  * [attributes](#attributes)
+  * [dict](#dict)
+  * [unpack](#unpack)
 - [__OutputObject__](#outputobject)
   * [instance](#instance-7)
   * [response](#response)
@@ -681,17 +687,17 @@ if __name__ == "__main__":
   * [log_to_file](#log_to_file)
 - [__ResponseObject__](#responseobject)
   * [clean](#clean-1)
-  * [assign](#assign-4)
+  * [assign](#assign-5)
   * [crash](#crash)
-  * [unpack](#unpack)
+  * [unpack](#unpack-1)
   * [remove](#remove-1)
   * [iterate](#iterate)
-  * [items](#items)
-  * [keys](#keys)
-  * [values](#values)
+  * [items](#items-1)
+  * [keys](#keys-1)
+  * [values](#values-1)
   * [reversed](#reversed)
   * [sort](#sort)
-  * [dict](#dict)
+  * [dict](#dict-1)
   * [json](#json)
   * [serialize](#serialize-1)
   * [instance](#instance-8)
@@ -749,7 +755,7 @@ if __name__ == "__main__":
   * [lower](#lower-1)
   * [upper](#upper-1)
   * [instance](#instance-9)
-  * [assign](#assign-5)
+  * [assign](#assign-6)
   * [raw](#raw-7)
 - [__Symbol__](#symbol)
 - [__System__](#system)
@@ -1438,7 +1444,7 @@ The defaults object class.
 ``` python 
 
 # import the dev0s.defaults object class.
-from dev0s import dev0s
+from dev0s.shortcuts import *
 
 ```
 
@@ -1787,7 +1793,7 @@ The disks object class.
 ``` python 
 
 # import the dev0s.system.disks object class.
-from dev0s import dev0s
+from dev0s.shortcuts import *
 
 ```
 
@@ -1863,7 +1869,7 @@ The env object class.
 ``` python 
 
 # import the dev0s.system.env object class.
-from dev0s import dev0s
+from dev0s.shortcuts import *
 
 ```
 
@@ -2488,7 +2494,7 @@ The fire_wall object class.
 ``` python 
 
 # import the dev0s.network.firewall object class.
-from dev0s import dev0s
+from dev0s.shortcuts import *
 
 ```
 
@@ -2618,30 +2624,6 @@ _ = Formats.denitialize(
 
 ```
 
-## Function:
-The function object class.
-``` python 
-
-# initialize the dev0s.Docs.Function object class.
-function = dev0s.Docs.Function(
-    # the full module path in import style (when initializing).
-    module="dec0s.Docs.Function",
-    # the notes that will apread above the class_ initialization (leave [] to use default.
-    notes=[], ):
-    # attributes.
-    function.module = module
-    function.notes = notes
-    # checks.
-    if not isinstance(function.notes, (list, Array)): function.notes = []
-    # docs.
-    DOCS = {
-        "module":"dev0s.Docs.Function",
-        "initialized":False,
-        "description":[],
-    }
-    #
-
-```
 ## Generate:
 The generate object class.
 ``` python 
@@ -2923,7 +2905,7 @@ The network object class.
 ``` python 
 
 # import the dev0s.network object class.
-from dev0s import dev0s
+from dev0s.shortcuts import *
 
 ```
 
@@ -2971,21 +2953,109 @@ The object object class.
 
 # initialize the Object object class.
 object = Object(
-    # boolean inidicating if the object is initialized by default.
-    initialized=False,
-    # the full module path in import style (when initializing).
-    module="dec0s.Docs.Object",
-    # the notes that will apread above the class_ initialization (leave [] to use default.
-    notes=[], ):
-    # attributes.
-    object.initialized = initialized
-    object.module = module
-    object.notes = notes
-    # checks.
-    if not isinstance(object.notes, (list, Array)): object.notes = []
-    #
+    # attributes (dict) (#1)
+    attributes={},
+    # the imported traceback.
+    traceback="Object",
+    # the raw traceback.
+    raw_traceback="Object", )
 
 ```
+
+#### Functions:
+
+##### items:
+``` python
+
+# call object.items.
+_ = object.items(
+    # the keys to get (leave default to unpack all keys).
+    #    list instance: checks if the key is present if not it throws an error when [safe] is disabled
+    #    dict instance: automatically enables [safe] and returns the key's value as default when missing.
+    keys=["*"],
+    # with safe disabled it throws an error when one of the specified keys does not exist.
+    safe=True, )
+
+```
+##### keys:
+``` python
+
+# call object.keys.
+_ = object.keys(
+    # the keys to get (leave default to unpack all keys).
+    #    list instance: checks if the key is present if not it throws an error when [safe] is disabled
+    #    dict instance: automatically enables [safe] and returns the key's value as default when missing.
+    keys=["*"],
+    # with safe disabled it throws an error when one of the specified keys does not exist.
+    safe=True, )
+
+```
+##### values:
+``` python
+
+# call object.values.
+_ = object.values()
+
+```
+##### assign:
+``` python
+
+# call object.assign.
+_ = object.assign(
+    # the dictionary to self assign.
+    dictionary,
+    # serialize dictionary from str to object.
+    serialize=True,
+    # the keys to get from the dict (leave default to unpack the present keys).
+    #    list instance: checks if the key is present if not it throws an error when [safe] is disabled
+    #    dict instance: automatically enables [safe] and returns the key's value as default when missing.
+    keys=["*"],
+    # with safe disabled it throws an error when one of the specified keys does not exist.
+    safe=True, )
+
+```
+##### attributes:
+``` python
+
+# call object.attributes.
+_ = object.attributes(
+    # the keys to get (leave default to unpack all keys).
+    #    list instance: checks if the key is present if not it throws an error when [safe] is disabled
+    #    dict instance: automatically enables [safe] and returns the key's value as default when missing.
+    keys=["*"],
+    # with safe disabled it throws an error when one of the specified keys does not exist.
+    safe=True, )
+
+```
+##### dict:
+``` python
+
+# call object.dict.
+_ = object.dict(
+    # the keys to get (leave default to unpack all keys).
+    #    list instance: checks if the key is present if not it throws an error when [safe] is disabled
+    #    dict instance: automatically enables [safe] and returns the key's value as default when missing.
+    keys=["*"],
+    # with safe disabled it throws an error when one of the specified keys does not exist.
+    safe=True, )
+
+```
+##### unpack:
+``` python
+
+# call object.unpack.
+_ = object.unpack(
+    # the key / keys / defaults parameter (#1).
+    # str instance:
+    #   unpack the str key
+    # list instance:
+    #   unpack all keys in the list.
+    # dict instance:
+    #   unpack all keys from the dict & when not present return the key's value as default.
+    keys, )
+
+```
+
 ## OutputObject:
 The output_object object class.
 ``` python 
@@ -3074,7 +3144,7 @@ The parameters object class.
 ``` python 
 
 # import the dev0s.response.parameters object class.
-from dev0s import dev0s
+from dev0s.shortcuts import *
 
 ```
 
@@ -3299,7 +3369,7 @@ The requests object class.
 ``` python 
 
 # import the dev0s.requests object class.
-from dev0s import dev0s
+from dev0s.shortcuts import *
 
 ```
 
@@ -3331,7 +3401,7 @@ The response object class.
 ``` python 
 
 # import the dev0s.response object class.
-from dev0s import dev0s
+from dev0s.shortcuts import *
 
 ```
 
