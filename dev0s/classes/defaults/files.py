@@ -348,7 +348,7 @@ class Formats():
 			total = 0
 			try:
 				# print("[+] Getting the size of", directory)
-				for entry in os.scandir(directory):
+				for entry in os.scandir(path):
 					if entry.is_file():
 						# if it's a file, use stat() function
 						total += entry.stat().st_size
@@ -357,7 +357,7 @@ class Formats():
 						total += get_directory_size2(entry.path)
 			except NotADirectoryError:
 				# if `directory` isn't a directory, get the file size then
-				return os.path.getsize(directory)
+				return os.path.getsize(path)
 			except PermissionError:
 				# if for whatever reason we can't open the folder, return 0
 				return 0
