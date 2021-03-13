@@ -375,33 +375,57 @@ class Formats():
 				"free":free,
 			}
 		def convert_bytes(self, bytes:int, format=str, mode="auto", options=["auto", "bytes", "kb", "mb", "gb", "tb"]):
-			if format in [int, "int", "integer", "Integer", Integer] and (mode == "bytes" or mode == "bytes".upper()):
-				return int(round(bytes,0))
-			elif format in [int, "int", "integer", "Integer", Integer] and (mode == "bytes" or mode == "bytes".upper()):
-				return float(bytes)
+			if format in [float, "float", "integer", "Integer", Integer]:
+				format = float
+				if (mode == "bytes" or mode == "bytes".upper()):
+					return float(bytes)
+			elif format in [int, "int", "integer", "Integer", Integer]:
+				format = int
+				if (mode == "bytes" or mode == "bytes".upper()):
+					return int(round(bytes,0))
 			if mode == "auto":
 				if int(bytes/1024**4) >= 10:
-					bytes = '{:,} TB'.format(round(bytes/1024**4,2))#.replace(',', '.')
+					bytes = round(bytes/1024**4,2)
+					if format not in [int, float]:
+						bytes = '{:,} TB'.format(bytes)#.replace(',', '.')
 				elif int(bytes/1024**3) >= 10:
-					bytes = '{:,} GB'.format(round(bytes/1024**3,2))#.replace(',', '.')
+					bytes = round(bytes/1024**3,2)
+					if format not in [int, float]:
+						bytes = '{:,} GB'.format(bytes)#.replace(',', '.')
 				elif int(bytes/1024**2) >= 10:
-					bytes = '{:,} MB'.format(round(bytes/1024**2,2))#.replace(',', '.')
+					bytes = round(bytes/1024**2,2)
+					if format not in [int, float]:
+						bytes = '{:,} MB'.format(bytes)#.replace(',', '.')
 				elif int(bytes/1024) >= 10:
-					bytes = '{:,} KB'.format(round(bytes/1024,2))#.replace(',', '.')
+					bytes = round(bytes/1024,2)
+					if format not in [int, float]:
+						bytes = '{:,} KB'.format(bytes)#.replace(',', '.')
 				else:
-					bytes = '{:,} Bytes'.format(int(int(bytes))).replace(',', '.')
-			elif (mode == "bytes" or mode == "bytes".upper()): bytes = '{:,} Bytes'.format(int(bytes)).replace(',', '.') 
-			elif mode == "kb" or mode == "kb".upper(): bytes = '{:,} KB'.format(round(bytes/1024,2))#.replace(',', '.') 
-			elif mode == "mb" or mode == "mb".upper(): bytes = '{:,} MB'.format(round(bytes/1024**2,2))#.replace(',', '.') 
-			elif mode == "gb" or mode == "gb".upper(): bytes = '{:,} GB'.format(round(bytes/1024**3,2))#.replace(',', '.') 
-			elif mode == "tb" or mode == "tb".upper(): bytes = '{:,} TB'.format(round(bytes/1024**4,2))#.replace(',', '.') 
+					bytes = int(round(bytes,0))
+					if format not in [int, float]:
+						bytes = '{:,} Bytes'.format(bytes)#.replace(',', '.')
+			elif (mode == "bytes" or mode == "bytes".upper()): 
+				bytes = int(round(bytes,0))
+				if format not in [int, float]:
+					bytes = '{:,} Bytes'.format(bytes)#.replace(',', '.') 
+			elif mode == "kb" or mode == "kb".upper(): 
+				bytes = round(bytes/1024,2)
+				if format not in [int, float]:
+					bytes = '{:,} KB'.format(bytes)#.replace(',', '.') 
+			elif mode == "mb" or mode == "mb".upper(): 
+				bytes = round(bytes/1024**2,2)
+				if format not in [int, float]:
+					bytes = '{:,} MB'.format(bytes)#.replace(',', '.') 
+			elif mode == "gb" or mode == "gb".upper(): 
+				bytes = round(bytes/1024**3,2)
+				if format not in [int, float]:
+					bytes = '{:,} GB'.format(bytes)#.replace(',', '.') 
+			elif mode == "tb" or mode == "tb".upper(): 
+				bytes = round(bytes/1024**4,2)
+				if format not in [int, float]:
+					bytes = '{:,} TB'.format(bytes)#.replace(',', '.') 
 			else: raise Exceptions.InvalidUsage(f"Selected an invalid size format [{format}], options {options}.")
-			if format in [float, "float", "Integer", Integer]:
-				return int(round(float(bytes.split(" ")[0]), 0))
-			elif format in [int, "int", "integer"]:
-				return float(bytes.split(" ")[0])
-			else: 
-				return bytes 
+			return bytes 
 		def exists(self, 
 			# the path (leave None to use self.path) (#1).
 			path=None,
