@@ -32,7 +32,7 @@ class Browser(object):
 			#self.driver = webdriver.Firefox(executable_path=f'{SOURCE_PATH}/classes/browser/drivers/{OS}/geckodriver')
 			self.driver = webdriver.Firefox(executable_path="/usr/local/bin/geckodriver")
 		else:
-			raise ValueError(f"Unkown driver: {driver}")
+			raise ValueError(f"Unknown driver: {driver}")
 
 		#
 	def get(self, url):

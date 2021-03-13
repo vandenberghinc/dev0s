@@ -173,32 +173,66 @@ function install-pip-requirements() {
     else
         executive=python3
     fi
-    if [[ $(argument-present --silent $@) == "true" ]] ; then
-        if [[ $(argument-present --sudo $@) == "true" ]] ; then
-            if [[ "$(argument-present --source $@)" == "true" ]] ; then
-                sudo $executive -m pip install $requirements --user $_user_ 2> /dev/null
+    # no user option for venv.
+    if [[ "$(empty $venv)" == "false" ]] ; then
+        if [[ $(argument-present --silent $@) == "true" ]] ; then
+            if [[ $(argument-present --sudo $@) == "true" ]] ; then
+                if [[ "$(argument-present --source $@)" == "true" ]] ; then
+                    sudo $executive -m pip install $requirements 2> /dev/null
+                else
+                    sudo $executive -m pip install -r $requirements 2> /dev/null
+                fi
             else
-                sudo $executive -m pip install -r $requirements --user $_user_ 2> /dev/null
+                if [[ "$(argument-present --source $@)" == "true" ]] ; then
+                    $executive -m pip install $requirements 2> /dev/null
+                else
+                    $executive -m pip install -r $requirements 2> /dev/null
+                fi
             fi
         else
-            if [[ "$(argument-present --source $@)" == "true" ]] ; then
-                $executive -m pip install $requirements --user $_user_ 2> /dev/null
+            if [[ "$sudo_option" == "true" ]] ; then
+                if [[ "$(argument-present --source $@)" == "true" ]] ; then
+                    sudo $executive -m pip install $requirements
+                else
+                    sudo $executive -m pip install -r $requirements
+                fi
             else
-                $executive -m pip install -r $requirements --user $_user_ 2> /dev/null
+                if [[ "$(argument-present --source $@)" == "true" ]] ; then
+                    $executive -m pip install $requirements
+                else
+                    $executive -m pip install -r $requirements
+                fi
             fi
         fi
+    # no venv.
     else
-        if [[ "$sudo_option" == "true" ]] ; then
-            if [[ "$(argument-present --source $@)" == "true" ]] ; then
-                sudo $executive -m pip install $requirements --user $_user_
+        if [[ $(argument-present --silent $@) == "true" ]] ; then
+            if [[ $(argument-present --sudo $@) == "true" ]] ; then
+                if [[ "$(argument-present --source $@)" == "true" ]] ; then
+                    sudo $executive -m pip install $requirements --user $_user_ 2> /dev/null
+                else
+                    sudo $executive -m pip install -r $requirements --user $_user_ 2> /dev/null
+                fi
             else
-                sudo $executive -m pip install -r $requirements --user $_user_
+                if [[ "$(argument-present --source $@)" == "true" ]] ; then
+                    $executive -m pip install $requirements --user $_user_ 2> /dev/null
+                else
+                    $executive -m pip install -r $requirements --user $_user_ 2> /dev/null
+                fi
             fi
         else
-            if [[ "$(argument-present --source $@)" == "true" ]] ; then
-                $executive -m pip install $requirements --user $_user_
+            if [[ "$sudo_option" == "true" ]] ; then
+                if [[ "$(argument-present --source $@)" == "true" ]] ; then
+                    sudo $executive -m pip install $requirements --user $_user_
+                else
+                    sudo $executive -m pip install -r $requirements --user $_user_
+                fi
             else
-                $executive -m pip install -r $requirements --user $_user_
+                if [[ "$(argument-present --source $@)" == "true" ]] ; then
+                    $executive -m pip install $requirements --user $_user_
+                else
+                    $executive -m pip install -r $requirements --user $_user_
+                fi
             fi
         fi
     fi

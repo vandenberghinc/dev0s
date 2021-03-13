@@ -593,7 +593,7 @@ class CLI(object):
 							else: 
 								self.docs(stop=False)
 								sys.tracebacklimit = -1 ; sys.traceback_limit = -1
-								raise Exceptions.UnkownArgumentError(error)
+								raise Exceptions.UnknownArgumentError(error)
 		# defaults.
 		def items(self):
 			return vars(self).items()

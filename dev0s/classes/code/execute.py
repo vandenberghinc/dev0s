@@ -844,7 +844,7 @@ class Spawn(objects.Object):
 			response = self.read(wait=True, timeout=1.0) 
 			if not response.success:
 				if "still expecting input" in response.error: return True
-				else: raise ValueError(f"Unkown behaviour while detecting @spawn.expecting, error: {response.error}")
+				else: raise ValueError(f"Unknown behaviour while detecting @spawn.expecting, error: {response.error}")
 			else: return False
 
 			#

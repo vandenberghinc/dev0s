@@ -27,7 +27,7 @@ class Color(object):
 		self.markedred = "\033[101m"
 		self.markedgreen = "\033[102m"
 		self.markedcyan= "\033[103m"
-		self.unkown = "\033[2m"
+		self.unknown = "\033[2m"
 		self.red = "\033[91m"
 		self.bold = "\033[1m"
 		self.underlined = "\033[4m"
@@ -37,7 +37,7 @@ class Color(object):
 		#
 	def remove(self, string):
 		if string == None: return string
-		for x in [color.purple,color.cyan,color.darkcyan,color.orange,color.blue,color.green,color.yellow,color.grey,color.marked,color.markedred,color.markedgreen,color.markedcyan,color.unkown,color.red,color.bold,color.underlined,color.end,color.italic]: string = string.replace(x,'')
+		for x in [color.purple,color.cyan,color.darkcyan,color.orange,color.blue,color.green,color.yellow,color.grey,color.marked,color.markedred,color.markedgreen,color.markedcyan,color.unknown,color.red,color.bold,color.underlined,color.end,color.italic]: string = string.replace(x,'')
 		return string
 	def fill(self, string):
 		if string == None: return string

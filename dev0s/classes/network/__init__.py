@@ -90,9 +90,9 @@ class Network(object):
 		except KeyError: 
 			return _response_.error("Unable to fetch netork info.")
 		try: info["private_ip"] = self.__get_private_ip__()
-		except: info["private_ip"] = "unkown"
+		except: info["private_ip"] = "unknown"
 		try: info["hostname"] = socket.gethostname()
-		except: info["hostname"] = "unkown"
+		except: info["hostname"] = "unknown"
 
 		# success.
 		self.__cache__["info"] = _response_.success(f"Successfully retrieved the network information.", info)

@@ -141,10 +141,10 @@ class FireWall(object):
 		#print(f"Output: [{output}].")
 
 		# get status.
-		status = "unkown"
+		status = "unknown"
 		if "Status: " in output: 
 			try: status = output.split("Status: ")[1].split("\n")[0].replace(" ","")
-			except IndexError: status = "unkown"
+			except IndexError: status = "unknown"
 
 		# iterate ports.
 		ports = {}

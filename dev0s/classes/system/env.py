@@ -146,7 +146,7 @@ class Env(object):
 			return self.get_array(id, default=default)
 		elif dict in [dict, "dict", "dictionary", "json"]:
 			return self.get_dictionary(id, default=default)
-		else: raise ValueError(f"Unkown format: {format}.")
+		else: raise ValueError(f"Unknown format: {format}.")
 	def get_string(self, id, default=None):
 		e = os.environ.get(id)
 		if e == None: 
@@ -217,7 +217,7 @@ class Env(object):
 			self.set_array(id, value)
 		elif dict in [dict, "dict", "dictionary", "json"]:
 			self.set_dictionary(id, value)
-		else: raise ValueError(f"Unkown format: {format}.")
+		else: raise ValueError(f"Unknown format: {format}.")
 	def set_string(self, id, value):
 		os.environ[id] = value
 	def set_boolean(self, id, value):

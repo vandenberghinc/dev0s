@@ -23,7 +23,7 @@ class Exceptions():
 		pass
 	class ArgumentError(Exception):
 		pass
-	class UnkownArgumentError(Exception):
+	class UnknownArgumentError(Exception):
 		pass
 	class NetworkError(Exception):
 		pass
