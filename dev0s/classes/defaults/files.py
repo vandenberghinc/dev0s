@@ -354,14 +354,17 @@ class Formats():
 						total += entry.stat().st_size
 					elif entry.is_dir():
 						# if it's a directory, recursively call this function
-						total += get_directory_size2(entry.path)
+						total += self.size(path=entry.path, mode="bytes", format=int)
 			except NotADirectoryError:
 				# if `directory` isn't a directory, get the file size then
 				return os.path.getsize(path)
 			except PermissionError:
 				# if for whatever reason we can't open the folder, return 0
 				return 0
-			return self.convert_bytes(total, format=format)
+			if format == int and mode == "bytes":
+				return total
+			else:
+				return self.convert_bytes(total, format=format)
 		def space(self, format=str,  mode="auto", path=None, options=["auto", "bytes", "kb", "mb", "gb", "tb"]):
 			if path == None: path = self.path
 			total, used, free = shutil.disk_usage(path)

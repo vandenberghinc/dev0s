@@ -24,23 +24,13 @@ Install the package.
 
 # Custom Code Examples.
 
-#### Imports.
-Importing the dev0s library.
-
-```python
-
-# import the package
-from dev0s.shortcuts import *
-
-```
-
 #### dev0s.response usage.
 An example function that returns a ResponseObject class.
 
 ```python
 
 # import the package
-from dev0s import *
+from dev0s.shortcuts import *
 
 # universal responses.
 def my_function():
@@ -117,7 +107,7 @@ Advanced CLI.CLI code example.
 # -*- coding: utf-8 -*-
 
 # imports.
-from dev0s import * ; dev0s.defaults.insert(dev0s.defaults.source_path(__file__, back=2))
+from dev0s.shortcuts import * ; dev0s.defaults.insert(dev0s.defaults.source_path(__file__, back=2))
 from ssht00ls.classes.config import *
 import ssht00ls
 
