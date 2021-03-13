@@ -68,6 +68,24 @@ class CLI(dev0s.cli.CLI):
 				"    --generate-keys":"Generate a key pair.",
 				"    --generate-passphrase [optional: --length 32]":"Generate a passphrase.",
 				"    --generate-aes [optional: --length 64]":"Generate an aes passphrase.",
+				"System":"*chapter*",
+				"    --user myuser":"Configure a system user (linux).",
+				"        --check":"Check the existance of the specified user.",
+				"        --create":"Create the specified user.",
+				"        --delete":"Delete the specified user.",
+				"        --password MyPassword":"Set the password of the specifed user (leave password blank for safe prompt).",
+				"        --add-groups group1,group2":"Add the specified user to groups.",
+				"        --delete-groups group1,group2":"Remove the specified user from groups.",
+				"    --group mygroup":"Configure a system group (linux).",
+				"        --check":"Check the existance of the specified group.",
+				"        --create":"Create the specified group.",
+				"        --delete":"Delete the specified group.",
+				"        --list-users":"List the users of the specified group.",
+				"        --add-users user1,user2":"Add users from the specified group.",
+				"        --delete-users user1,user2":"Delete users from the specified group.",
+				"        --force-users user1,user2":"Add the specified users to the group and remove all others.",
+				"    --disk-space":"Get the free disk space (linux).",
+				"    --size /path/to/file":"Get the size of a file / directory (linux).",
 				"Installation":"*chapter*",
 				"    --install":"Install the DevOS library.",
 				"    --uninstall":"Uninstall the DevOS library.",
@@ -174,6 +192,132 @@ class CLI(dev0s.cli.CLI):
 		# generate passphrase.
 		elif self.arguments.present('--generate-passphrase'):
 			self.stop(message=f"Generated passphrase: {String('').generate(length=length, capitalize=True, digits=True)}", json=dev0s.defaults.options.json)
+
+		#
+		# SYSTEM.
+		#
+
+		# user.
+		elif self.arguments.present(['--user']):
+			dev0s.defaults.operating_system(supported=["linux"])
+
+			# initialize a user object.
+			user = dev0s.system.User(self.arguments.get("--user"))
+
+			# check if the user exists.
+			if self.arguments.present(['--check']):
+				response = user.check()
+				dev0s.response.log(response)
+				if response.success: print("User existance:",response["exists"])
+
+			# create a user.
+			elif self.arguments.present(['--create']):
+				response = user.create()
+				dev0s.response.log(response)
+
+			# delete a user.
+			elif self.arguments.present(['--delete']):
+				response = user.delete()
+				dev0s.response.log(response)
+
+			# set a users password.
+			elif self.arguments.present(['--password']):
+				password = self.get_password(retrieve=True, message=f"Enter a new password of user [{user.username}]:")
+				response = user.set_password(password=password)
+				dev0s.response.log(response)
+
+			# add the user to groups.
+			elif self.arguments.present(['--add-groups']):
+				groups = self.arguments.get("--delete-groups").split(",")
+				response = user.add_groups(groups=groups)
+				dev0s.response.log(response)
+
+			# delete the user from groups.
+			elif self.arguments.present(['--delete-groups']):
+				groups = self.arguments.get("--delete-groups").split(",")
+				response = user.add_groups(groups=groups)
+				dev0s.response.log(response)
+
+
+			# invalid.
+			else:  self.invalid()
+
+		# group.
+		elif self.arguments.present(['--group']):
+			dev0s.defaults.operating_system(supported=["linux"])
+
+			# initialize a group object.
+			group = dev0s.system.Group(self.arguments.get("--group"))
+
+			# check if the group exists.
+			if self.arguments.present(['--check']):
+				response = group.check()
+				dev0s.response.log(response)
+				if response.success: 
+					print("Group existance:",response["exists"])
+
+			# create a group.
+			elif self.arguments.present(['--create']):
+				response = group.create()
+				dev0s.response.log(response)
+
+			# delete a group.
+			elif self.arguments.present(['--delete']):
+				response = group.delete()
+				dev0s.response.log(response)
+
+			# list the current users.
+			elif self.arguments.present(['--list-users']):
+				response = group.list_users()
+				dev0s.response.log(response)
+				if response.success: 
+					print(f"Users of group {group.name}:",response["users"])
+
+			# add users to the group.
+			elif self.arguments.present(['--add-users']):
+				users = self.arguments.get("--add-users").split(",")
+				response = group.add_users(users=users)
+				dev0s.response.log(response)
+
+			# delete users from the group.
+			elif self.arguments.present(['--delete-users']):
+				users = self.arguments.get("--delete-users").split(",")
+				response = group.delete_users(users=users)
+				dev0s.response.log(response)
+
+			# check if the specified users are enabled and remove all other users.
+			elif self.arguments.present(['--force-users']):
+				users = self.arguments.get("--force-users").split(",")
+				response = group.check_users(users=users)
+				dev0s.response.log(response)
+
+
+			# invalid.
+			else:  self.invalid()
+
+		# free disk space.
+		elif self.arguments.present(["--disk-space"]):
+			path = self.arguments.get("--disk-space", required=False, default="/")
+			fp = FilePath(path)
+			if not fp.exists(): 
+				print(f"File path [{fp.path}] does not exist.")
+				sys.exit(1)
+			loader = dev0s.console.Loader(f"Retrieving size of {fp.path} ...")
+			info = fp.space()
+			loader.stop()
+			print(f"{fp.path}\n * total: {info['total']}\n * used: {info['used']}\n * free: {info['free']}")
+			
+		# size.
+		elif self.arguments.present(["--size"]):
+			fp = FilePath(self.arguments.get("--size"))
+			if not fp.exists(): 
+				print(f"File path [{fp.path}] does not exist.")
+				sys.exit(1)
+			else:
+				loader = dev0s.console.Loader(f"Retrieving size of {fp.path} ...")
+				size = fp.size()
+				loader.stop()
+				print(f"{fp.path}\n * size: {size}")
 
 		#
 		# INSTALLATION.

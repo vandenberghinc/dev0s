@@ -7,7 +7,7 @@ from dev0s.classes import utils
 from dev0s.classes.defaults.color import color, symbol
 from dev0s.classes import console
 from dev0s.classes.defaults.exceptions import Exceptions
-
+import shutil, math
 """
 Notes.
 All default files & formats must exact the same as the default dict, bool, list etc in the native sense.
@@ -343,63 +343,55 @@ class Formats():
 		def basename(self, back=1, path=None):
 			if path == None: path = self.path
 			return self.name(path=self.base(back=back, path=path))
-		def size(self, mode="auto", options=["auto", "bytes", "kb", "mb", "gb", "tb"], format=str, path=None):
+		def size(self, format=str,  mode="auto", path=None, options=["auto", "bytes", "kb", "mb", "gb", "tb"]):
 			if path == None: path = self.path
-			def get_directory_size1(directory):
-				total_size = 0
-				for path, dirs, files in os.walk(path):
-					for f in files:
-						fp = os.path.join(path,f)
-						try: total_size += os.path.getsize(fp)
-						except: a=1
-				return total_size
-			#dirs_dict = {}
-			#for root, dirs, files in os.walk(path ,topdown=False):
-			#   size = sum(os.path.getsize(os.path.join(root, name)) for name in files) 
-			#   try: subdir_size = sum(dirs_dict[os.path.join(root,d)] for d in dirs)
-			#   except KeyError:
-			#       dirs_dict[os.path.join(root,d)] = 0
-			#       subdir_size = sum(dirs_dict[os.path.join(root,d)] for d in dirs)
-			#   total_size = size + subdir_size
-			def get_directory_size2(directory):
-				total = 0
-				try:
-					# print("[+] Getting the size of", directory)
-					for entry in os.scandir(directory):
-						if entry.is_file():
-							# if it's a file, use stat() function
-							total += entry.stat().st_size
-						elif entry.is_dir():
-							# if it's a directory, recursively call this function
-							total += get_directory_size2(entry.path)
-				except NotADirectoryError:
-					# if `directory` isn't a directory, get the file size then
-					return os.path.getsize(directory)
-				except PermissionError:
-					# if for whatever reason we can't open the folder, return 0
-					return 0
-				return total
-			total_size = get_directory_size2(path)
+			total = 0
+			try:
+				# print("[+] Getting the size of", directory)
+				for entry in os.scandir(directory):
+					if entry.is_file():
+						# if it's a file, use stat() function
+						total += entry.stat().st_size
+					elif entry.is_dir():
+						# if it's a directory, recursively call this function
+						total += get_directory_size2(entry.path)
+			except NotADirectoryError:
+				# if `directory` isn't a directory, get the file size then
+				return os.path.getsize(directory)
+			except PermissionError:
+				# if for whatever reason we can't open the folder, return 0
+				return 0
+			return self.convert_bytes(total, format=format)
+		def space(self, format=str,  mode="auto", path=None, options=["auto", "bytes", "kb", "mb", "gb", "tb"]):
+			if path == None: path = self.path
+			total, used, free = shutil.disk_usage(path)
+			total, used, free = self.convert_bytes(total, format=format, mode=mode), self.convert_bytes(used, format=format, mode=mode), self.convert_bytes(free, format=format, mode=mode)
+			return {
+				"total":total,
+				"used":used,
+				"free":free,
+			}
+		def convert_bytes(self, bytes:int, format=str, mode="auto", options=["auto", "bytes", "kb", "mb", "gb", "tb"]):
 			if mode == "auto":
-				if int(total_size/1024**4) >= 10:
-					total_size = '{:,} TB'.format(int(round(total_size/1024**4,2))).replace(',', '.')
-				elif int(total_size/1024**3) >= 10:
-					total_size = '{:,} GB'.format(int(round(total_size/1024**3,2))).replace(',', '.')
-				elif int(total_size/1024**2) >= 10:
-					total_size = '{:,} MB'.format(int(round(total_size/1024**2,2))).replace(',', '.')
-				elif int(total_size/1024) >= 10:
-					total_size = '{:,} KB'.format(int(round(total_size/1024,2))).replace(',', '.')
+				if int(bytes/1024**4) >= 10:
+					bytes = '{:,} TB'.format(int(round(bytes/1024**4,2))).replace(',', '.')
+				elif int(bytes/1024**3) >= 10:
+					bytes = '{:,} GB'.format(int(round(bytes/1024**3,2))).replace(',', '.')
+				elif int(bytes/1024**2) >= 10:
+					bytes = '{:,} MB'.format(int(round(bytes/1024**2,2))).replace(',', '.')
+				elif int(bytes/1024) >= 10:
+					bytes = '{:,} KB'.format(int(round(bytes/1024,2))).replace(',', '.')
 				else:
-					total_size = '{:,} Bytes'.format(int(int(total_size))).replace(',', '.')
-			elif mode == "bytes" or mode == "bytes".upper(): total_size = '{:,} Bytes'.format(int(total_size)).replace(',', '.') 
-			elif mode == "kb" or mode == "kb".upper(): total_size = '{:,} KB'.format(int(round(total_size/1024,2))).replace(',', '.') 
-			elif mode == "mb" or mode == "mb".upper(): total_size = '{:,} MB'.format(int(round(total_size/1024**2,2))).replace(',', '.') 
-			elif mode == "gb" or mode == "gb".upper(): total_size = '{:,} GB'.format(int(round(total_size/1024**3,2))).replace(',', '.') 
-			elif mode == "tb" or mode == "tb".upper(): total_size = '{:,} TB'.format(int(round(total_size/1024**4,2))).replace(',', '.') 
-			else: __error__("selected an invalid size mode [{}], options {}.".format(mode, options))
+					bytes = '{:,} Bytes'.format(int(int(bytes))).replace(',', '.')
+			elif mode == "bytes" or mode == "bytes".upper(): bytes = '{:,} Bytes'.format(int(bytes)).replace(',', '.') 
+			elif mode == "kb" or mode == "kb".upper(): bytes = '{:,} KB'.format(int(round(bytes/1024,2))).replace(',', '.') 
+			elif mode == "mb" or mode == "mb".upper(): bytes = '{:,} MB'.format(int(round(bytes/1024**2,2))).replace(',', '.') 
+			elif mode == "gb" or mode == "gb".upper(): bytes = '{:,} GB'.format(int(round(bytes/1024**3,2))).replace(',', '.') 
+			elif mode == "tb" or mode == "tb".upper(): bytes = '{:,} TB'.format(int(round(bytes/1024**4,2))).replace(',', '.') 
+			else: raise Exceptions.InvalidUsage(f"Selected an invalid size format [{format}], options {options}.")
 			if format in [int, "int", "integer", "Integer", Integer]:
-				return int(total_size.split(" ")[0])
-			else: return total_size 
+				return int(bytes.split(" ")[0])
+			else: return bytes 
 		def exists(self, 
 			# the path (leave None to use self.path) (#1).
 			path=None,
