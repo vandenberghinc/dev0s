@@ -175,15 +175,31 @@ function install-pip-requirements() {
     fi
     if [[ $(argument-present --silent $@) == "true" ]] ; then
         if [[ $(argument-present --sudo $@) == "true" ]] ; then
-            sudo $executive -m pip install -r $requirements --user $_user_ 2> /dev/null
+            if [[ "$(argument-present --source $@)" == "true" ]] ; then
+                sudo $executive -m pip install $requirements --user $_user_ 2> /dev/null
+            else
+                sudo $executive -m pip install -r $requirements --user $_user_ 2> /dev/null
+            fi
         else
-            $executive -m pip install -r $requirements --user $_user_ 2> /dev/null
+            if [[ "$(argument-present --source $@)" == "true" ]] ; then
+                $executive -m pip install $requirements --user $_user_ 2> /dev/null
+            else
+                $executive -m pip install -r $requirements --user $_user_ 2> /dev/null
+            fi
         fi
     else
         if [[ "$sudo_option" == "true" ]] ; then
-            sudo $executive -m pip install -r $requirements --user $_user_
+            if [[ "$(argument-present --source $@)" == "true" ]] ; then
+                sudo $executive -m pip install $requirements --user $_user_
+            else
+                sudo $executive -m pip install -r $requirements --user $_user_
+            fi
         else
-            $executive -m pip install -r $requirements --user $_user_
+            if [[ "$(argument-present --source $@)" == "true" ]] ; then
+                $executive -m pip install $requirements --user $_user_
+            else
+                $executive -m pip install -r $requirements --user $_user_
+            fi
         fi
     fi
 }
@@ -361,22 +377,22 @@ function install-package() {
     if [[ "$(empty $venv)" == "false" ]] ; then
         if [[ ! -d "$venv" ]] ; then
             echo "Creating environment $venv."
-            python3 -m venv $venv
+            python3 -m venv $venv --user $user
         fi
         echo "Installing pip requirements into $venv."
-        install-pip-requirements $source/$pip_requirements --venv $venv --silent $error_exit_str
+        install-pip-requirements $source/$pip_requirements --venv $venv --silent --user $user $error_exit_str
     fi
 
     # python requirements.
     if [[ "$pip_requirements" != "" ]] ; then
         echo "Installing pip requirements."
-        install-pip-requirements $source/$pip_requirements --silent $error_exit_str
+        install-pip-requirements $source/$pip_requirements --silent --user $user $error_exit_str
     fi
 
     # install pypi package.
     if [[ "$pypi_package" == "true" ]] ; then
         echo "Installing pypi library $pypi_name."
-        pip3 install $(dirname $source) 2> /dev/null 
+        install-pip-requirements $(dirname $source) --silent --source --user $user $error_exit_str
     fi
 
     # install alias.
