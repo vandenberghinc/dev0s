@@ -386,7 +386,7 @@ class Formats():
 					bytes = '{:,} KB'.format(int(round(bytes/1024,2))).replace(',', '.')
 				else:
 					bytes = '{:,} Bytes'.format(int(int(bytes))).replace(',', '.')
-			elif mode == "bytes" or mode == "bytes".upper(): bytes = '{:,} Bytes'.format(int(bytes)).replace(',', '.') 
+			elif format not in [int, "int", "integer", "Integer", Integer] and (mode == "bytes" or mode == "bytes".upper()): bytes = '{:,} Bytes'.format(int(bytes)).replace(',', '.') 
 			elif mode == "kb" or mode == "kb".upper(): bytes = '{:,} KB'.format(int(round(bytes/1024,2))).replace(',', '.') 
 			elif mode == "mb" or mode == "mb".upper(): bytes = '{:,} MB'.format(int(round(bytes/1024**2,2))).replace(',', '.') 
 			elif mode == "gb" or mode == "gb".upper(): bytes = '{:,} GB'.format(int(round(bytes/1024**3,2))).replace(',', '.') 
