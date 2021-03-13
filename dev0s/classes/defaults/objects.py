@@ -334,7 +334,10 @@ class Thread(Object, threading.Thread):
 		response = None
 		try:
 			response = self.__run__()
-		except AttributeError:  raise Exceptions.InvalidUsage(f"Thread [{self.id}] is missing the main [__run__] function.")
+		except AttributeError as e:  
+			missing = str(e).split("has no attribute '")[1].split("'")[0]
+			if missing == "__run__": raise Exceptions.InvalidUsage(f"Thread [{self.id}] is missing the main [__run__] function.")
+			else: raise AttributeError(str(e))
 		if isinstance(response, ResponseObject):
 			if response.success:
 				self.send_crash(response=response)

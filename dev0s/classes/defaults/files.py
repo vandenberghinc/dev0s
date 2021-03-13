@@ -1883,7 +1883,7 @@ class Formats():
 
 			# by timestamp & format.
 			if timestamp != None and format != None:
-				seconds = time.mktime(datetime.strptime(timestamp, format).timetuple())
+				seconds = time.mktime(datetime.strptime(str(timestamp), str(format)).timetuple())
 				today = datetime.fromtimestamp(int(seconds))
 
 			# by seconds.
@@ -1952,14 +1952,14 @@ class Formats():
 			s -= seconds
 			return self.from_seconds(s, format=format)
 		def to_seconds(self, string, format="%d-%m-%y %H:%M"):
-			return time.mktime(datetime.strptime(string, format).timetuple())
+			return time.mktime(datetime.strptime(str(string), str(format)).timetuple())
 			#
 		def from_seconds(self, seconds, format="%d-%m-%y %H:%M"):
 			return datetime.fromtimestamp(seconds).strftime(format)
 			#
 		def convert(self, string, input="%d-%m-%y %H:%M", output="%Y%m%d"):
-			string = datetime.strptime(string, input)
-			return string.strftime(ouput)
+			string = datetime.strptime(str(string), str(input))
+			return string.strftime(str(ouput))
 		# support default iteration.
 		def __iter__(self):
 			return iter([self.year, self.month, self.week, self.hour, self.minutes, self.seconds])
