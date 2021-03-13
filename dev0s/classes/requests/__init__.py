@@ -41,11 +41,8 @@ class Requests(Docs):
 	):
 		
 		# url.
+		url = url.replace("http://", "").replace("https://", "")
 		url = f"{Boolean(self.https).string(true='https', false='http')}://"+gfp.clean(f"{url}/", remove_double_slash=True, remove_last_slash=False, remove_first_slash=True)
-		if len(url) >= len("https://https://") and String(url).first("https://https://") == "https://https://": url = str(String(url).remove_first("https://"))
-		elif len(url) >= len("https://http://") and String(url).first("https://http://") == "https://http://": url = str(String(url).remove_first("https://"))
-		elif len(url) >= len("http://https://") and String(url).first("http://https://") == "http://https://": url = str(String(url).remove_first("http://"))
-		elif len(url) >= len("http://http://") and String(url).first("http://http://") == "http://http://": url = str(String(url).remove_first("http://"))
 		if data != {}: url += self.encode(data)
 
 		# request.
@@ -55,7 +52,7 @@ class Requests(Docs):
 		if serialize:
 			try: response = _response_.ResponseObject(original_request_object.json())
 			except Exception as e: 
-				return _response_.error(f"Unable to serialize output: {original_request_object}, error: {e}.")
+				return _response_.error(f"Request ({url}) [{original_request_object.status_code}]: Unable to serialize output: {original_request_object.text}.")
 			return response
 		return original_request_object
 

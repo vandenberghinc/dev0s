@@ -7,6 +7,7 @@ from dev0s.classes import code
 from dev0s.classes.defaults.defaults import defaults
 from dev0s.classes.response import response as _response_
 from dev0s.classes.code.docs import Docs
+from dev0s.classes.requests import requests
 from dev0s.classes.network import firewall
 
 # pip.
@@ -44,11 +45,16 @@ class Network(object):
 		if self.__cache__["info"] != {}: return self.__cache__["info"]
 
 		# get info.
+		"""
 		info = None
 		if self.api_key == None: 
-			info = __requests__.get('https://ipinfo.io/json').json()
+			request_obj = __requests__.get('https://ipinfo.io/json')
 		else: 
-			info = __requests__.get('https://ipinfo.io/json', headers={'Authorization': 'Bearer {}'.format(self.api_key)}).json()
+			request_obj = __requests__.get('https://ipinfo.io/json', headers={'Authorization': f'Bearer {self.api_key}'})
+		try:
+			info = request_obj.json()
+		except Exception as e:
+			return _response_.error(f"Failed to serialze (https://ipinfo.io/json) [{request_obj.status_code}]: {request_obj.text}.")
 		try: 
 			error = info["error"]
 			if "rate limit exceeded" in str(error["title"]).lower():
@@ -56,8 +62,25 @@ class Network(object):
 			else:
 				return _response_.error(f"(https://ipinfo.io/json) {error['title']}: {error['message'].replace('  ',' ')}")
 		except KeyError: a=1
+		"""
+
+		# request.
+		if self.api_key == None:
+			response = requests.get('https://ipinfo.io/json', serialize=True)
+		else:
+			response = requests.get('https://ipinfo.io/json', data={'Authorization': f'Bearer {self.api_key}'}, serialize=True)
+
+		# handle.
+		if "success" in response and not response.success: return response
+		elif "error" in response:
+			if "rate limit exceeded" in str(response["title"]).lower():
+				return _response_.error(f"(https://ipinfo.io/json) {response['title']}: {response['message'].replace('  ',' ')} Define environment variable $IPINFO_API_KEY to specify an api key.")
+			else:
+				return _response_.error(f"(https://ipinfo.io/json) {response['title']}: {response['message'].replace('  ',' ')}")
 
 		# set.
+		info = response
+		print(info)
 		try: 
 			x = info["ip"]
 			del(info["ip"])

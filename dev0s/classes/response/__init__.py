@@ -522,35 +522,38 @@ class ResponseObject(object):
 		else:
 			raise Exceptions.InvalidUsage(f"<ResponseObject.attributes>: parameter [attributes] must be a [dict, dict in str format], not [{attributes.__class__.__name__}].")
 
-		# clean message & error.
-		if self.message != None: self.message = String(self.message).capitalized_word()
-		if self.error != None: self.error = String(self.error).capitalized_word()
-		while True:
-			if self.message != None and len(self.message) >= 1 and self.message[len(self.message)-1] in [" ", ".", ","]:
-				self.message = self.message[:-1]
-			elif self.error != None and len(self.error) >= 1 and self.error[len(self.error)-1] in [" ", ".", ","]:
-				self.error = self.error[:-1]
-			elif self.error != None and len(self.error) >= len("Error: ") and self.error[:len("Error: ")] in ["Error: "]:
-				self.error = String(self.error[len("Error: "):]).capitalized_word()
-			elif self.error != None and len(self.error) >= len("..") and String(self.error).last("..") in [".."]:
-				self.error = str(String(self.error).remove_last("."))
-			else: break
-		
-		# add dot.
-		if self.message != None  and len(self.message) > 0 and self.message[len(self.message)-1] not in ["!", "?"]:
-			self.message += "."
-		if self.error != None  and len(self.error) > 0 and self.error[len(self.error)-1] not in ["!", "?"]:
-			self.error += "."
+		# catch error so you can also init custom ResponseObjects.
+		try:
+
+			# clean message & error.
+			if self.message != None: self.message = String(self.message).capitalized_word()
+			if self.error != None: self.error = String(self.error).capitalized_word()
+			while True:
+				if self.message != None and len(self.message) >= 1 and self.message[len(self.message)-1] in [" ", ".", ","]:
+					self.message = self.message[:-1]
+				elif self.error != None and len(self.error) >= 1 and self.error[len(self.error)-1] in [" ", ".", ","]:
+					self.error = self.error[:-1]
+				elif self.error != None and len(self.error) >= len("Error: ") and self.error[:len("Error: ")] in ["Error: "]:
+					self.error = String(self.error[len("Error: "):]).capitalized_word()
+				elif self.error != None and len(self.error) >= len("..") and String(self.error).last("..") in [".."]:
+					self.error = str(String(self.error).remove_last("."))
+				else: break
+			
+			# add dot.
+			if self.message != None  and len(self.message) > 0 and self.message[len(self.message)-1] not in ["!", "?"]:
+				self.message += "."
+			if self.error != None  and len(self.error) > 0 and self.error[len(self.error)-1] not in ["!", "?"]:
+				self.error += "."
 
 
-		# check error passed as success response. & reversed
-		if self.message != None and len(self.message) >= len("Failed") and self.message[:len("Failed")] == "Failed":
-			#_traceback_.print_exc() 
-			raise ValueError("A success response may not start with (failed ...). You most likely called an response.success return while you meant response.error.")
-		if self.error != None and len(self.error) >= len("Success") and self.error[:len("Success")] == "Success":
-			#_traceback_.print_exc() 
-			raise ValueError("An error response may not start with (success ...). You most likely called an response.error return while you meant response.success.")
-		
+			# check error passed as success response. & reversed
+			if self.message != None and len(self.message) >= len("Failed") and self.message[:len("Failed")] == "Failed":
+				#_traceback_.print_exc() 
+				raise ValueError("A success response may not start with (failed ...). You most likely called an response.success return while you meant response.error.")
+			if self.error != None and len(self.error) >= len("Success") and self.error[:len("Success")] == "Success":
+				#_traceback_.print_exc() 
+				raise ValueError("An error response may not start with (success ...). You most likely called an response.error return while you meant response.success.")
+		except AttributeError: a=1 
 		#
 	# clean default values.
 	def clean(self, 
