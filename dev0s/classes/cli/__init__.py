@@ -571,7 +571,8 @@ class CLI(object):
 						a = self.get(i, required=required, index=index,default=default, mode=mode, chapter=chapter, notes=notes, json=json, count=count)
 						if a != default: return a
 					return default
-		def check(self, exceptions=["--log-level", "--create-alias", "--version", "-j", "--json", "--non-interactive"], json=False):
+		def check(self, exceptions=[], json=False):
+			exceptions += ["--log-level", "--create-alias", "-v", "--version", "-j", "--json", "--non-interactive"]
 			lexecutable = self.executable
 			while True:
 				if len(lexecutable) > 0 and lexecutable[len(lexecutable)-1] == "/": lexecutable = lexecutable[:-1]
