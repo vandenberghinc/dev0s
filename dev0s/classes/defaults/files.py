@@ -344,27 +344,27 @@ class Formats():
 			if path == None: path = self.path
 			return self.name(path=self.base(back=back, path=path))
 		def size(self, format=str,  mode="auto", path=None, options=["auto", "bytes", "kb", "mb", "gb", "tb"]):
-			if path == None: path = self.path
-			total = 0
-			try:
-				# print("[+] Getting the size of", directory)
-				for entry in os.scandir(path):
-					if entry.is_file():
-						# if it's a file, use stat() function
-						total += entry.stat().st_size
-					elif entry.is_dir():
-						# if it's a directory, recursively call this function
-						total += self.size(path=entry.path, mode="bytes", format=int)
-			except NotADirectoryError:
-				# if `directory` isn't a directory, get the file size then
-				return os.path.getsize(path)
-			except PermissionError:
-				# if for whatever reason we can't open the folder, return 0
-				return 0
-			if format == int and mode == "bytes":
+			def __size__(path):
+				total = 0
+				try:
+					# print("[+] Getting the size of", directory)
+					for entry in os.scandir(path):
+						if entry.is_file():
+							# if it's a file, use stat() function
+							total += entry.stat().st_size
+						elif entry.is_dir():
+							# if it's a directory, recursively call this function
+							total += __size__(entry.path)
+				except NotADirectoryError:
+					# if `directory` isn't a directory, get the file size then
+					return os.path.getsize(path)
+				except PermissionError:
+					# if for whatever reason we can't open the folder, return 0
+					return 0
 				return total
-			else:
-				return self.convert_bytes(total, format=format)
+				#
+			if path == None: path = self.path
+			return self.convert_bytes(__size__(path), format=format, mode=mode)
 		def space(self, format=str,  mode="auto", path=None, options=["auto", "bytes", "kb", "mb", "gb", "tb"]):
 			if path == None: path = self.path
 			total, used, free = shutil.disk_usage(path)
@@ -375,6 +375,8 @@ class Formats():
 				"free":free,
 			}
 		def convert_bytes(self, bytes:int, format=str, mode="auto", options=["auto", "bytes", "kb", "mb", "gb", "tb"]):
+			if format in [int, "int", "integer", "Integer", Integer] and (mode == "bytes" or mode == "bytes".upper()):
+				return bytes
 			if mode == "auto":
 				if int(bytes/1024**4) >= 10:
 					bytes = '{:,} TB'.format(int(round(bytes/1024**4,2))).replace(',', '.')
@@ -386,7 +388,7 @@ class Formats():
 					bytes = '{:,} KB'.format(int(round(bytes/1024,2))).replace(',', '.')
 				else:
 					bytes = '{:,} Bytes'.format(int(int(bytes))).replace(',', '.')
-			elif format not in [int, "int", "integer", "Integer", Integer] and (mode == "bytes" or mode == "bytes".upper()): bytes = '{:,} Bytes'.format(int(bytes)).replace(',', '.') 
+			elif (mode == "bytes" or mode == "bytes".upper()): bytes = '{:,} Bytes'.format(int(bytes)).replace(',', '.') 
 			elif mode == "kb" or mode == "kb".upper(): bytes = '{:,} KB'.format(int(round(bytes/1024,2))).replace(',', '.') 
 			elif mode == "mb" or mode == "mb".upper(): bytes = '{:,} MB'.format(int(round(bytes/1024**2,2))).replace(',', '.') 
 			elif mode == "gb" or mode == "gb".upper(): bytes = '{:,} GB'.format(int(round(bytes/1024**3,2))).replace(',', '.') 
