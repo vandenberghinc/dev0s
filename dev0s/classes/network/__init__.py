@@ -78,9 +78,12 @@ class Network(object):
 			else:
 				return _response_.error(f"(https://ipinfo.io/json) {response['title']}: {response['message'].replace('  ',' ')}")
 
+		# clean.
+		if "readme" in response:
+			del response["readme"]
+
 		# set.
 		info = response
-		print(info)
 		try: 
 			x = info["ip"]
 			del(info["ip"])

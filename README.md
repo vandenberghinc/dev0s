@@ -11,6 +11,9 @@ Supported Operating Systems: macos & linux.<br>
 ## Table of content:
   * [Description](#description)
   * [Installation](#installation)
+  * [Imports.](#imports.)
+  * [dev0s.response usage.](#dev0s.response-usage.)
+  * [dev0s.cli.CLI Usage.](#dev0s.cli.cli-usage.)
   * [Code Examples](#code-examples)
 
 # Description:
@@ -20,6 +23,383 @@ DevOS library.
 Install the package.
 
 	curl -s https://raw.githubusercontent.com/vandenberghinc/dev0s/master/dev0s/requirements/installer.remote | bash 
+
+# Imports.
+Importing the dev0s library.
+
+```python
+
+# import the package
+from dev0s.shortcuts import *
+
+```
+
+# dev0s.response usage.
+An example function that returns a ResponseObject class.
+
+```python
+
+# import the package
+from dev0s import *
+
+# universal responses.
+def my_function():
+
+	# return an error response from a function.
+	return dev0s.response.error("Failed to retrieve your personal API key")
+
+	# return a success response from a function.
+	return dev0s.response.success("Success retrieved your personal API key", {
+		"api_key":api_key,
+	})
+
+# check if a response was successfull.
+response = my_function()
+if response.success:
+	message = response["message"]
+else:
+	error = response["error"]
+
+```
+
+# dev0s.cli.CLI Usage.
+
+### Simple Example.
+
+Simple CLI.CLI code example.
+
+```python
+# the cli object class.
+class CLI(dev0s.cli.CLI):
+	def __init__(self):
+		
+		# defaults.
+		dev0s.cli.CLI.__init__(self,
+			modes={
+				"--config":"Edit the ssht00ls configuration file (nano).",
+				"-h / --help":"Show the documentation.",
+			},
+			alias="ssht00ls",
+			executable=__file__,
+		)
+
+		#
+	def start(self):
+		
+		# check arguments.
+		self.arguments.check()
+
+		# help.
+		if self.arguments.present(['-h', '--help']):
+			self.docs(success=True)
+
+		# config.
+		elif self.arguments.present('--config'):
+			os.system(f"nano {CONFIG.file_path.path}")
+
+		# invalid.
+		else: self.invalid()
+
+		#
+
+# main.
+if __name__ == "__main__":
+	cli = CLI()
+	cli.start()
+```
+
+### Advanced Example.
+
+Advanced CLI.CLI code example.
+
+```python
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+# imports.
+from dev0s import * ; dev0s.defaults.insert(dev0s.defaults.source_path(__file__, back=2))
+from ssht00ls.classes.config import *
+import ssht00ls
+
+# the cli object class.
+class CLI(dev0s.cli.CLI):
+	def __init__(self):
+		
+		# defaults.
+		dev0s.cli.CLI.__init__(self,
+			modes={
+				"Aliases:":"*chapter*",
+				"    --create-alias":"Create a ssh alias.",
+				"        --server myserver":"Specify the server's name.",
+				"        --username myuser":"Specify the username.",
+				"        --ip 0.0.0.0":"Specify the server's ip.",
+				"        --port 22":"Specify the server's port.",
+				"        for ssh keys:":"",
+				"        --key /path/to/key/private_key":"Specify the path to the private key.",
+				"        --passphrase 'MyPassphrase123'":"Specify the keys pasphrase (optional).",
+				"        for smart cards:":"",
+				"        --smart-cards":"Enable the smart cards boolean.",
+				"        --pin 123456":"Specify the smart cards pin code (optional).",
+				"Keys:":"*chapter*",
+				"    --generate":"Generate a ssh key.",
+				"        --path /keys/mykey/":"Specify the keys directory path.",
+				"        --passphrase Passphrase123":"Specify the keys passphrase.",
+				"        --comment 'My Key'":"Specify the keys comment.",
+				"Sessions:":"*chapter*",
+				"    --command <alias> 'ls .'":"Execute a command over ssh.",
+				"    --session <alias>":"Start a ssh session.",
+				"        --options '' ":"Specify additional ssh options (optional).",
+				"Push & pull:":"*chapter*",
+				"    --pull <path> <alias>:<remote>":"Pull a file / directory.",
+				"        --delete":"Also update the deleted files (optional).",
+				"        --safe":"Enable version control.",
+				"        --forced":"Enable forced mode.",
+				"    --push <alias>:<remote> <path>":"Push a file / directory.",
+				"        --delete":"Also update the deleted files (optional).",
+				"        --safe":"Enable version control.",
+				"        --forced":"Enable forced mode.",
+				"Mounts:":"*chapter*",
+				"    --mount <alias>:<remote> <path>":"Mount a remote directory.",
+				"    --unmount <path>":"Unmount a mounted remote directory.",
+				"        --sudo":"Root permission required.",
+				"        --forced":"Enable forced mode.",
+				"    --index <path> / <alias>:<remote>":"Index the specified path / alias:remote.",
+				"Agent:":"*chapter*",
+				"    --start-agent":"Start the ssht00ls agent manually.",
+				"    --stop-agent":"Stop the ssht00ls agent.",
+				"Daemons:":"*chapter*",
+				"    --start-daemon <alias>:<remote> <path>":"Start a ssync daemon manually.",
+				"    --stop-daemon <path>":"Stop a ssync daemon.",
+				"Basic:":"*chapter*",
+				"    --kill <identifier>":"Kill all ssh processes that include the identifier.",
+				"    --config":"Edit the ssht00ls configuration file (nano).",
+				"    -h / --help":"Show the documentation.",
+			},
+			options={
+				"-j / --json":"Print the response in json format.",
+			},
+			notes={
+				"SSHT00LS_CONFIG":"Specify the $SSHT00LS_CONFIG environment variable to use a different ssht00ls config file.",
+			},
+			alias=ALIAS,
+			executable=__file__,
+		)
+
+		#
+	def start(self):
+		
+		# check arguments.
+		self.arguments.check(exceptions=["--log-level", "--create-alias"], json=JSON)
+
+		# help.
+		if self.arguments.present(['-h', '--help']):
+			self.docs(success=True, json=JSON)
+
+		# check create ssh config.
+		elif self.arguments.present('--create-alias'):
+			
+			# create an ssh alias for the key.
+			if not self.arguments.present('--smart-card'):
+				key = self.arguments.get('--key')
+				response = ssht00ls.aliases.create( 
+					# the alias.
+					alias=self.arguments.get('--alias', chapter="aliases", mode="--create-alias"), 
+					# the username.
+					username=self.arguments.get('--username'), chapter="aliases", mode="--create-alias", 
+					# the public ip of the server.
+					public_ip=self.arguments.get('--public-ip', chapter="aliases", mode="--create-alias"),
+					# the public port of the server.
+					public_port=self.arguments.get('--public-port', chapter="aliases", mode="--create-alias"),
+					# the private ip of the server.
+					private_ip=self.arguments.get('--private-ip', chapter="aliases", mode="--create-alias"),
+					# the private port of the server.
+					private_port=self.arguments.get('--private-port', chapter="aliases", mode="--create-alias"),
+					# the path to the private key.
+					key=key,
+					passphrase=getpass.getpass("Enter the passphrase of key [{key}]:"),
+					# smart card.
+					smartcard=False,)
+
+			# create an ssh alias for a smart card.
+			else:
+				response = ssht00ls.aliases.create( 
+					# the alias.
+					alias=self.arguments.get('--alias', chapter="aliases", mode="--create-alias"), 
+					# the username.
+					username=self.arguments.get('--username', chapter="aliases", mode="--create-alias"), 
+					# the public ip of the server.
+					public_ip=self.arguments.get('--public-ip', chapter="aliases", mode="--create-alias"),
+					# the public port of the server.
+					public_port=self.arguments.get('--public-port', chapter="aliases", mode="--create-alias"),
+					# the private ip of the server.
+					private_ip=self.arguments.get('--private-ip', chapter="aliases", mode="--create-alias"),
+					# the private port of the server.
+					private_port=self.arguments.get('--private-port', chapter="aliases", mode="--create-alias"),
+					# the path to the private key.
+					key=smartcard.path,
+					# smart card.
+					smartcard=True,
+					pin=self.arguments.get('--pin', required=False, default=None, chapter="aliases", mode="--create-alias"), )
+
+			# log to console.
+			self.stop(response=response, json=JSON)
+
+		# check create ssh config.
+		elif self.arguments.present('--generate'):
+			
+			# generate a key.
+			passphrase = self.arguments.get("--passphrase", required=required).replace("\\", "").replace("\ ", "")
+			if passphrase in ["", None, "null", "None", "none"]: passphrase = None
+			response = ssht00ls.keys.generate(
+				path=self.arguments.get("--path", chapter="keys", mode="--generate"), 
+				passphrase=passphrase, 
+				comment=self.arguments.get("--comment", chapter="keys", mode="--generate"),)
+			self.stop(response=response, json=JSON)
+
+		# kill ssh processes.
+		elif self.arguments.present('--kill'):
+			response = ssht00ls.utils.kill_ssh(
+				identifier=self.arguments.get("--kill"), 
+				sudo=self.arguments.present("--sudo"),)
+			self.stop(response=response, json=JSON)
+
+		# pull.
+		elif self.arguments.present('--pull'):
+			remote = self.arguments.get("--pull", index=1, chapter="push & pull", mode="--pull")
+			path = self.arguments.get("--pull", index=2, chapter="push & pull", mode="--pull")
+			if ":" not in remote:
+				self.docs(
+					error=f"Invalid <alias>:<remote> <path> format.", 
+					chapter="push & pull", 
+					mode="--pull", 
+					notes={
+						"<alias>:<path>":"Pack the alias & tuple together as one argument in the following format [<alias>:<path>]."
+					},
+					json=JSON,)
+			alias,remote = remote.split(":")
+			exclude = None
+			if self.arguments.present("--exclude"): 
+				exclude = self.arguments.get("--exclude", chapter="push & pull", mode="--pull").split(",")
+			elif self.arguments.present("--no-exclude"): exclude = []
+			response = ssht00ls.ssync.pull(
+				alias=alias, 
+				remote=remote, 
+				path=path,
+				exclude=exclude, 
+				forced=self.arguments.present("--forced"), 
+				delete=self.arguments.present("--delete"), 
+				safe=self.arguments.present("--safe"), )
+			self.stop(response=response, json=JSON)
+
+		# push.
+		elif self.arguments.present('--push'):
+			path = self.arguments.get("--push", index=1, chapter="push & pull", mode="--push")
+			remote = self.arguments.get("--push", index=2, chapter="push & pull", mode="--push")
+			if ":" not in remote:
+				self.docs(
+					error=f"Invalid <alias>:<remote> <path>.", 
+					chapter="push & pull", 
+					mode="--push", 
+					notes={
+						"<alias>:<path>":"Pack the alias & tuple together as one argument in the following format [<alias>:<path>]."
+					},
+					json=JSON,)
+			alias,remote = remote.split(":")
+			exclude = None
+			if self.arguments.present("--exclude"): 
+				exclude = self.arguments.get("--exclude", chapter="push & pull", mode="--push").split(",")
+			elif self.arguments.present("--no-exclude"): exclude = []
+			response = ssht00ls.ssync.push(
+				alias=alias, 
+				remote=remote, 
+				path=path,
+				exclude=exclude, 
+				forced=self.arguments.present("--forced"), 
+				delete=self.arguments.present("--delete"), 
+				safe=self.arguments.present("--safe"), )
+			self.stop(response=response, json=JSON)
+
+		# mount.
+		elif self.arguments.present('--mount'):
+			remote = self.arguments.get("--mount", index=1, chapter="mounts", mode="--mount", notes={})
+			path = self.arguments.get("--mount", index=2, chapter="mounts", mode="--mount", notes={})
+			if ":" not in remote:
+				self.docs(
+					error=f"Invalid <alias>:<remote> <path>.", 
+					chapter="mounts", 
+					mode="--mount", 
+					notes={
+						"<alias>:<path>":"Pack the alias & tuple together as one argument in the following format [<alias>:<path>]."
+					},
+					json=JSON,)
+			alias,remote = remote.split(":")
+			response = ssht00ls.ssync.mount(
+				alias=alias, 
+				remote=remote, 
+				path=path,
+				forced=self.arguments.present("--forced"), )
+			self.stop(response=response, json=JSON)
+
+		# unmount.
+		elif self.arguments.present('--unmount'):
+			path = self.arguments.get("--unmount", index=1, chapter="mounts", mode="--unmount")
+			response = ssht00ls.ssync.unmount(
+				path=path,
+				forced=self.arguments.present("--forced"), 
+				sudo=self.arguments.present("--sudo"), )
+			self.stop(response=response, json=JSON)
+
+		# index.
+		elif self.arguments.present('--index'):
+			index = self.arguments.get("--index", chapter="mounts", mode="--index")
+			if ":" in index:
+				alias,remote = index.split(":")
+				response = ssht00ls.ssync.index(path=remote, alias=alias)
+			else:
+				response = ssht00ls.ssync.index(path=index)
+			self.stop(response=response, json=JSON)
+
+		# start daemon.
+		elif self.arguments.present('--start-daemon'):
+			remote = self.arguments.get("--start-daemon", index=1, chapter="daemons", mode="--start-daemon")
+			path = self.arguments.get("--start-daemon", index=2, chapter="daemons", mode="--start-daemon")
+			if ":" not in remote:
+				self.docs(
+					error=f"Invalid <alias>:<remote> <path>.", 
+					chapter="damons", 
+					mode="--start-daemon", 
+					notes={
+						"<alias>:<path>":"Pack the alias & tuple together as one argument in the following format [<alias>:<path>]."
+					},
+					json=JSON,)
+			alias,remote = remote.split(":")
+			response = ssht00ls.ssync.daemon(alias=alias, remote=remote, path=path)
+			self.stop(response=response, json=JSON)
+
+		# stop daemon.
+		elif self.arguments.present('--stop-daemon'):
+			path = self.arguments.get("--stop-daemon", index=1, chapter="daemon", mode="--stop-daemon")
+			response = ssht00ls.ssync.stop_daemon(path)
+			self.stop(response=response, json=JSON)
+
+		# config.
+		elif self.arguments.present('--config'):
+			if JSON:
+				print(CONFIG.dictionary)
+			else:
+				os.system(f"nano {CONFIG.file_path.path}")
+
+		# invalid.
+		else: self.invalid()
+
+		#
+	
+# main.
+if __name__ == "__main__":
+	cli = CLI()
+	cli.start()
+
+```
 
 # Code Examples:
 
@@ -108,9 +488,10 @@ Install the package.
   * [save](#save-4)
   * [paths](#paths)
   * [names](#names)
-  * [oldest_path](#oldest_path)
-  * [random_path](#random_path)
-  * [generate_path](#generate_path)
+  * [oldest](#oldest)
+  * [newest](#newest)
+  * [random](#random)
+  * [generate](#generate-1)
   * [structured_join](#structured_join)
   * [contains](#contains)
   * [subpath](#subpath)
@@ -133,7 +514,6 @@ Install the package.
   * [format](#format)
   * [mount](#mount)
   * [unmount](#unmount)
-- [__Docs__](#docs)
 - [__Encryption__](#encryption)
 - [__Env__](#env)
   * [fill](#fill-1)
@@ -163,6 +543,8 @@ Install the package.
   * [base](#base-1)
   * [basename](#basename-1)
   * [size](#size)
+  * [space](#space)
+  * [convert_bytes](#convert_bytes)
   * [exists](#exists)
   * [mount](#mount-1)
   * [directory](#directory)
@@ -237,7 +619,7 @@ Install the package.
   * [increase_version](#increase_version)
   * [round](#round)
   * [round_down](#round_down)
-  * [generate](#generate-1)
+  * [generate](#generate-2)
   * [instance](#instance-6)
   * [assign](#assign-3)
   * [raw](#raw-5)
@@ -349,7 +731,7 @@ Install the package.
   * [class_format](#class_format)
   * [capitalized_scentence](#capitalized_scentence)
   * [capitalized_word](#capitalized_word)
-  * [generate](#generate-2)
+  * [generate](#generate-3)
   * [first_occurence](#first_occurence)
   * [before_after_first_occurence](#before_after_first_occurence)
   * [before_selected_after_first_occurence](#before_selected_after_first_occurence)
@@ -387,7 +769,6 @@ Install the package.
   * [run_permission](#properties-5)
 - [__Traceback__](#traceback)
   * [traceback](#properties-6)
-- [__UnixManager__](#unixmanager)
 - [__User__](#user)
   * [create](#create-5)
   * [delete](#delete-5)
@@ -1264,25 +1645,32 @@ _ = Directory.paths(dirs_only=False, files_only=False, empty_dirs=True, recursiv
 _ = Directory.names(dirs_only=False, files_only=False, empty_dirs=True, recursive=False, path=None, banned=[], banned_names=[".DS_Store"], extensions=["*"], remove_extensions=False)
 
 ```
-##### oldest_path:
+##### oldest:
 ``` python
 
-# call Directory.oldest_path.
-_ = Directory.oldest_path()
+# call Directory.oldest.
+_ = Directory.oldest()
 
 ```
-##### random_path:
+##### newest:
 ``` python
 
-# call Directory.random_path.
-_ = Directory.random_path()
+# call Directory.newest.
+_ = Directory.newest()
 
 ```
-##### generate_path:
+##### random:
 ``` python
 
-# call Directory.generate_path.
-_ = Directory.generate_path(length=24, type="/")
+# call Directory.random.
+_ = Directory.random()
+
+```
+##### generate:
+``` python
+
+# call Directory.generate.
+_ = Directory.generate(length=24, type="/")
 
 ```
 ##### structured_join:
@@ -1468,27 +1856,6 @@ _ = dev0s.system.disks.unmount(
 
 ```
 
-## Docs:
-The docs object class.
-``` python 
-
-# initialize the Docs object class.
-docs = Docs(
-    # boolean inidicating if the object is initialized by default.
-    initialized=True,
-    # the full module path in import style (when initializing).
-    module="dec0s.Docs",
-    # the notes that will apread above the class_ initialization (leave [] to use default.
-    notes=[], ):
-    # attributes.
-    docs.initialized = initialized
-    docs.module = module
-    docs.notes = notes
-    # checks.
-    if docs.notes in [None, False, ""]: docs.notes = []
-    #
-
-```
 ## Encryption:
 The encryption object class.
 ``` python 
@@ -1721,7 +2088,21 @@ _ = FilePath.basename(back=1, path=None)
 ``` python
 
 # call FilePath.size.
-_ = FilePath.size(mode="auto", options=["auto", "bytes", "kb", "mb", "gb", "tb"], format=str, path=None)
+_ = FilePath.size(format=str,  mode="auto", path=None, options=["auto", "bytes", "kb", "mb", "gb", "tb"])
+
+```
+##### space:
+``` python
+
+# call FilePath.space.
+_ = FilePath.space(format=str,  mode="auto", path=None, options=["auto", "bytes", "kb", "mb", "gb", "tb"])
+
+```
+##### convert_bytes:
+``` python
+
+# call FilePath.convert_bytes.
+_ = FilePath.convert_bytes(bytes:int, format=str, mode="auto", options=["auto", "bytes", "kb", "mb", "gb", "tb"])
 
 ```
 ##### exists:
@@ -3963,14 +4344,6 @@ traceback = Traceback(
 traceback = Traceback.traceback
 ```
 
-## UnixManager:
-The unix_manager object class.
-``` python 
-
-# initialize the UnixManager object class.
-unix_manager = UnixManager()
-
-```
 ## User:
 The user object class.
 ``` python 
@@ -4262,12 +4635,12 @@ _ = kill(
     log_level=0, )
 
 ```
-#### print_replace:
-The print_replace function.
+#### log:
+The log function.
 ``` python
 
-# call print_replace.
-_ = print_replace(msg)
+# call log.
+_ = log(msg, back=0)
 
 ```
 #### processes:
