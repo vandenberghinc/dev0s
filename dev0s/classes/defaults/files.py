@@ -2989,6 +2989,7 @@ class Files():
 		):
 			if dictionary_ == None: dictionary_ = self.dictionary
 			else: dictionary_ = self.dictionary
+			if dictionary == dictionary_: return dictionary
 			for key, value in dictionary.items():
 				if key not in banned:
 					format = Formats.get(value, serialize=True)
