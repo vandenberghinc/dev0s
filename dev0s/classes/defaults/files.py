@@ -211,22 +211,6 @@ class Formats():
 				for i in objects: objs.append(Formats.denitialize(i, file_paths=file_paths))
 				return objs
 
-	# the generate object class.
-	class Generate(object):
-		def __init__(self):
-			a=1
-		def int(self, length=6):
-			charset = Formats.digits
-			return ''.join(random.choice(charset) for x in range(length))
-			#
-		def string(self, length=6, capitalize=True, digits=True):
-			charset = Formats.alphabet
-			if capitalize: charset += Formats.capitalized_alphabet
-			if digits: charset += Formats.digits
-			return ''.join(random.choice(charset) for x in range(length))
-			#
-
-	#
 	# the file path object class.
 	class FilePath(object):
 		def __init__(self, path, default=False, check=False, load=False):
@@ -2023,7 +2007,49 @@ class Formats():
 			return "Date"
 			#
 		#
-	#
+
+	# the generate object class.
+	class Generate(object):
+		def __init__(self):
+			a=1
+		def int(self, length=6):
+			charset = Formats.digits
+			return ''.join(random.choice(charset) for x in range(length))
+			#
+		def string(self, length=6, capitalize=True, digits=True):
+			charset = Formats.alphabet
+			if capitalize: charset += Formats.capitalized_alphabet
+			if digits: charset += Formats.digits
+			return ''.join(random.choice(charset) for x in range(length))
+			#
+
+	# the interval object class.
+	class Interval(object):
+		def __init__(self,
+			# the sleep time.
+			sleeptime=1,
+			# the timeout.
+			timeout=60,
+		):
+
+			# attributes.
+			self.sleeptime = sleeptime
+			self.timeout = timeout
+
+			#
+		def __int__(self):
+			return int(self.sleeptime)
+		def __iter__(self):
+			l = []
+			for _ in range(int(self.timeout/self.sleeptime)):
+				l.append(self)
+			return l
+		def sleep(self):
+			time.sleep(int(self))
+
+		#for interval in Interval(sleeptime=60, timeout=3600):
+		#	...
+		#	interval.sleep()
 	#
 
 # the files class.
@@ -4276,12 +4302,13 @@ class Files():
 	#
 
 # shortcuts.
-Generate = Formats.Generate
 FilePath = Formats.FilePath 
 String = Formats.String 
 Boolean = Formats.Boolean 
 Integer = Formats.Integer 
 Date = Formats.Date
+Generate = Formats.Generate
+Interval = Formats.Interval
 File = Files.File
 Directory = Files.Directory
 Zip = Files.Zip
