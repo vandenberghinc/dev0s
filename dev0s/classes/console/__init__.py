@@ -7,11 +7,13 @@ _input_ = input
 
 # log with safe replace.
 def log(msg, back=0):
-	#print(msg, end="\r")
-	print(msg)
-	for _ in range(back):
-		sys.stdout.write("\033[F") # cursor up one line
-	sys.stdout.write("\033[K") # clear to the end of line
+	if back > 0:
+		print(msg, end="\r")
+	else:
+		print(msg)
+	#for _ in range(back):
+	#	sys.stdout.write("\033[F") # cursor up one line
+	#sys.stdout.write("\033[K") # clear to the end of line
 
 # input.
 def input(message, yes_no=False, check=False, password=False, default=None):
