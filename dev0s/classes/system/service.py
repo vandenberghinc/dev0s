@@ -7,7 +7,6 @@ from dev0s.classes.defaults.defaults import defaults
 from dev0s.classes.response import response as _response_
 from dev0s.classes.defaults.objects import *
 from dev0s.classes import code
-from dev0s.classes.code.docs import Docs
 
 # the service object class.
 class Service(Object):

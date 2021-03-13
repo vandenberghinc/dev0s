@@ -61,25 +61,3 @@ def get_argument(argument, required=True, index=1, count=1, default=None, ):
 
 	#
 
-
-# the docs object class.
-# used to assign unique readme building values to a coded class.
-class Docs(object):
-	def __init__(self,
-		# boolean inidicating if the object is initialized by default.
-		initialized=True,
-		# the full module path in import style (when initializing).
-		module="dev0s.Docs",
-		# the notes that will apread above the class_ initialization (leave [] to use default.
-		notes=[],
-	):
-		
-		# attributes.
-		self.initialized = initialized
-		self.module = module
-		self.notes = notes
-
-		# checks.
-		if self.notes in [None, False, ""]: self.notes = []
-
-		#

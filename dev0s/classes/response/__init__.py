@@ -4,7 +4,6 @@
 # imports.
 from dev0s.classes.defaults.exceptions import Exceptions
 from dev0s.classes.defaults.files import *
-from dev0s.classes.utils.copycats import Docs
 
 # pip imports.
 from django.http import JsonResponse

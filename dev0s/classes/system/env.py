@@ -6,10 +6,9 @@ from dev0s.classes.defaults.exceptions import Exceptions
 from dev0s.classes.defaults.color import color, symbol
 from dev0s.classes.defaults.files import *
 from dev0s.classes.response import response as _response_
-from dev0s.classes.utils.copycats import Docs
 
 # the env object class.
-class Env(Docs):
+class Env(object):
 	def __init__(self):
 		
 		# docs.
