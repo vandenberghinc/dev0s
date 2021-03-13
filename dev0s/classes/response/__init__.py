@@ -16,10 +16,10 @@ class Response(object):
 	def __init__(self):	
 
 		# docs.
-		Docs.__init__(self,
-			initialized=True,
-			module="dev0s.response", 
-			notes=[], )
+		DOCS = {
+			"module":"dev0s.response", 
+			"initialized":True,
+			"description":[], }
 
 		# set log file.
 		#	assign new values with self.log_file.assign(...) to keep it shared across other objects.
@@ -342,10 +342,10 @@ class Parameters(object):
 	def __init__(self):
 		
 		# docs.
-		Docs.__init__(self,
-			initialized=True,
-			module="dev0s.response.parameters", 
-			notes=[], )
+		DOCS = {
+			"module":"dev0s.response.parameters", 
+			"initialized":True,
+			"description":[], }
 
 		#
 	# get request parameters.

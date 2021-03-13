@@ -5,21 +5,21 @@
 from dev0s.classes.response import *
 from dev0s.classes.defaults import objects
 from dev0s.classes.response import response as _response_
-from dev0s.classes.code.docs import Docs
 
 # pip imports.
 import urllib
 import requests as __requests__
 
 # the requests class.
-class Requests(Docs):
+class Requests(object):
 	def __init__(self):
 		
 		# docs.
-		Docs.__init__(self,
-			initialized=True,
-			module="dev0s.requests", 
-			notes=[], )
+		DOCS = {
+			"module":"dev0s.requests", 
+			"initialized":True,
+			"description":[], 
+		}
 
 		# attributes.
 		self.https = True
@@ -69,10 +69,10 @@ class Requests(Docs):
 		):
 			
 			# docs.
-			Docs.__init__(self,
-				initialized=False,
-				module="dev0s.requests.RestAPI", 
-				notes=[], )
+			DOCS = {
+			"module":"dev0s.requests.RestAPI", 
+			"initialized":False,
+			"description":[], }
 
 			# defaults.
 			objects.Object.__init__(self, traceback="dev0s.requests.RestAPI")

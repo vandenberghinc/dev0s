@@ -22,10 +22,10 @@ class Disks(Object):
 	def __init__(self):
 		
 		# docs.
-		Docs.__init__(self,
-			initialized=True,
-			module="dev0s.system.disks", 
-			notes=[], )
+		DOCS = {
+			"module":"dev0s.system.disks", 
+			"initialized":True,
+			"description":[], }
 
 		# defaults.
 		Object.__init__(self, traceback="dev0s.system.disks")

@@ -71,6 +71,5 @@ Spawn = dev0s.code.Spawn
 Version = dev0s.code.Version 
 Script = dev0s.code.Script
 Python = dev0s.code.Python
-Docs = dev0s.code.Docs
 
 #

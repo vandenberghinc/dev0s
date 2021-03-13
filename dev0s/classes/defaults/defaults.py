@@ -5,20 +5,19 @@
 from dev0s.classes.system.env import env
 from dev0s.classes.defaults.files import *
 from dev0s.classes.defaults import objects
-from dev0s.classes.utils.copycats import Docs
 from dev0s.classes import utils
 from dev0s.classes import cli
 import platform 
 
 # the defaults. class.
-class Defaults(Docs):
+class Defaults(object):
 	def __init__(self):
 
 		# docs.
-		Docs.__init__(self,
-			initialized=True,
-			module="dev0s.defaults", 
-			notes=[], )
+		DOCS = {
+			"module":"dev0s.defaults", 
+			"initialized":True,
+			"description":[], }
 
 		# vars.
 		self.vars = objects.Object({

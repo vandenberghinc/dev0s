@@ -7,7 +7,6 @@ from dev0s.classes.defaults.defaults import defaults
 from dev0s.classes.response import response as _response_
 from dev0s.classes.defaults.objects import *
 from dev0s.classes import database as _database_
-from dev0s.classes.code.docs import Docs
 import getpass
 
 # lib imports.
@@ -39,10 +38,10 @@ class Agent(Traceback):
 	):
 
 		# docs.
-		Docs.__init__(self,
-			initialized=False,
-			module="dev0s.encryption.Agent", 
-			notes=[], )
+		DOCS = {
+			"module":"dev0s.encryption.Agent", 
+			"initialized":False,
+			"description":[], }
 
 		# traceback.
 		Traceback.__init__(self, traceback=traceback)

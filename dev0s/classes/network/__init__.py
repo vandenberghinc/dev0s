@@ -6,7 +6,6 @@ from dev0s.classes.config import *
 from dev0s.classes import code
 from dev0s.classes.defaults.defaults import defaults
 from dev0s.classes.response import response as _response_
-from dev0s.classes.code.docs import Docs
 from dev0s.classes.requests import requests
 from dev0s.classes.network import firewall
 
@@ -18,10 +17,10 @@ class Network(object):
 	def __init__(self):
 
 		# docs.
-		Docs.__init__(self,
-			initialized=True,
-			module="dev0s.network", 
-			notes=[], )
+		DOCS = {
+			"module":"dev0s.network", 
+			"initialized":True,
+			"description":[], }
 
 		# variables.
 		self._info_ = None

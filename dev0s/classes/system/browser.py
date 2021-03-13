@@ -16,10 +16,10 @@ class Browser(object):
 	):
 
 		# docs.
-		Docs.__init__(self,
-			initialized=False,
-			module="dev0s.system.Browser", 
-			notes=[], )
+		DOCS = {
+			"module":"dev0s.system.Brwoser", 
+			"initialized":False,
+			"description":[], }
 		
 		# objects.
 		#options = Options()

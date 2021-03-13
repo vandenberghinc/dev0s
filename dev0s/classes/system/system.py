@@ -45,10 +45,10 @@ class User(object):
 	):
 
 		# docs.
-		Docs.__init__(self,
-			initialized=False,
-			module="dev0s.system.User", 
-			notes=[], )
+		DOCS = {
+			"module":"dev0s.system.User", 
+			"initialized":False,
+			"description":[], }
 
 		# arguments.
 		self.username = username
@@ -222,10 +222,10 @@ class Group(object):
 	):
 
 		# docs.
-		Docs.__init__(self,
-			initialized=False,
-			module="dev0s.system.Group", 
-			notes=[], )
+		DOCS = {
+			"module":"dev0s.system.Group", 
+			"initialized":False,
+			"description":[], }
 
 		# arguments.
 		self.name = name

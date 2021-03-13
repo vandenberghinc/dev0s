@@ -11,9 +11,6 @@ from dev0s.classes.response import response as _response_
 # include "execute" functions & classes.
 from dev0s.classes.code.execute import processes, kill, execute, Spawn, OutputObject
 
-# include "docs" classes.
-from dev0s.classes.code.docs import Docs
-
 # the version object class.
 class Version(object):
 	def __init__(self, 
@@ -371,6 +368,11 @@ class Python(Files.File):
 			elif "):        \n" in data: data = data.replace("):        \n","):\n")
 			#elif "\n " in data: data = data.replace("\n ", "\n")
 			elif " \n" in data: data = data.replace(" \n", "\n")
+			elif "DOCS =  " in data: data = data.replace("DOCS =  ", "DOCS = ")
+			elif "DOCS  = " in data: data = data.replace("DOCS  = ", "DOCS = ")
+			elif "DOCS   = " in data: data = data.replace("DOCS   = ", "DOCS = ")
+			elif "DOCS    = " in data: data = data.replace("DOCS    = ", "DOCS = ")
+			elif "DOCS     = " in data: data = data.replace("DOCS     = ", "DOCS = ")
 			else: break
 		classes = []
 		to_slice = []
@@ -656,6 +658,11 @@ class Python(Files.File):
 			#elif "\n " in data: data = data.replace("\n ", "\n")
 			elif " \n" in data: data = data.replace(" \n", "\n")
 			elif "	\n" in data: data = data.replace("	\n", "\n")
+			elif "DOCS =  " in data: data = data.replace("DOCS =  ", "DOCS = ")
+			elif "DOCS  = " in data: data = data.replace("DOCS  = ", "DOCS = ")
+			elif "DOCS   = " in data: data = data.replace("DOCS   = ", "DOCS = ")
+			elif "DOCS    = " in data: data = data.replace("DOCS    = ", "DOCS = ")
+			elif "DOCS     = " in data: data = data.replace("DOCS     = ", "DOCS = ")
 			else: break
 		
 		# slice with all indent (less dependable).
@@ -836,31 +843,23 @@ class Python(Files.File):
 			#if class_holder_class:
 			#	initialized_name = String(initialized_name).capitalized_word()
 			""" """
-			# fill traceback name.
-			initialized, module, notes = False, None, None
+
+			# fill DOCS customization.
+			initialized, module, description = False, None, None
 			if len(info["functions"]) > 0:
 				for func in info["functions"]:
 					if "__init__" in func["name"]:
 						set = False
-						for test in [
-							"Docs",
-						]:
-							if f"{test}.__init__(" in func["code"]:
-								params = clean_params(func["code"].split(f"{test}.__init__(")[1].split(")")[0])
-								if "initialized=" in params:
-									initialized = Boolean(params.split("initialized=")[1].split(",")[0].replace("'",'').replace('"','')).bool
-									set = True
-								if "module=" in params:
-									module = params.split("module=")[1].split(",")[0].replace("'",'').replace('"','')
-									set = True
-								if "notes=" in params:
-									try:
-										notes = ast.literal_eval(String(params.split("notes=")[1]).slice_array(depth=1))
-									except:
-										notes = None
-									set = True
-							if set: break
-						if set: break
+						test = "DOCS = {"
+						if test in func["code"]:
+							customization = ast.literal_eval(str(String(func["code"].split(test[:-1])[1]).slice_dict(depth=1)))
+							if "initialized" in customization:
+								initialized = customization["initialized"]
+							if "module" in customization:
+								module = customization["module"]
+							if "notes" in customization:
+								description = customization["description"]
+							break
 			if module == None:
 				module = info["name"]
 
@@ -872,8 +871,8 @@ class Python(Files.File):
 				doc = (
 					"\n\n# import the " + str(module) + " object class." + "\n" +
 					"")
-				if notes != None:
-					for i in notes: doc += f"{i}\n"
+				if description != None:
+					for i in description: doc += f"{i}\n"
 				doc += (
 					f"from {package} import " + module.split('.')[0] + "\n" +
 					"")
@@ -881,8 +880,8 @@ class Python(Files.File):
 				doc = (
 					"\n\n# initialize the " + str(module) + " object class." + "\n" +
 					"")
-				if notes != None:
-					for i in notes: doc += f"{i}\n"
+				if description != None:
+					for i in description: doc += f"{i}\n"
 				doc += (
 					str(initialized_name)+" = " + module + str(parameters) + "\n" +
 					"")
@@ -901,10 +900,10 @@ class Python(Files.File):
 					#if module != None:
 					#	i["name"] = i["name"].replace(f"{old_init_name}.", f"{module}.")
 					#	i["raw_name"] = i["raw_name"].replace(f"{old_init_name}.", f"{module}.")
-					if "." in info["name"]:
-						l = info["name"].split(".")[len(info["name"].split("."))-1]
+					if "." in i["name"]:
+						l = i["name"].split(".")[len(i["name"].split("."))-1]
 					else:
-						l = info["name"]
+						l = i["name"]
 					i["name"] = f'{initialized_name}.{l}'
 					#i["raw_name"] = f'{initialized_name}.{l}'
 					i["parameters"] = clean_params(i["parameters"]).replace("self.", initialized_name+".") # just for the self / initialized_name replacement.

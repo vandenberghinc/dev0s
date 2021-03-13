@@ -13,10 +13,10 @@ class Env(Docs):
 	def __init__(self):
 		
 		# docs.
-		Docs.__init__(self,
-			initialized=True,
-			module="dev0s.system.env", 
-			notes=[], )
+		DOCS = {
+			"module":"dev0s.system.env", 
+			"initialized":True,
+			"description":[], }
 
 		#
 	

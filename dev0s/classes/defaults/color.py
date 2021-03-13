@@ -3,17 +3,16 @@
 
 # imports.
 from dev0s.classes.config import *
-from dev0s.classes.utils.copycats import Docs
 
 # the color object.
 class Color(object):
 	def __init__(self):
 
 		# docs.
-		Docs.__init__(self,
-			initialized=True,
-			module="color", 
-			notes=[], )
+		DOCS = {
+			"module":"color", 
+			"initialized":True,
+			"description":[], }
 
 		# attributes.
 		self.purple = "\033[95m"
@@ -69,10 +68,10 @@ class Symbol(object):
 	def __init__(self):
 
 		# docs.
-		Docs.__init__(self,
-			initialized=True,
-			module="symbol", 
-			notes=[], )
+		DOCS = {
+			"module":"symbol", 
+			"initialized":True,
+			"description":[], }
 
 		# attributes.
 		self.cornered_arrow = color.grey+'↳'+color.end

@@ -7,7 +7,6 @@ from dev0s.classes.defaults.defaults import defaults
 from dev0s.classes.response import response as _response_
 from dev0s.classes.defaults.objects import *
 from dev0s.classes import utils
-from dev0s.classes.code.docs import Docs
 from dev0s.classes.encryption import rsa
 
 # imports.
@@ -33,10 +32,10 @@ class AES(object):
 	def __init__(self, passphrase=None):
 		
 		# docs.
-		Docs.__init__(self,
-			initialized=False,
-			module="dev0s.encryption.AES", 
-			notes=[], )
+		DOCS = {
+			"module":"dev0s.encryption.AES", 
+			"initialized":False,
+			"description":[], }
 
 		# check params.
 		response = _response_.parameters.check({
@@ -123,10 +122,10 @@ class AsymmetricAES(object):
 	):
 
 		# docs.
-		Docs.__init__(self,
-			initialized=False,
-			module="dev0s.encryption.AsymmetricAES", 
-			notes=[], )
+		DOCS = {
+			"module":"dev0s.encryption.AsymmetricAES", 
+			"initialized":False,
+			"description":[], }
 
 		# attributes.
 		self.rsa = rsa.RSA(public_key=public_key, private_key=private_key, passphrase=passphrase, memory=memory)
@@ -386,10 +385,10 @@ class Database(object):
 	):
 
 		# docs.
-		Docs.__init__(self,
-			initialized=False,
-			module="dev0s.encryption.Database", 
-			notes=[], )
+		DOCS = {
+			"module":"dev0s.encryption.Database", 
+			"initialized":False,
+			"description":[], }
 
 		# defaults.
 		#self.__class__.__name__ = "Database"

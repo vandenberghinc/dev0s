@@ -594,6 +594,7 @@ if __name__ == "__main__":
   * [get](#get-2)
   * [initialize](#initialize)
   * [denitialize](#denitialize)
+- [__Function__](#function)
 - [__Generate__](#generate)
   * [int](#int)
   * [string](#string-1)
@@ -636,13 +637,6 @@ if __name__ == "__main__":
   * [port_in_use](#port_in_use)
   * [free_port](#free_port)
 - [__Object__](#object)
-  * [items](#items)
-  * [keys](#keys)
-  * [values](#values)
-  * [assign](#assign-4)
-  * [attributes](#attributes)
-  * [dict](#dict)
-  * [unpack](#unpack)
 - [__OutputObject__](#outputobject)
   * [instance](#instance-7)
   * [response](#response)
@@ -687,17 +681,17 @@ if __name__ == "__main__":
   * [log_to_file](#log_to_file)
 - [__ResponseObject__](#responseobject)
   * [clean](#clean-1)
-  * [assign](#assign-5)
+  * [assign](#assign-4)
   * [crash](#crash)
-  * [unpack](#unpack-1)
+  * [unpack](#unpack)
   * [remove](#remove-1)
   * [iterate](#iterate)
-  * [items](#items-1)
-  * [keys](#keys-1)
-  * [values](#values-1)
+  * [items](#items)
+  * [keys](#keys)
+  * [values](#values)
   * [reversed](#reversed)
   * [sort](#sort)
-  * [dict](#dict-1)
+  * [dict](#dict)
   * [json](#json)
   * [serialize](#serialize-1)
   * [instance](#instance-8)
@@ -755,7 +749,7 @@ if __name__ == "__main__":
   * [lower](#lower-1)
   * [upper](#upper-1)
   * [instance](#instance-9)
-  * [assign](#assign-6)
+  * [assign](#assign-5)
   * [raw](#raw-7)
 - [__Symbol__](#symbol)
 - [__System__](#system)
@@ -806,29 +800,29 @@ aes = dev0s.encryption.AES(passphrase=None)
 ##### encrypt:
 ``` python
 
-# call aes.AES.
-_ = aes.AES(raw)
+# call aes.encrypt.
+_ = aes.encrypt(raw)
 
 ```
 ##### decrypt:
 ``` python
 
-# call aes.AES.
-_ = aes.AES(enc)
+# call aes.decrypt.
+_ = aes.decrypt(enc)
 
 ```
 ##### get_key:
 ``` python
 
-# call aes.AES.
-_ = aes.AES(salt=None)
+# call aes.get_key.
+_ = aes.get_key(salt=None)
 
 ```
 ##### generate_salt:
 ``` python
 
-# call aes.AES.
-_ = aes.AES()
+# call aes.generate_salt.
+_ = aes.generate_salt()
 
 ```
 
@@ -866,8 +860,8 @@ agent = dev0s.encryption.Agent(
 ##### generate:
 ``` python
 
-# call agent.Agent.
-_ = agent.Agent(
+# call agent.generate.
+_ = agent.generate(
     # the passphrase (optional to prompt) (str).
     passphrase=None,
     # the verify passphrase (optional).
@@ -879,8 +873,8 @@ _ = agent.Agent(
 ##### activate:
 ``` python
 
-# call agent.Agent.
-_ = agent.Agent(
+# call agent.activate.
+_ = agent.activate(
     # the key's passphrase (optional to retrieve from webserver) (str).
     passphrase=None,
     # interactive (optional)
@@ -890,38 +884,38 @@ _ = agent.Agent(
 ##### encrypt:
 ``` python
 
-# call agent.Agent.
-_ = agent.Agent(string, decode=False)
+# call agent.encrypt.
+_ = agent.encrypt(string, decode=False)
 
 ```
 ##### decrypt:
 ``` python
 
-# call agent.Agent.
-_ = agent.Agent(string, decode=False)
+# call agent.decrypt.
+_ = agent.decrypt(string, decode=False)
 
 ```
 
 #### Properties:
 ```python
 
-# the Agent property.
-Agent = agent.Agent
+# the activated property.
+activated = agent.activated
 ```
 ```python
 
-# the Agent property.
-Agent = agent.Agent
+# the public key activated property.
+public_key_activated = agent.public_key_activated
 ```
 ```python
 
-# the Agent property.
-Agent = agent.Agent
+# the private key activated property.
+private_key_activated = agent.private_key_activated
 ```
 ```python
 
-# the Agent property.
-Agent = agent.Agent
+# the generated property.
+generated = agent.generated
 ```
 
 ## Array:
@@ -944,15 +938,15 @@ array = Array(
 ##### load:
 ``` python
 
-# call array.Array.
-_ = array.Array()
+# call array.load.
+_ = array.load()
 
 ```
 ##### save:
 ``` python
 
-# call array.Array.
-_ = array.Array()
+# call array.save.
+_ = array.save()
 
 ```
 
@@ -978,96 +972,96 @@ asymmetricaes = dev0s.encryption.AsymmetricAES(
 ##### generate_keys:
 ``` python
 
-# call asymmetricaes.AsymmetricAES.
-_ = asymmetricaes.AsymmetricAES()
+# call asymmetricaes.generate_keys.
+_ = asymmetricaes.generate_keys()
 
 ```
 ##### edit_passphrase:
 ``` python
 
-# call asymmetricaes.AsymmetricAES.
-_ = asymmetricaes.AsymmetricAES(passphrase=None)
+# call asymmetricaes.edit_passphrase.
+_ = asymmetricaes.edit_passphrase(passphrase=None)
 
 ```
 ##### load_keys:
 ``` python
 
-# call asymmetricaes.AsymmetricAES.
-_ = asymmetricaes.AsymmetricAES()
+# call asymmetricaes.load_keys.
+_ = asymmetricaes.load_keys()
 
 ```
 ##### load_private_key:
 ``` python
 
-# call asymmetricaes.AsymmetricAES.
-_ = asymmetricaes.AsymmetricAES()
+# call asymmetricaes.load_private_key.
+_ = asymmetricaes.load_private_key()
 
 ```
 ##### load_public_key:
 ``` python
 
-# call asymmetricaes.AsymmetricAES.
-_ = asymmetricaes.AsymmetricAES()
+# call asymmetricaes.load_public_key.
+_ = asymmetricaes.load_public_key()
 
 ```
 ##### encrypt:
 ``` python
 
-# call asymmetricaes.AsymmetricAES.
-_ = asymmetricaes.AsymmetricAES(string, decode=False)
+# call asymmetricaes.encrypt.
+_ = asymmetricaes.encrypt(string, decode=False)
 
 ```
 ##### decrypt:
 ``` python
 
-# call asymmetricaes.AsymmetricAES.
-_ = asymmetricaes.AsymmetricAES(string, decode=False)
+# call asymmetricaes.decrypt.
+_ = asymmetricaes.decrypt(string, decode=False)
 
 ```
 ##### encrypt_file:
 ``` python
 
-# call asymmetricaes.AsymmetricAES.
-_ = asymmetricaes.AsymmetricAES(input=None, output=None, remove=False, base64_encoding=False)
+# call asymmetricaes.encrypt_file.
+_ = asymmetricaes.encrypt_file(input=None, output=None, remove=False, base64_encoding=False)
 
 ```
 ##### decrypt_file:
 ``` python
 
-# call asymmetricaes.AsymmetricAES.
-_ = asymmetricaes.AsymmetricAES(input=None, output=None, remove=False, base64_encoding=False)
+# call asymmetricaes.decrypt_file.
+_ = asymmetricaes.decrypt_file(input=None, output=None, remove=False, base64_encoding=False)
 
 ```
 ##### encrypt_directory:
 ``` python
 
-# call asymmetricaes.AsymmetricAES.
-_ = asymmetricaes.AsymmetricAES(input=None, output=None, remove=False)
+# call asymmetricaes.encrypt_directory.
+_ = asymmetricaes.encrypt_directory(input=None, output=None, remove=False)
 
 ```
 ##### decrypt_directory:
 ``` python
 
-# call asymmetricaes.AsymmetricAES.
-_ = asymmetricaes.AsymmetricAES(input=None, output=None, remove=False)
+# call asymmetricaes.decrypt_directory.
+_ = asymmetricaes.decrypt_directory(input=None, output=None, remove=False)
 
 ```
 
 #### Properties:
 ```python
 
-# the AsymmetricAES property.
-AsymmetricAES = asymmetricaes.AsymmetricAES
+# the activated property.
+activated = asymmetricaes.activated
 ```
 ```python
 
-# the AsymmetricAES property.
-AsymmetricAES = asymmetricaes.AsymmetricAES
+# the public key activated property.
+public_key_activated = asymmetricaes.public_key_activated
 ```
 ```python
 
-# the AsymmetricAES property.
-AsymmetricAES = asymmetricaes.AsymmetricAES
+# the private key activated property.
+private_key_activated = asymmetricaes.private_key_activated
 ```
 
 ## Boolean:
@@ -1084,29 +1078,29 @@ boolean = Boolean(boolean=False)
 ##### string:
 ``` python
 
-# call boolean.Boolean.
-_ = boolean.Boolean(true="True", false="False")
+# call boolean.string.
+_ = boolean.string(true="True", false="False")
 
 ```
 ##### instance:
 ``` python
 
-# call boolean.Boolean.
-_ = boolean.Boolean()
+# call boolean.instance.
+_ = boolean.instance()
 
 ```
 ##### assign:
 ``` python
 
-# call boolean.Boolean.
-_ = boolean.Boolean(boolean)
+# call boolean.assign.
+_ = boolean.assign(boolean)
 
 ```
 ##### raw:
 ``` python
 
-# call boolean.Boolean.
-_ = boolean.Boolean()
+# call boolean.raw.
+_ = boolean.raw()
 
 ```
 
@@ -1114,8 +1108,8 @@ _ = boolean.Boolean()
 The browser object class.
 ``` python 
 
-# initialize the dev0s.system.Browser object class.
-browser = dev0s.system.Browser(
+# initialize the dev0s.system.Brwoser object class.
+browser = dev0s.system.Brwoser(
     # the driver.
     driver="chromedriver", )
 
@@ -1126,15 +1120,15 @@ browser = dev0s.system.Browser(
 ##### get:
 ``` python
 
-# call browser.Browser.
-_ = browser.Browser(url)
+# call browser.get.
+_ = browser.get(url)
 
 ```
 ##### get_element:
 ``` python
 
-# call browser.Browser.
-_ = browser.Browser(
+# call browser.get_element.
+_ = browser.get_element(
     # the element type.
     element="input",
     # the attribute name.
@@ -1164,36 +1158,36 @@ bytes = Bytes(
 ##### load:
 ``` python
 
-# call bytes.Bytes.
-_ = bytes.Bytes(sudo=False)
+# call bytes.load.
+_ = bytes.load(sudo=False)
 
 ```
 ##### save:
 ``` python
 
-# call bytes.Bytes.
-_ = bytes.Bytes(bytes=None, sudo=False)
+# call bytes.save.
+_ = bytes.save(bytes=None, sudo=False)
 
 ```
 ##### instance:
 ``` python
 
-# call bytes.Bytes.
-_ = bytes.Bytes()
+# call bytes.instance.
+_ = bytes.instance()
 
 ```
 ##### assign:
 ``` python
 
-# call bytes.Bytes.
-_ = bytes.Bytes(b)
+# call bytes.assign.
+_ = bytes.assign(b)
 
 ```
 ##### raw:
 ``` python
 
-# call bytes.Bytes.
-_ = bytes.Bytes()
+# call bytes.raw.
+_ = bytes.raw()
 
 ```
 
@@ -1211,8 +1205,8 @@ cli = CLI(alias=None, modes={}, options={}, notes={}, executable=__file__, autho
 ##### stop:
 ``` python
 
-# call cli.CLI.
-_ = cli.CLI(
+# call cli.stop.
+_ = cli.stop(
     # success exit.
     success=True,
     # optional order 1 success message (overwrites success to response.success).
@@ -1228,8 +1222,8 @@ _ = cli.CLI(
 ##### docs:
 ``` python
 
-# call cli.CLI.
-_ = cli.CLI(
+# call cli.docs.
+_ = cli.docs(
     # the chapter (optional).
     chapter=None,
     # the mode (optional).
@@ -1253,8 +1247,8 @@ _ = cli.CLI(
 ##### invalid:
 ``` python
 
-# call cli.CLI.
-_ = cli.CLI(error="Selected an invalid mode.", chapter=None, mode=None, json=False)
+# call cli.invalid.
+_ = cli.invalid(error="Selected an invalid mode.", chapter=None, mode=None, json=False)
 
 ```
 
@@ -1272,22 +1266,22 @@ from dev0s import color
 ##### remove:
 ``` python
 
-# call color.Color.
-_ = color.Color(string)
+# call color.remove.
+_ = color.remove(string)
 
 ```
 ##### fill:
 ``` python
 
-# call color.Color.
-_ = color.Color(string)
+# call color.fill.
+_ = color.fill(string)
 
 ```
 ##### boolean:
 ``` python
 
-# call color.Color.
-_ = color.Color(boolean, red=True)
+# call color.boolean.
+_ = color.boolean(boolean, red=True)
 
 ```
 
@@ -1309,8 +1303,8 @@ database = dev0s.encryption.Database(
 ##### activate:
 ``` python
 
-# call database.Database.
-_ = database.Database(
+# call database.activate.
+_ = database.activate(
     # the key;s passphrase (optional).
     passphrase=None, )
 
@@ -1318,8 +1312,8 @@ _ = database.Database(
 ##### check:
 ``` python
 
-# call database.Database.
-_ = database.Database(
+# call database.check.
+_ = database.check(
     # the subpath of the content (! param number 1).
     path=None,
     # the default content data (! param number 2).
@@ -1331,8 +1325,8 @@ _ = database.Database(
 ##### load:
 ``` python
 
-# call database.Database.
-_ = database.Database(
+# call database.load.
+_ = database.load(
     # the subpath of the content (! param number 1).
     path=None,
     # the default data, specify to call database.check() automatically on the data object.
@@ -1342,8 +1336,8 @@ _ = database.Database(
 ##### save:
 ``` python
 
-# call database.Database.
-_ = database.Database(
+# call database.save.
+_ = database.save(
     # the content object (! param number 1).
     content=None, )
 
@@ -1352,18 +1346,18 @@ _ = database.Database(
 #### Properties:
 ```python
 
-# the Database property.
-Database = database.Database
+# the activated property.
+activated = database.activated
 ```
 ```python
 
-# the Database property.
-Database = database.Database
+# the public key activated property.
+public_key_activated = database.public_key_activated
 ```
 ```python
 
-# the Database property.
-Database = database.Database
+# the private key activated property.
+private_key_activated = database.private_key_activated
 ```
 
 ## Date:
@@ -1392,50 +1386,50 @@ date = Date(
 ##### compare:
 ``` python
 
-# call date.Date.
-_ = date.Date(comparison=None, current=None, format="%d-%m-%y %H:%M")
+# call date.compare.
+_ = date.compare(comparison=None, current=None, format="%d-%m-%y %H:%M")
 
 ```
 ##### increase:
 ``` python
 
-# call date.Date.
-_ = date.Date(string, weeks=0, days=0, hours=0, minutes=0, seconds=0, format="%d-%m-%y %H:%M")
+# call date.increase.
+_ = date.increase(string, weeks=0, days=0, hours=0, minutes=0, seconds=0, format="%d-%m-%y %H:%M")
 
 ```
 ##### decrease:
 ``` python
 
-# call date.Date.
-_ = date.Date(string, weeks=0, days=0, hours=0, minutes=0, seconds=0, format="%d-%m-%y %H:%M")
+# call date.decrease.
+_ = date.decrease(string, weeks=0, days=0, hours=0, minutes=0, seconds=0, format="%d-%m-%y %H:%M")
 
 ```
 ##### to_seconds:
 ``` python
 
-# call date.Date.
-_ = date.Date(string, format="%d-%m-%y %H:%M")
+# call date.to_seconds.
+_ = date.to_seconds(string, format="%d-%m-%y %H:%M")
 
 ```
 ##### from_seconds:
 ``` python
 
-# call date.Date.
-_ = date.Date(seconds, format="%d-%m-%y %H:%M")
+# call date.from_seconds.
+_ = date.from_seconds(seconds, format="%d-%m-%y %H:%M")
 
 ```
 ##### convert:
 ``` python
 
-# call date.Date.
-_ = date.Date(string, input="%d-%m-%y %H:%M", output="%Y%m%d")
+# call date.convert.
+_ = date.convert(string, input="%d-%m-%y %H:%M", output="%Y%m%d")
 
 ```
 ##### instance:
 ``` python
 
-# call date.Date.
-_ = date.Date()
+# call date.instance.
+_ = date.instance()
 
 ```
 
@@ -1453,15 +1447,15 @@ from dev0s import dev0s
 ##### operating_system:
 ``` python
 
-# call defaults.Defaults.
-_ = defaults.Defaults(supported=["*"])
+# call defaults.operating_system.
+_ = defaults.operating_system(supported=["*"])
 
 ```
 ##### alias:
 ``` python
 
-# call defaults.Defaults.
-_ = defaults.Defaults(
+# call defaults.alias.
+_ = defaults.alias(
     # the source name.
     alias=None,
     # the source path.
@@ -1477,43 +1471,43 @@ _ = defaults.Defaults(
 ##### source_path:
 ``` python
 
-# call defaults.Defaults.
-_ = defaults.Defaults(path, back=1)
+# call defaults.source_path.
+_ = defaults.source_path(path, back=1)
 
 ```
 ##### log_level:
 ``` python
 
-# call defaults.Defaults.
-_ = defaults.Defaults(default=0)
+# call defaults.log_level.
+_ = defaults.log_level(default=0)
 
 ```
 ##### pwd:
 ``` python
 
-# call defaults.Defaults.
-_ = defaults.Defaults()
+# call defaults.pwd.
+_ = defaults.pwd()
 
 ```
 ##### insert:
 ``` python
 
-# call defaults.Defaults.
-_ = defaults.Defaults(path)
+# call defaults.insert.
+_ = defaults.insert(path)
 
 ```
 ##### site_packages:
 ``` python
 
-# call defaults.Defaults.
-_ = defaults.Defaults()
+# call defaults.site_packages.
+_ = defaults.site_packages()
 
 ```
 ##### install_requirements:
 ``` python
 
-# call defaults.Defaults.
-_ = defaults.Defaults(
+# call defaults.install_requirements.
+_ = defaults.install_requirements(
     # the requirements (#1).
     #    str instance: path to file.
     #    list instance: pip requirements in list
@@ -1527,8 +1521,8 @@ _ = defaults.Defaults(
 ##### interactive:
 ``` python
 
-# call defaults.Defaults.
-_ = defaults.Defaults(default=False)
+# call defaults.interactive.
+_ = defaults.interactive(default=False)
 
 ```
 
@@ -1552,15 +1546,15 @@ dictionary = Dictionary(
 ##### load:
 ``` python
 
-# call dictionary.Dictionary.
-_ = dictionary.Dictionary()
+# call dictionary.load.
+_ = dictionary.load()
 
 ```
 ##### save:
 ``` python
 
-# call dictionary.Dictionary.
-_ = dictionary.Dictionary()
+# call dictionary.save.
+_ = dictionary.save()
 
 ```
 
@@ -1586,22 +1580,22 @@ directory = Directory(
 ##### create:
 ``` python
 
-# call directory.Directory.
-_ = directory.Directory(file_paths=[], path=None, sudo=False, owner=None, group=None, permission=None)
+# call directory.create.
+_ = directory.create(file_paths=[], path=None, sudo=False, owner=None, group=None, permission=None)
 
 ```
 ##### delete:
 ``` python
 
-# call directory.Directory.
-_ = directory.Directory(forced=False)
+# call directory.delete.
+_ = directory.delete(forced=False)
 
 ```
 ##### check:
 ``` python
 
-# call directory.Directory.
-_ = directory.Directory(
+# call directory.check.
+_ = directory.check(
     #   Required:
     #   -   dictionary format:
     hierarchy=None,
@@ -1620,92 +1614,92 @@ _ = directory.Directory(
 ##### load:
 ``` python
 
-# call directory.Directory.
-_ = directory.Directory(path=None, format=str, default=None, sudo=False)
+# call directory.load.
+_ = directory.load(path=None, format=str, default=None, sudo=False)
 
 ```
 ##### save:
 ``` python
 
-# call directory.Directory.
-_ = directory.Directory(path=None, data=None, format=str, sudo=False)
+# call directory.save.
+_ = directory.save(path=None, data=None, format=str, sudo=False)
 
 ```
 ##### paths:
 ``` python
 
-# call directory.Directory.
-_ = directory.Directory(dirs_only=False, files_only=False, empty_dirs=True, recursive=False, path=None, banned=[], banned_names=[".DS_Store"], banned_basenames=["__pycache__"], extensions=["*"])
+# call directory.paths.
+_ = directory.paths(dirs_only=False, files_only=False, empty_dirs=True, recursive=False, path=None, banned=[], banned_names=[".DS_Store"], banned_basenames=["__pycache__"], extensions=["*"])
 
 ```
 ##### names:
 ``` python
 
-# call directory.Directory.
-_ = directory.Directory(dirs_only=False, files_only=False, empty_dirs=True, recursive=False, path=None, banned=[], banned_names=[".DS_Store"], extensions=["*"], remove_extensions=False)
+# call directory.names.
+_ = directory.names(dirs_only=False, files_only=False, empty_dirs=True, recursive=False, path=None, banned=[], banned_names=[".DS_Store"], extensions=["*"], remove_extensions=False)
 
 ```
 ##### oldest:
 ``` python
 
-# call directory.Directory.
-_ = directory.Directory()
+# call directory.oldest.
+_ = directory.oldest()
 
 ```
 ##### newest:
 ``` python
 
-# call directory.Directory.
-_ = directory.Directory()
+# call directory.newest.
+_ = directory.newest()
 
 ```
 ##### random:
 ``` python
 
-# call directory.Directory.
-_ = directory.Directory()
+# call directory.random.
+_ = directory.random()
 
 ```
 ##### generate:
 ``` python
 
-# call directory.Directory.
-_ = directory.Directory(length=24, type="/")
+# call directory.generate.
+_ = directory.generate(length=24, type="/")
 
 ```
 ##### structured_join:
 ``` python
 
-# call directory.Directory.
-_ = directory.Directory(name, type="", structure="alphabetical", create_base=False, sudo=False, owner=None, group=None, permission=None)
+# call directory.structured_join.
+_ = directory.structured_join(name, type="", structure="alphabetical", create_base=False, sudo=False, owner=None, group=None, permission=None)
 
 ```
 ##### contains:
 ``` python
 
-# call directory.Directory.
-_ = directory.Directory(name=None, type="/", recursive=False)
+# call directory.contains.
+_ = directory.contains(name=None, type="/", recursive=False)
 
 ```
 ##### subpath:
 ``` python
 
-# call directory.Directory.
-_ = directory.Directory(fullpath)
+# call directory.subpath.
+_ = directory.subpath(fullpath)
 
 ```
 ##### fullpath:
 ``` python
 
-# call directory.Directory.
-_ = directory.Directory(subpath)
+# call directory.fullpath.
+_ = directory.fullpath(subpath)
 
 ```
 ##### set_icon:
 ``` python
 
-# call directory.Directory.
-_ = directory.Directory(
+# call directory.set_icon.
+_ = directory.set_icon(
     # the path to the .png / .jpg icon.
     icon=None,
     # the directory path (leave None to use directory.fp.path).
@@ -1715,8 +1709,8 @@ _ = directory.Directory(
 ##### index:
 ``` python
 
-# call directory.Directory.
-_ = directory.Directory(
+# call directory.index.
+_ = directory.index(
     # the wanted options.
     metrics=[],
     options=["size", "mtime", "content", "name", "basename", "extension", "mount", "directory"],
@@ -1727,64 +1721,64 @@ _ = directory.Directory(
 ##### open:
 ``` python
 
-# call directory.Directory.
-_ = directory.Directory(path=None, sudo=False)
+# call directory.open.
+_ = directory.open(path=None, sudo=False)
 
 ```
 ##### find:
 ``` python
 
-# call directory.Directory.
-_ = directory.Directory(matches:list, path=None, recursive=False, log_level=0)
+# call directory.find.
+_ = directory.find(matches:list, path=None, recursive=False, log_level=0)
 
 ```
 ##### replace:
 ``` python
 
-# call directory.Directory.
-_ = directory.Directory(replacements:list, path=None, recursive=False, log_level=0)
+# call directory.replace.
+_ = directory.replace(replacements:list, path=None, recursive=False, log_level=0)
 
 ```
 ##### join:
 ``` python
 
-# call directory.Directory.
-_ = directory.Directory(name=None, type="")
+# call directory.join.
+_ = directory.join(name=None, type="")
 
 ```
 ##### name:
 ``` python
 
-# call directory.Directory.
-_ = directory.Directory()
+# call directory.name.
+_ = directory.name()
 
 ```
 ##### base:
 ``` python
 
-# call directory.Directory.
-_ = directory.Directory()
+# call directory.base.
+_ = directory.base()
 
 ```
 ##### basename:
 ``` python
 
-# call directory.Directory.
-_ = directory.Directory()
+# call directory.basename.
+_ = directory.basename()
 
 ```
 ##### instance:
 ``` python
 
-# call directory.Directory.
-_ = directory.Directory()
+# call directory.instance.
+_ = directory.instance()
 
 ```
 ##### raw:
 ``` python
 
-# call directory.Directory.
-_ = directory.Directory()
+# call directory.raw.
+_ = directory.raw()
 
 ```
 
@@ -1802,15 +1796,15 @@ from dev0s import dev0s
 ##### list:
 ``` python
 
-# call disks.Disks.
-_ = disks.Disks()
+# call disks.list.
+_ = disks.list()
 
 ```
 ##### erase:
 ``` python
 
-# call disks.Disks.
-_ = disks.Disks(
+# call disks.erase.
+_ = disks.erase(
     # the device without partition number (/dev/sdb).
     device=None, )
 
@@ -1818,8 +1812,8 @@ _ = disks.Disks(
 ##### partition:
 ``` python
 
-# call disks.Disks.
-_ = disks.Disks(
+# call disks.partition.
+_ = disks.partition(
     # the device without partition number (/dev/sdb).
     device=None, )
 
@@ -1827,8 +1821,8 @@ _ = disks.Disks(
 ##### format:
 ``` python
 
-# call disks.Disks.
-_ = disks.Disks(
+# call disks.format.
+_ = disks.format(
     # the device with partition number (/dev/sdb1).
     device=None,
     # the assigned label (name).
@@ -1838,8 +1832,8 @@ _ = disks.Disks(
 ##### mount:
 ``` python
 
-# call disks.Disks.
-_ = disks.Disks(
+# call disks.mount.
+_ = disks.mount(
     # the device with partition number (/dev/sdb1).
     device=None,
     # the mountpoint path.
@@ -1849,8 +1843,8 @@ _ = disks.Disks(
 ##### unmount:
 ``` python
 
-# call disks.Disks.
-_ = disks.Disks(
+# call disks.unmount.
+_ = disks.unmount(
     # the mountpoint path.
     path=None, )
 
@@ -1878,22 +1872,22 @@ from dev0s import dev0s
 ##### fill:
 ``` python
 
-# call env.Env.
-_ = env.Env(string)
+# call env.fill.
+_ = env.fill(string)
 
 ```
 ##### import_:
 ``` python
 
-# call env.Env.
-_ = env.Env(env=None)
+# call env.import_.
+_ = env.import_(env=None)
 
 ```
 ##### export:
 ``` python
 
-# call env.Env.
-_ = env.Env(
+# call env.export.
+_ = env.export(
     # the environment to export (dict).
     env=None,
     # the export path (str) or paths (list).
@@ -1906,99 +1900,99 @@ _ = env.Env(
 ##### get:
 ``` python
 
-# call env.Env.
-_ = env.Env(id, default=None, format="str")
+# call env.get.
+_ = env.get(id, default=None, format="str")
 
 ```
 ##### get_string:
 ``` python
 
-# call env.Env.
-_ = env.Env(id, default=None)
+# call env.get_string.
+_ = env.get_string(id, default=None)
 
 ```
 ##### get_boolean:
 ``` python
 
-# call env.Env.
-_ = env.Env(id, default=None)
+# call env.get_boolean.
+_ = env.get_boolean(id, default=None)
 
 ```
 ##### get_integer:
 ``` python
 
-# call env.Env.
-_ = env.Env(id, default=None)
+# call env.get_integer.
+_ = env.get_integer(id, default=None)
 
 ```
 ##### get_array:
 ``` python
 
-# call env.Env.
-_ = env.Env(id, default=None)
+# call env.get_array.
+_ = env.get_array(id, default=None)
 
 ```
 ##### get_tuple:
 ``` python
 
-# call env.Env.
-_ = env.Env(id, default=None)
+# call env.get_tuple.
+_ = env.get_tuple(id, default=None)
 
 ```
 ##### get_dictionary:
 ``` python
 
-# call env.Env.
-_ = env.Env(id, default=None)
+# call env.get_dictionary.
+_ = env.get_dictionary(id, default=None)
 
 ```
 ##### set:
 ``` python
 
-# call env.Env.
-_ = env.Env(id, value, format="unknown")
+# call env.set.
+_ = env.set(id, value, format="unknown")
 
 ```
 ##### set_string:
 ``` python
 
-# call env.Env.
-_ = env.Env(id, value)
+# call env.set_string.
+_ = env.set_string(id, value)
 
 ```
 ##### set_boolean:
 ``` python
 
-# call env.Env.
-_ = env.Env(id, value)
+# call env.set_boolean.
+_ = env.set_boolean(id, value)
 
 ```
 ##### set_integer:
 ``` python
 
-# call env.Env.
-_ = env.Env(id, value)
+# call env.set_integer.
+_ = env.set_integer(id, value)
 
 ```
 ##### set_array:
 ``` python
 
-# call env.Env.
-_ = env.Env(id, value)
+# call env.set_array.
+_ = env.set_array(id, value)
 
 ```
 ##### set_tuple:
 ``` python
 
-# call env.Env.
-_ = env.Env(id, value)
+# call env.set_tuple.
+_ = env.set_tuple(id, value)
 
 ```
 ##### set_dictionary:
 ``` python
 
-# call env.Env.
-_ = env.Env(id, value, subkey="")
+# call env.set_dictionary.
+_ = env.set_dictionary(id, value, subkey="")
 
 ```
 
@@ -2022,15 +2016,15 @@ file = File(
 ##### load:
 ``` python
 
-# call file.File.
-_ = file.File()
+# call file.load.
+_ = file.load()
 
 ```
 ##### save:
 ``` python
 
-# call file.File.
-_ = file.File()
+# call file.save.
+_ = file.save()
 
 ```
 
@@ -2048,29 +2042,29 @@ file_path = FilePath(path, default=False, check=False, load=False)
 ##### join:
 ``` python
 
-# call file_path.FilePath.
-_ = file_path.FilePath(name=None, type="/")
+# call file_path.join.
+_ = file_path.join(name=None, type="/")
 
 ```
 ##### name:
 ``` python
 
-# call file_path.FilePath.
-_ = file_path.FilePath(path=None, remove_extension=False,)
+# call file_path.name.
+_ = file_path.name(path=None, remove_extension=False,)
 
 ```
 ##### extension:
 ``` python
 
-# call file_path.FilePath.
-_ = file_path.FilePath(name=None, path=None)
+# call file_path.extension.
+_ = file_path.extension(name=None, path=None)
 
 ```
 ##### base:
 ``` python
 
-# call file_path.FilePath.
-_ = file_path.FilePath(
+# call file_path.base.
+_ = file_path.base(
     # the path (leave None to use file_path.path) (param #1).
     path=None,
     # the dirs back.
@@ -2080,36 +2074,36 @@ _ = file_path.FilePath(
 ##### basename:
 ``` python
 
-# call file_path.FilePath.
-_ = file_path.FilePath(back=1, path=None)
+# call file_path.basename.
+_ = file_path.basename(back=1, path=None)
 
 ```
 ##### size:
 ``` python
 
-# call file_path.FilePath.
-_ = file_path.FilePath(format=str,  mode="auto", path=None, options=["auto", "bytes", "kb", "mb", "gb", "tb"])
+# call file_path.size.
+_ = file_path.size(format=str,  mode="auto", path=None, options=["auto", "bytes", "kb", "mb", "gb", "tb"])
 
 ```
 ##### space:
 ``` python
 
-# call file_path.FilePath.
-_ = file_path.FilePath(format=str,  mode="auto", path=None, options=["auto", "bytes", "kb", "mb", "gb", "tb"])
+# call file_path.space.
+_ = file_path.space(format=str,  mode="auto", path=None, options=["auto", "bytes", "kb", "mb", "gb", "tb"])
 
 ```
 ##### convert_bytes:
 ``` python
 
-# call file_path.FilePath.
-_ = file_path.FilePath(bytes:int, format=str, mode="auto", options=["auto", "bytes", "kb", "mb", "gb", "tb"])
+# call file_path.convert_bytes.
+_ = file_path.convert_bytes(bytes:int, format=str, mode="auto", options=["auto", "bytes", "kb", "mb", "gb", "tb"])
 
 ```
 ##### exists:
 ``` python
 
-# call file_path.FilePath.
-_ = file_path.FilePath(
+# call file_path.exists.
+_ = file_path.exists(
     # the path (leave None to use file_path.path) (#1).
     path=None,
     # root permission required.
@@ -2119,8 +2113,8 @@ _ = file_path.FilePath(
 ##### mount:
 ``` python
 
-# call file_path.FilePath.
-_ = file_path.FilePath(
+# call file_path.mount.
+_ = file_path.mount(
     # the path (leave None to use file_path.path) (#1).
     path=None, )
 
@@ -2128,8 +2122,8 @@ _ = file_path.FilePath(
 ##### directory:
 ``` python
 
-# call file_path.FilePath.
-_ = file_path.FilePath(
+# call file_path.directory.
+_ = file_path.directory(
     # the path (leave None to use file_path.path) (#1).
     path=None, )
 
@@ -2137,15 +2131,15 @@ _ = file_path.FilePath(
 ##### mtime:
 ``` python
 
-# call file_path.FilePath.
-_ = file_path.FilePath(format='%d-%m-%y %H:%M.%S', path=None)
+# call file_path.mtime.
+_ = file_path.mtime(format='%d-%m-%y %H:%M.%S', path=None)
 
 ```
 ##### clean:
 ``` python
 
-# call file_path.FilePath.
-_ = file_path.FilePath(
+# call file_path.clean.
+_ = file_path.clean(
     # the path (leave None to use file_path.path) (param #1).
     path=None,
     # the clean options.
@@ -2159,8 +2153,8 @@ _ = file_path.FilePath(
 ##### absolute:
 ``` python
 
-# call file_path.FilePath.
-_ = file_path.FilePath(
+# call file_path.absolute.
+_ = file_path.absolute(
     # the path (leave None to use file_path.path) (param #1).
     path=None, )
 
@@ -2168,22 +2162,22 @@ _ = file_path.FilePath(
 ##### module:
 ``` python
 
-# call file_path.FilePath.
-_ = file_path.FilePath(path=None)
+# call file_path.module.
+_ = file_path.module(path=None)
 
 ```
 ##### requirements:
 ``` python
 
-# call file_path.FilePath.
-_ = file_path.FilePath(path=None, format="pip", include_version=True)
+# call file_path.requirements.
+_ = file_path.requirements(path=None, format="pip", include_version=True)
 
 ```
 ##### delete:
 ``` python
 
-# call file_path.FilePath.
-_ = file_path.FilePath(
+# call file_path.delete.
+_ = file_path.delete(
     # the path (leave None to use file_path.path) (param #1).
     path=None,
     # the options.
@@ -2195,29 +2189,29 @@ _ = file_path.FilePath(
 ##### move:
 ``` python
 
-# call file_path.FilePath.
-_ = file_path.FilePath(path=None, sudo=False, silent=False)
+# call file_path.move.
+_ = file_path.move(path=None, sudo=False, silent=False)
 
 ```
 ##### copy:
 ``` python
 
-# call file_path.FilePath.
-_ = file_path.FilePath(path=None, sudo=False, silent=False)
+# call file_path.copy.
+_ = file_path.copy(path=None, sudo=False, silent=False)
 
 ```
 ##### open:
 ``` python
 
-# call file_path.FilePath.
-_ = file_path.FilePath(sudo=False)
+# call file_path.open.
+_ = file_path.open(sudo=False)
 
 ```
 ##### create:
 ``` python
 
-# call file_path.FilePath.
-_ = file_path.FilePath(
+# call file_path.create.
+_ = file_path.create(
     #   Option 1: (creating a directory)
     #   -   boolean format:
     directory=False,
@@ -2237,8 +2231,8 @@ _ = file_path.FilePath(
 ##### check:
 ``` python
 
-# call file_path.FilePath.
-_ = file_path.FilePath(
+# call file_path.check.
+_ = file_path.check(
     #   Option 1: (creating a directory)
     #   -   boolean format:
     directory=False,
@@ -2260,57 +2254,57 @@ _ = file_path.FilePath(
 ##### split:
 ``` python
 
-# call file_path.FilePath.
-_ = file_path.FilePath(path)
+# call file_path.split.
+_ = file_path.split(path)
 
 ```
 ##### count:
 ``` python
 
-# call file_path.FilePath.
-_ = file_path.FilePath(path)
+# call file_path.count.
+_ = file_path.count(path)
 
 ```
 ##### replace:
 ``` python
 
-# call file_path.FilePath.
-_ = file_path.FilePath(from_, to_)
+# call file_path.replace.
+_ = file_path.replace(from_, to_)
 
 ```
 ##### lower:
 ``` python
 
-# call file_path.FilePath.
-_ = file_path.FilePath(path)
+# call file_path.lower.
+_ = file_path.lower(path)
 
 ```
 ##### upper:
 ``` python
 
-# call file_path.FilePath.
-_ = file_path.FilePath(path)
+# call file_path.upper.
+_ = file_path.upper(path)
 
 ```
 ##### instance:
 ``` python
 
-# call file_path.FilePath.
-_ = file_path.FilePath()
+# call file_path.instance.
+_ = file_path.instance()
 
 ```
 ##### assign:
 ``` python
 
-# call file_path.FilePath.
-_ = file_path.FilePath(path, load=False)
+# call file_path.assign.
+_ = file_path.assign(path, load=False)
 
 ```
 ##### raw:
 ``` python
 
-# call file_path.FilePath.
-_ = file_path.FilePath()
+# call file_path.raw.
+_ = file_path.raw()
 
 ```
 
@@ -2328,22 +2322,22 @@ files = Files(path=None, name=None, type="")
 ##### join:
 ``` python
 
-# call files.Files.
-_ = Files.Files(path=None, name=None, type="")
+# call files.join.
+_ = Files.join(path=None, name=None, type="")
 
 ```
 ##### load:
 ``` python
 
-# call files.Files.
-_ = Files.Files(path, data="not to be used", format="str", raw=False, sudo=False)
+# call files.load.
+_ = Files.load(path, data="not to be used", format="str", raw=False, sudo=False)
 
 ```
 ##### save:
 ``` python
 
-# call files.Files.
-_ = Files.Files(
+# call files.save.
+_ = Files.save(
     # the path (str) (#1).
     path,
     # the data (str, dict, list) (#2).
@@ -2370,8 +2364,8 @@ _ = Files.Files(
 ##### delete:
 ``` python
 
-# call files.Files.
-_ = Files.Files(
+# call files.delete.
+_ = Files.delete(
     # the path (param #1).
     path=None,
     # root permission required.
@@ -2385,8 +2379,8 @@ _ = Files.Files(
 ##### chmod:
 ``` python
 
-# call files.Files.
-_ = Files.Files(
+# call files.chmod.
+_ = Files.chmod(
     # the path (param #1).
     path=None,
     # the new permission.
@@ -2400,8 +2394,8 @@ _ = Files.Files(
 ##### chown:
 ``` python
 
-# call files.Files.
-_ = Files.Files(
+# call files.chown.
+_ = Files.chown(
     # the path (param #1).
     path=None,
     # the new owner.
@@ -2417,15 +2411,15 @@ _ = Files.Files(
 ##### exists:
 ``` python
 
-# call files.Files.
-_ = Files.Files(path=None, sudo=False)
+# call files.exists.
+_ = Files.exists(path=None, sudo=False)
 
 ```
 ##### directory:
 ``` python
 
-# call files.Files.
-_ = Files.Files(
+# call files.directory.
+_ = Files.directory(
     # the path (#1).
     path=None,
     # root permission required.
@@ -2435,8 +2429,8 @@ _ = Files.Files(
 ##### mounted:
 ``` python
 
-# call files.Files.
-_ = Files.Files(
+# call files.mounted.
+_ = Files.mounted(
     # the path (#1).
     path=None, )
 
@@ -2444,8 +2438,8 @@ _ = Files.Files(
 ##### create:
 ``` python
 
-# call files.Files.
-_ = Files.Files(
+# call files.create.
+_ = Files.create(
     # the path to the file (str) (REQUIRED) (#1).
     path=None,
     # the data (str) (optional).
@@ -2465,8 +2459,8 @@ _ = Files.Files(
 ##### copy:
 ``` python
 
-# call files.Files.
-_ = Files.Files(
+# call files.copy.
+_ = Files.copy(
     # the from & to path (#1 & #2).
     from_, to_,
     # root permission required.
@@ -2478,8 +2472,8 @@ _ = Files.Files(
 ##### move:
 ``` python
 
-# call files.Files.
-_ = Files.Files(
+# call files.move.
+_ = Files.move(
     # the from & to path (#1 & #2).
     from_, to_,
     # root permission required.
@@ -2503,57 +2497,57 @@ from dev0s import dev0s
 ##### enable:
 ``` python
 
-# call fire_wall.FireWall.
-_ = fire_wall.FireWall()
+# call fire_wall.enable.
+_ = fire_wall.enable()
 
 ```
 ##### disable:
 ``` python
 
-# call fire_wall.FireWall.
-_ = fire_wall.FireWall()
+# call fire_wall.disable.
+_ = fire_wall.disable()
 
 ```
 ##### allow:
 ``` python
 
-# call fire_wall.FireWall.
-_ = fire_wall.FireWall(port)
+# call fire_wall.allow.
+_ = fire_wall.allow(port)
 
 ```
 ##### deny:
 ``` python
 
-# call fire_wall.FireWall.
-_ = fire_wall.FireWall(port)
+# call fire_wall.deny.
+_ = fire_wall.deny(port)
 
 ```
 ##### allow_all:
 ``` python
 
-# call fire_wall.FireWall.
-_ = fire_wall.FireWall()
+# call fire_wall.allow_all.
+_ = fire_wall.allow_all()
 
 ```
 ##### deny_all:
 ``` python
 
-# call fire_wall.FireWall.
-_ = fire_wall.FireWall()
+# call fire_wall.deny_all.
+_ = fire_wall.deny_all()
 
 ```
 ##### set_default:
 ``` python
 
-# call fire_wall.FireWall.
-_ = fire_wall.FireWall(deny=True)
+# call fire_wall.set_default.
+_ = fire_wall.set_default(deny=True)
 
 ```
 ##### info:
 ``` python
 
-# call fire_wall.FireWall.
-_ = fire_wall.FireWall()
+# call fire_wall.info.
+_ = fire_wall.info()
 
 ```
 
@@ -2571,8 +2565,8 @@ formats = Formats(i.upper())
 ##### check:
 ``` python
 
-# call formats.Formats.
-_ = Formats.Formats(
+# call formats.check.
+_ = Formats.check(
     nones=None,
     booleans=None,
     none_allowed_booleans=None,
@@ -2591,15 +2585,15 @@ _ = Formats.Formats(
 ##### get:
 ``` python
 
-# call formats.Formats.
-_ = Formats.Formats(value, serialize=False)
+# call formats.get.
+_ = Formats.get(value, serialize=False)
 
 ```
 ##### initialize:
 ``` python
 
-# call formats.Formats.
-_ = Formats.Formats(
+# call formats.initialize.
+_ = Formats.initialize(
     # the object / value (#1 param).
     obj=None,
     # list / dict with objects.
@@ -2613,8 +2607,8 @@ _ = Formats.Formats(
 ##### denitialize:
 ``` python
 
-# call formats.Formats.
-_ = Formats.Formats(
+# call formats.denitialize.
+_ = Formats.denitialize(
     # the object / value (#1 param).
     obj=None,
     # list / dict with objects.
@@ -2624,6 +2618,30 @@ _ = Formats.Formats(
 
 ```
 
+## Function:
+The function object class.
+``` python 
+
+# initialize the dev0s.Docs.Function object class.
+function = dev0s.Docs.Function(
+    # the full module path in import style (when initializing).
+    module="dec0s.Docs.Function",
+    # the notes that will apread above the class_ initialization (leave [] to use default.
+    notes=[], ):
+    # attributes.
+    function.module = module
+    function.notes = notes
+    # checks.
+    if not isinstance(function.notes, (list, Array)): function.notes = []
+    # docs.
+    DOCS = {
+        "module":"dev0s.Docs.Function",
+        "initialized":False,
+        "description":[],
+    }
+    #
+
+```
 ## Generate:
 The generate object class.
 ``` python 
@@ -2638,15 +2656,15 @@ generate = Generate()
 ##### int:
 ``` python
 
-# call generate.Generate.
-_ = generate.Generate(length=6)
+# call generate.int.
+_ = generate.int(length=6)
 
 ```
 ##### string:
 ``` python
 
-# call generate.Generate.
-_ = generate.Generate(length=6, capitalize=True, digits=True)
+# call generate.string.
+_ = generate.string(length=6, capitalize=True, digits=True)
 
 ```
 
@@ -2670,50 +2688,50 @@ group = dev0s.system.Group(
 ##### create:
 ``` python
 
-# call group.Group.
-_ = group.Group(users=None)
+# call group.create.
+_ = group.create(users=None)
 
 ```
 ##### delete:
 ``` python
 
-# call group.Group.
-_ = group.Group()
+# call group.delete.
+_ = group.delete()
 
 ```
 ##### check:
 ``` python
 
-# call group.Group.
-_ = group.Group()
+# call group.check.
+_ = group.check()
 
 ```
 ##### list_users:
 ``` python
 
-# call group.Group.
-_ = group.Group()
+# call group.list_users.
+_ = group.list_users()
 
 ```
 ##### delete_users:
 ``` python
 
-# call group.Group.
-_ = group.Group(users=[])
+# call group.delete_users.
+_ = group.delete_users(users=[])
 
 ```
 ##### add_users:
 ``` python
 
-# call group.Group.
-_ = group.Group(users=[])
+# call group.add_users.
+_ = group.add_users(users=[])
 
 ```
 ##### check_users:
 ``` python
 
-# call group.Group.
-_ = group.Group(users=[])
+# call group.check_users.
+_ = group.check_users(users=[])
 
 ```
 
@@ -2731,64 +2749,64 @@ image = Image(path=None, image=None, load=False)
 ##### load:
 ``` python
 
-# call image.Image.
-_ = image.Image(path=None)
+# call image.load.
+_ = image.load(path=None)
 
 ```
 ##### edit_pixel:
 ``` python
 
-# call image.Image.
-_ = image.Image(pixel=[0, 0], new_pixel_tuple=None)
+# call image.edit_pixel.
+_ = image.edit_pixel(pixel=[0, 0], new_pixel_tuple=None)
 
 ```
 ##### convert:
 ``` python
 
-# call image.Image.
-_ = image.Image(input='logo.png', output='logo.ico')
+# call image.convert.
+_ = image.convert(input='logo.png', output='logo.ico')
 
 ```
 ##### replace_pixels:
 ``` python
 
-# call image.Image.
-_ = image.Image(input_path=None, output_path=None, input_hex=None, output_hex=None)
+# call image.replace_pixels.
+_ = image.replace_pixels(input_path=None, output_path=None, input_hex=None, output_hex=None)
 
 ```
 ##### replace_colors:
 ``` python
 
-# call image.Image.
-_ = image.Image(input_path=None, output_path=None, hex=None)
+# call image.replace_colors.
+_ = image.replace_colors(input_path=None, output_path=None, hex=None)
 
 ```
 ##### rgb_to_hex:
 ``` python
 
-# call image.Image.
-_ = image.Image(tuple)
+# call image.rgb_to_hex.
+_ = image.rgb_to_hex(tuple)
 
 ```
 ##### hex_to_rgb:
 ``` python
 
-# call image.Image.
-_ = image.Image(_hex_)
+# call image.hex_to_rgb.
+_ = image.hex_to_rgb(_hex_)
 
 ```
 ##### instance:
 ``` python
 
-# call image.Image.
-_ = image.Image()
+# call image.instance.
+_ = image.instance()
 
 ```
 ##### raw:
 ``` python
 
-# call image.Image.
-_ = image.Image()
+# call image.raw.
+_ = image.raw()
 
 ```
 
@@ -2806,50 +2824,50 @@ integer = Integer(value=0, format="auto")
 ##### increase_version:
 ``` python
 
-# call integer.Integer.
-_ = integer.Integer()
+# call integer.increase_version.
+_ = integer.increase_version()
 
 ```
 ##### round:
 ``` python
 
-# call integer.Integer.
-_ = integer.Integer(decimals)
+# call integer.round.
+_ = integer.round(decimals)
 
 ```
 ##### round_down:
 ``` python
 
-# call integer.Integer.
-_ = integer.Integer(decimals)
+# call integer.round_down.
+_ = integer.round_down(decimals)
 
 ```
 ##### generate:
 ``` python
 
-# call integer.Integer.
-_ = integer.Integer(length=6)
+# call integer.generate.
+_ = integer.generate(length=6)
 
 ```
 ##### instance:
 ``` python
 
-# call integer.Integer.
-_ = integer.Integer()
+# call integer.instance.
+_ = integer.instance()
 
 ```
 ##### assign:
 ``` python
 
-# call integer.Integer.
-_ = integer.Integer(value)
+# call integer.assign.
+_ = integer.assign(value)
 
 ```
 ##### raw:
 ``` python
 
-# call integer.Integer.
-_ = integer.Integer()
+# call integer.raw.
+_ = integer.raw()
 
 ```
 
@@ -2867,36 +2885,36 @@ loader = Loader(message, autostart=True, log_level=0, interactive=True)
 ##### run:
 ``` python
 
-# call loader.Loader.
-_ = loader.Loader()
+# call loader.run.
+_ = loader.run()
 
 ```
 ##### stop:
 ``` python
 
-# call loader.Loader.
-_ = loader.Loader(message=None, success=True, response=None, quiet=False)
+# call loader.stop.
+_ = loader.stop(message=None, success=True, response=None, quiet=False)
 
 ```
 ##### mark:
 ``` python
 
-# call loader.Loader.
-_ = loader.Loader(new_message=None, old_message=None, success=True, response=None)
+# call loader.mark.
+_ = loader.mark(new_message=None, old_message=None, success=True, response=None)
 
 ```
 ##### hold:
 ``` python
 
-# call loader.Loader.
-_ = loader.Loader()
+# call loader.hold.
+_ = loader.hold()
 
 ```
 ##### release:
 ``` python
 
-# call loader.Loader.
-_ = loader.Loader()
+# call loader.release.
+_ = loader.release()
 
 ```
 
@@ -2914,36 +2932,36 @@ from dev0s import dev0s
 ##### info:
 ``` python
 
-# call network.Network.
-_ = network.Network()
+# call network.info.
+_ = network.info()
 
 ```
 ##### convert_dns:
 ``` python
 
-# call network.Network.
-_ = network.Network(dns, timeout=1)
+# call network.convert_dns.
+_ = network.convert_dns(dns, timeout=1)
 
 ```
 ##### ping:
 ``` python
 
-# call network.Network.
-_ = network.Network(ip, timeout=1)
+# call network.ping.
+_ = network.ping(ip, timeout=1)
 
 ```
 ##### port_in_use:
 ``` python
 
-# call network.Network.
-_ = network.Network(port, host="127.0.0.1")
+# call network.port_in_use.
+_ = network.port_in_use(port, host="127.0.0.1")
 
 ```
 ##### free_port:
 ``` python
 
-# call network.Network.
-_ = network.Network(start=6080)
+# call network.free_port.
+_ = network.free_port(start=6080)
 
 ```
 
@@ -2953,109 +2971,21 @@ The object object class.
 
 # initialize the Object object class.
 object = Object(
-    # attributes (dict) (#1)
-    attributes={},
-    # the imported traceback.
-    traceback="Object",
-    # the raw traceback.
-    raw_traceback="Object", )
+    # boolean inidicating if the object is initialized by default.
+    initialized=False,
+    # the full module path in import style (when initializing).
+    module="dec0s.Docs.Object",
+    # the notes that will apread above the class_ initialization (leave [] to use default.
+    notes=[], ):
+    # attributes.
+    object.initialized = initialized
+    object.module = module
+    object.notes = notes
+    # checks.
+    if not isinstance(object.notes, (list, Array)): object.notes = []
+    #
 
 ```
-
-#### Functions:
-
-##### items:
-``` python
-
-# call object.Object.
-_ = object.Object(
-    # the keys to get (leave default to unpack all keys).
-    #    list instance: checks if the key is present if not it throws an error when [safe] is disabled
-    #    dict instance: automatically enables [safe] and returns the key's value as default when missing.
-    keys=["*"],
-    # with safe disabled it throws an error when one of the specified keys does not exist.
-    safe=True, )
-
-```
-##### keys:
-``` python
-
-# call object.Object.
-_ = object.Object(
-    # the keys to get (leave default to unpack all keys).
-    #    list instance: checks if the key is present if not it throws an error when [safe] is disabled
-    #    dict instance: automatically enables [safe] and returns the key's value as default when missing.
-    keys=["*"],
-    # with safe disabled it throws an error when one of the specified keys does not exist.
-    safe=True, )
-
-```
-##### values:
-``` python
-
-# call object.Object.
-_ = object.Object()
-
-```
-##### assign:
-``` python
-
-# call object.Object.
-_ = object.Object(
-    # the dictionary to self assign.
-    dictionary,
-    # serialize dictionary from str to object.
-    serialize=True,
-    # the keys to get from the dict (leave default to unpack the present keys).
-    #    list instance: checks if the key is present if not it throws an error when [safe] is disabled
-    #    dict instance: automatically enables [safe] and returns the key's value as default when missing.
-    keys=["*"],
-    # with safe disabled it throws an error when one of the specified keys does not exist.
-    safe=True, )
-
-```
-##### attributes:
-``` python
-
-# call object.Object.
-_ = object.Object(
-    # the keys to get (leave default to unpack all keys).
-    #    list instance: checks if the key is present if not it throws an error when [safe] is disabled
-    #    dict instance: automatically enables [safe] and returns the key's value as default when missing.
-    keys=["*"],
-    # with safe disabled it throws an error when one of the specified keys does not exist.
-    safe=True, )
-
-```
-##### dict:
-``` python
-
-# call object.Object.
-_ = object.Object(
-    # the keys to get (leave default to unpack all keys).
-    #    list instance: checks if the key is present if not it throws an error when [safe] is disabled
-    #    dict instance: automatically enables [safe] and returns the key's value as default when missing.
-    keys=["*"],
-    # with safe disabled it throws an error when one of the specified keys does not exist.
-    safe=True, )
-
-```
-##### unpack:
-``` python
-
-# call object.Object.
-_ = object.Object(
-    # the key / keys / defaults parameter (#1).
-    # str instance:
-    #   unpack the str key
-    # list instance:
-    #   unpack all keys in the list.
-    # dict instance:
-    #   unpack all keys from the dict & when not present return the key's value as default.
-    keys, )
-
-```
-
 ## OutputObject:
 The output_object object class.
 ``` python 
@@ -3082,15 +3012,15 @@ output_object = OutputObject(
 ##### instance:
 ``` python
 
-# call output_object.OutputObject.
-_ = output_object.OutputObject()
+# call output_object.instance.
+_ = output_object.instance()
 
 ```
 ##### response:
 ``` python
 
-# call output_object.OutputObject.
-_ = output_object.OutputObject()
+# call output_object.response.
+_ = output_object.response()
 
 ```
 
@@ -3108,15 +3038,15 @@ ownership = Ownership(path=None, load=False)
 ##### get:
 ``` python
 
-# call ownership.Ownership.
-_ = ownership.Ownership(path=None)
+# call ownership.get.
+_ = ownership.get(path=None)
 
 ```
 ##### set:
 ``` python
 
-# call ownership.Ownership.
-_ = ownership.Ownership(
+# call ownership.set.
+_ = ownership.set(
     # the permission (str) (#1).
     owner=None,
     # the group (str) (optional) (#2).
@@ -3134,8 +3064,8 @@ _ = ownership.Ownership(
 ##### check:
 ``` python
 
-# call ownership.Ownership.
-_ = ownership.Ownership(owner=None, group=None, sudo=False, silent=False, iterate=False, recursive=False, path=None)
+# call ownership.check.
+_ = ownership.check(owner=None, group=None, sudo=False, silent=False, iterate=False, recursive=False, path=None)
 
 ```
 
@@ -3153,8 +3083,8 @@ from dev0s import dev0s
 ##### get:
 ``` python
 
-# call parameters.Parameters.
-_ = parameters.Parameters(
+# call parameters.get.
+_ = parameters.get(
     # the django request (1).
     request=None,
     # the identifiers (#2).
@@ -3169,8 +3099,8 @@ _ = parameters.Parameters(
 ##### check:
 ``` python
 
-# call parameters.Parameters.
-_ = parameters.Parameters(
+# call parameters.check.
+_ = parameters.check(
     # the parameters (dict) (#1).
     parameters={"parameter":None},
     # the recognizer value for when the parameters are supposed to be empty.
@@ -3194,15 +3124,15 @@ permission = Permission(path=None, load=False)
 ##### get:
 ``` python
 
-# call permission.Permission.
-_ = permission.Permission(path=None)
+# call permission.get.
+_ = permission.get(path=None)
 
 ```
 ##### set:
 ``` python
 
-# call permission.Permission.
-_ = permission.Permission(
+# call permission.set.
+_ = permission.set(
     # the permission (int) (#1).
     permission=None,
     # the path (optional) (overwrites permission.path) (#2).
@@ -3218,8 +3148,8 @@ _ = permission.Permission(
 ##### check:
 ``` python
 
-# call permission.Permission.
-_ = permission.Permission(permission=None, sudo=False, silent=False, iterate=False, recursive=False, path=None)
+# call permission.check.
+_ = permission.check(permission=None, sudo=False, silent=False, iterate=False, recursive=False, path=None)
 
 ```
 
@@ -3237,15 +3167,15 @@ progress_loader = ProgressLoader(message, index=0, max=10, log_level=0)
 ##### next:
 ``` python
 
-# call progress_loader.ProgressLoader.
-_ = progress_loader.ProgressLoader(count=1, decimals=2)
+# call progress_loader.next.
+_ = progress_loader.next(count=1, decimals=2)
 
 ```
 ##### stop:
 ``` python
 
-# call progress_loader.ProgressLoader.
-_ = progress_loader.ProgressLoader(message=None, success=True, response=None)
+# call progress_loader.stop.
+_ = progress_loader.stop(message=None, success=True, response=None)
 
 ```
 
@@ -3272,96 +3202,96 @@ rsa = dev0s.encryption.RSA(
 ##### generate_keys:
 ``` python
 
-# call rsa.RSA.
-_ = rsa.RSA(log_level=0)
+# call rsa.generate_keys.
+_ = rsa.generate_keys(log_level=0)
 
 ```
 ##### load_keys:
 ``` python
 
-# call rsa.RSA.
-_ = rsa.RSA()
+# call rsa.load_keys.
+_ = rsa.load_keys()
 
 ```
 ##### load_public_key:
 ``` python
 
-# call rsa.RSA.
-_ = rsa.RSA()
+# call rsa.load_public_key.
+_ = rsa.load_public_key()
 
 ```
 ##### load_private_key:
 ``` python
 
-# call rsa.RSA.
-_ = rsa.RSA()
+# call rsa.load_private_key.
+_ = rsa.load_private_key()
 
 ```
 ##### edit_passphrase:
 ``` python
 
-# call rsa.RSA.
-_ = rsa.RSA(passphrase=None)
+# call rsa.edit_passphrase.
+_ = rsa.edit_passphrase(passphrase=None)
 
 ```
 ##### encrypt_string:
 ``` python
 
-# call rsa.RSA.
-_ = rsa.RSA(string, layers=1, decode=True)
+# call rsa.encrypt_string.
+_ = rsa.encrypt_string(string, layers=1, decode=True)
 
 ```
 ##### encrypt_file:
 ``` python
 
-# call rsa.RSA.
-_ = rsa.RSA(path, layers=1)
+# call rsa.encrypt_file.
+_ = rsa.encrypt_file(path, layers=1)
 
 ```
 ##### encrypt_directory:
 ``` python
 
-# call rsa.RSA.
-_ = rsa.RSA(path, recursive=False, layers=1)
+# call rsa.encrypt_directory.
+_ = rsa.encrypt_directory(path, recursive=False, layers=1)
 
 ```
 ##### decrypt_string:
 ``` python
 
-# call rsa.RSA.
-_ = rsa.RSA(string, layers=1, decode=True)
+# call rsa.decrypt_string.
+_ = rsa.decrypt_string(string, layers=1, decode=True)
 
 ```
 ##### decrypt_file:
 ``` python
 
-# call rsa.RSA.
-_ = rsa.RSA(path, layers=1)
+# call rsa.decrypt_file.
+_ = rsa.decrypt_file(path, layers=1)
 
 ```
 ##### decrypt_directory:
 ``` python
 
-# call rsa.RSA.
-_ = rsa.RSA(path, recursive=False, layers=1)
+# call rsa.decrypt_directory.
+_ = rsa.decrypt_directory(path, recursive=False, layers=1)
 
 ```
 
 #### Properties:
 ```python
 
-# the RSA property.
-RSA = rsa.RSA
+# the activated property.
+activated = rsa.activated
 ```
 ```python
 
-# the RSA property.
-RSA = rsa.RSA
+# the private key activated property.
+private_key_activated = rsa.private_key_activated
 ```
 ```python
 
-# the RSA property.
-RSA = rsa.RSA
+# the public key activated property.
+public_key_activated = rsa.public_key_activated
 ```
 
 ## Requests:
@@ -3378,15 +3308,15 @@ from dev0s import dev0s
 ##### encode:
 ``` python
 
-# call requests.Requests.
-_ = requests.Requests(data)
+# call requests.encode.
+_ = requests.encode(data)
 
 ```
 ##### get:
 ``` python
 
-# call requests.Requests.
-_ = requests.Requests(
+# call requests.get.
+_ = requests.get(
     # the url (str) (#1).
     url=None,
     # the sended post data (dict) (#2).
@@ -3410,8 +3340,8 @@ from dev0s import dev0s
 ##### success:
 ``` python
 
-# call response.Response.
-_ = response.Response(
+# call response.success.
+_ = response.success(
     # the message (must be param #1).
     message,
     # additional returnable functions (must be param #2).
@@ -3429,8 +3359,8 @@ _ = response.Response(
 ##### error:
 ``` python
 
-# call response.Response.
-_ = response.Response(
+# call response.error.
+_ = response.error(
     # the error message.
     error="",
     # log log level of the message (int).
@@ -3448,8 +3378,8 @@ _ = response.Response(
 ##### log:
 ``` python
 
-# call response.Response.
-_ = response.Response(
+# call response.log.
+_ = response.log(
     # option 1:
     # the message (#1 param).
     message=None,
@@ -3477,22 +3407,22 @@ _ = response.Response(
 ##### load_logs:
 ``` python
 
-# call response.Response.
-_ = response.Response(format="webserver", options=["webserver", "cli", "array", "string"])
+# call response.load_logs.
+_ = response.load_logs(format="webserver", options=["webserver", "cli", "array", "string"])
 
 ```
 ##### reset_logs:
 ``` python
 
-# call response.Response.
-_ = response.Response()
+# call response.reset_logs.
+_ = response.reset_logs()
 
 ```
 ##### serialize:
 ``` python
 
-# call response.Response.
-response = response.Response(
+# call response.serialize.
+response = response.serialize(
     # the response (#1) (dict) (str repr of dict) (ResponseObject) (generator) .
     response={},
     # init to response object.
@@ -3502,8 +3432,8 @@ response = response.Response(
 ##### response:
 ``` python
 
-# call response.Response.
-_ = response.Response(
+# call response.response.
+_ = response.response(
     # the blank response (dict, str, generator) (#1).
     response={
         "success":False,
@@ -3515,8 +3445,8 @@ _ = response.Response(
 ##### log_to_file:
 ``` python
 
-# call response.Response.
-_ = response.Response(message, raw=False)
+# call response.log_to_file.
+_ = response.log_to_file(message, raw=False)
 
 ```
 
@@ -3543,8 +3473,8 @@ response_object = ResponseObject(
 ##### clean:
 ``` python
 
-# call response_object.ResponseObject.
-_ = response_object.ResponseObject(
+# call response_object.clean.
+_ = response_object.clean(
     # the clean options, select * for all, options: [traceback].
     options=["*"],
     # serialize to ResponseObject (with serialize False the ResponseObject's values are not updated).
@@ -3554,22 +3484,22 @@ _ = response_object.ResponseObject(
 ##### assign:
 ``` python
 
-# call response_object.ResponseObject.
-_ = response_object.ResponseObject(dictionary)
+# call response_object.assign.
+_ = response_object.assign(dictionary)
 
 ```
 ##### crash:
 ``` python
 
-# call response_object.ResponseObject.
-_ = response_object.ResponseObject(error="ValueError", traceback=True, json=False, error_only=False)
+# call response_object.crash.
+_ = response_object.crash(error="ValueError", traceback=True, json=False, error_only=False)
 
 ```
 ##### unpack:
 ``` python
 
-# call response_object.ResponseObject.
-_ = response_object.ResponseObject(
+# call response_object.unpack.
+_ = response_object.unpack(
     # the key / keys / defaults parameter (#1).
     # str instance:
     #   unpack the str key
@@ -3583,92 +3513,92 @@ _ = response_object.ResponseObject(
 ##### remove:
 ``` python
 
-# call response_object.ResponseObject.
-_ = response_object.ResponseObject(keys=[], values=[], save=False)
+# call response_object.remove.
+_ = response_object.remove(keys=[], values=[], save=False)
 
 ```
 ##### iterate:
 ``` python
 
-# call response_object.ResponseObject.
-_ = response_object.ResponseObject(sorted=False, reversed=False)
+# call response_object.iterate.
+_ = response_object.iterate(sorted=False, reversed=False)
 
 ```
 ##### items:
 ``` python
 
-# call response_object.ResponseObject.
-_ = response_object.ResponseObject(sorted=False, reversed=False, dictionary=None)
+# call response_object.items.
+_ = response_object.items(sorted=False, reversed=False, dictionary=None)
 
 ```
 ##### keys:
 ``` python
 
-# call response_object.ResponseObject.
-_ = response_object.ResponseObject(sorted=False, reversed=False)
+# call response_object.keys.
+_ = response_object.keys(sorted=False, reversed=False)
 
 ```
 ##### values:
 ``` python
 
-# call response_object.ResponseObject.
-_ = response_object.ResponseObject(sorted=False, reversed=False, dictionary=None)
+# call response_object.values.
+_ = response_object.values(sorted=False, reversed=False, dictionary=None)
 
 ```
 ##### reversed:
 ``` python
 
-# call response_object.ResponseObject.
-_ = response_object.ResponseObject(dictionary=None)
+# call response_object.reversed.
+_ = response_object.reversed(dictionary=None)
 
 ```
 ##### sort:
 ``` python
 
-# call response_object.ResponseObject.
-_ = response_object.ResponseObject(alphabetical=True, ascending=False, reversed=False, dictionary=None)
+# call response_object.sort.
+_ = response_object.sort(alphabetical=True, ascending=False, reversed=False, dictionary=None)
 
 ```
 ##### dict:
 ``` python
 
-# call response_object.ResponseObject.
-_ = response_object.ResponseObject(sorted=False, reversed=False, json=False)
+# call response_object.dict.
+_ = response_object.dict(sorted=False, reversed=False, json=False)
 
 ```
 ##### json:
 ``` python
 
-# call response_object.ResponseObject.
-_ = response_object.ResponseObject(sorted=False, reversed=False, indent=4, dictionary=None, )
+# call response_object.json.
+_ = response_object.json(sorted=False, reversed=False, indent=4, dictionary=None, )
 
 ```
 ##### serialize:
 ``` python
 
-# call response_object.ResponseObject.
-_ = response_object.ResponseObject(sorted=False, reversed=False, json=False, dictionary=None)
+# call response_object.serialize.
+_ = response_object.serialize(sorted=False, reversed=False, json=False, dictionary=None)
 
 ```
 ##### instance:
 ``` python
 
-# call response_object.ResponseObject.
-_ = response_object.ResponseObject()
+# call response_object.instance.
+_ = response_object.instance()
 
 ```
 ##### raw:
 ``` python
 
-# call response_object.ResponseObject.
-_ = response_object.ResponseObject()
+# call response_object.raw.
+_ = response_object.raw()
 
 ```
 ##### response:
 ``` python
 
-# call response_object.ResponseObject.
-_ = response_object.ResponseObject()
+# call response_object.response.
+_ = response_object.response()
 
 ```
 
@@ -3692,8 +3622,8 @@ restapi = dev0s.requests.RestAPI(
 ##### request:
 ``` python
 
-# call restapi.RestAPI.
-_ = restapi.RestAPI(url="/", data={})
+# call restapi.request.
+_ = restapi.request(url="/", data={})
 
 ```
 
@@ -3734,64 +3664,64 @@ service = dev0s.system.Service(
 ##### create:
 ``` python
 
-# call service.Service.
-_ = service.Service()
+# call service.create.
+_ = service.create()
 
 ```
 ##### check:
 ``` python
 
-# call service.Service.
-_ = service.Service()
+# call service.check.
+_ = service.check()
 
 ```
 ##### delete:
 ``` python
 
-# call service.Service.
-_ = service.Service()
+# call service.delete.
+_ = service.delete()
 
 ```
 ##### start:
 ``` python
 
-# call service.Service.
-_ = service.Service()
+# call service.start.
+_ = service.start()
 
 ```
 ##### stop:
 ``` python
 
-# call service.Service.
-_ = service.Service()
+# call service.stop.
+_ = service.stop()
 
 ```
 ##### restart:
 ``` python
 
-# call service.Service.
-_ = service.Service()
+# call service.restart.
+_ = service.restart()
 
 ```
 ##### status:
 ``` python
 
-# call service.Service.
-_ = service.Service()
+# call service.status.
+_ = service.status()
 
 ```
 ##### reset_logs:
 ``` python
 
-# call service.Service.
-_ = service.Service()
+# call service.reset_logs.
+_ = service.reset_logs()
 
 ```
 ##### tail:
 ``` python
 
-# call service.Service.
-_ = service.Service(global_=False, debug=False)
+# call service.tail.
+_ = service.tail(global_=False, debug=False)
 
 ```
 
@@ -3822,15 +3752,15 @@ spawn = Spawn(
 ##### start:
 ``` python
 
-# call spawn.Spawn.
-_ = spawn.Spawn()
+# call spawn.start.
+_ = spawn.start()
 
 ```
 ##### expect:
 ``` python
 
-# call spawn.Spawn.
-_ = spawn.Spawn(
+# call spawn.expect.
+_ = spawn.expect(
     # the expected data parameter (#1).
     #    str instantce: expect a single identifier.
     #    list instance: expect one of the provided identifiers & return the found one if success.
@@ -3847,8 +3777,8 @@ _ = spawn.Spawn(
 ##### read:
 ``` python
 
-# call spawn.Spawn.
-_ = spawn.Spawn(
+# call spawn.read.
+_ = spawn.read(
     # with await False it reads only the printed output regardless the status & never throws timeout.
     wait=False,
     # the timeout, leave None for no timeout.
@@ -3863,15 +3793,15 @@ _ = spawn.Spawn(
 ##### kill:
 ``` python
 
-# call spawn.Spawn.
-_ = spawn.Spawn()
+# call spawn.kill.
+_ = spawn.kill()
 
 ```
 ##### wait:
 ``` python
 
-# call spawn.Spawn.
-_ = spawn.Spawn(
+# call spawn.wait.
+_ = spawn.wait(
     # the live boolean (bool) (prints live logs to console when enabled) (leave None to use spawn.log_level >= 1).
     live=None,
     sleeptime=1,
@@ -3882,36 +3812,36 @@ _ = spawn.Spawn(
 ##### crashed:
 ``` python
 
-# call spawn.Spawn.
-_ = spawn.Spawn()
+# call spawn.crashed.
+_ = spawn.crashed()
 
 ```
 
 #### Properties:
 ```python
 
-# the Spawn property.
-Spawn = spawn.Spawn
+# the expecting property.
+expecting = spawn.expecting
 ```
 ```python
 
-# the Spawn property.
-Spawn = spawn.Spawn
+# the running property.
+running = spawn.running
 ```
 ```python
 
-# the Spawn property.
-Spawn = spawn.Spawn
+# the exit status property.
+exit_status = spawn.exit_status
 ```
 ```python
 
-# the Spawn property.
-Spawn = spawn.Spawn
+# the output property.
+output = spawn.output
 ```
 ```python
 
-# the Spawn property.
-Spawn = spawn.Spawn
+# the pid property.
+pid = spawn.pid
 ```
 
 ## String:
@@ -3928,29 +3858,29 @@ string = String(string="")
 ##### is_numerical:
 ``` python
 
-# call string.String.
-_ = string.String()
+# call string.is_numerical.
+_ = string.is_numerical()
 
 ```
 ##### bash:
 ``` python
 
-# call string.String.
-_ = string.String()
+# call string.bash.
+_ = string.bash()
 
 ```
 ##### identifier:
 ``` python
 
-# call string.String.
-_ = string.String()
+# call string.identifier.
+_ = string.identifier()
 
 ```
 ##### variable_format:
 ``` python
 
-# call string.String.
-_ = string.String(
+# call string.variable_format.
+_ = string.variable_format(
     exceptions={
         "smart_card":"smartcard",
         "smart_cards":"smartcards" ,
@@ -3961,29 +3891,29 @@ _ = string.String(
 ##### class_format:
 ``` python
 
-# call string.String.
-_ = string.String()
+# call string.class_format.
+_ = string.class_format()
 
 ```
 ##### capitalized_scentence:
 ``` python
 
-# call string.String.
-_ = string.String()
+# call string.capitalized_scentence.
+_ = string.capitalized_scentence()
 
 ```
 ##### capitalized_word:
 ``` python
 
-# call string.String.
-_ = string.String()
+# call string.capitalized_word.
+_ = string.capitalized_word()
 
 ```
 ##### generate:
 ``` python
 
-# call string.String.
-_ = string.String(
+# call string.generate.
+_ = string.generate(
     # the length of the generated string.
     length=6,
     # include digits.
@@ -3997,176 +3927,176 @@ _ = string.String(
 ##### first_occurence:
 ``` python
 
-# call string.String.
-_ = string.String(charset=[" ", "\n"], reversed=False, string=None)
+# call string.first_occurence.
+_ = string.first_occurence(charset=[" ", "\n"], reversed=False, string=None)
 
 ```
 ##### before_after_first_occurence:
 ``` python
 
-# call string.String.
-_ = string.String(slicer=" ", include=True, include_before=False, include_after=False, string=None)
+# call string.before_after_first_occurence.
+_ = string.before_after_first_occurence(slicer=" ", include=True, include_before=False, include_after=False, string=None)
 
 ```
 ##### before_selected_after_first_occurence:
 ``` python
 
-# call string.String.
-_ = string.String(slicer=" ", string=None)
+# call string.before_selected_after_first_occurence.
+_ = string.before_selected_after_first_occurence(slicer=" ", string=None)
 
 ```
 ##### before_after_last_occurence:
 ``` python
 
-# call string.String.
-_ = string.String(slicer=" ", include=True, include_before=False, include_after=False, string=None)
+# call string.before_after_last_occurence.
+_ = string.before_after_last_occurence(slicer=" ", include=True, include_before=False, include_after=False, string=None)
 
 ```
 ##### before_selected_after_last_occurence:
 ``` python
 
-# call string.String.
-_ = string.String(slicer=" ", string=None)
+# call string.before_selected_after_last_occurence.
+_ = string.before_selected_after_last_occurence(slicer=" ", string=None)
 
 ```
 ##### between:
 ``` python
 
-# call string.String.
-_ = string.String(identifiers=["{","}"], depth=1, include=True, string=None)
+# call string.between.
+_ = string.between(identifiers=["{","}"], depth=1, include=True, string=None)
 
 ```
 ##### increase_version:
 ``` python
 
-# call string.String.
-_ = string.String()
+# call string.increase_version.
+_ = string.increase_version()
 
 ```
 ##### slice_dict:
 ``` python
 
-# call string.String.
-_ = string.String(depth=1)
+# call string.slice_dict.
+_ = string.slice_dict(depth=1)
 
 ```
 ##### slice_array:
 ``` python
 
-# call string.String.
-_ = string.String(depth=1)
+# call string.slice_array.
+_ = string.slice_array(depth=1)
 
 ```
 ##### slice_tuple:
 ``` python
 
-# call string.String.
-_ = string.String(depth=1)
+# call string.slice_tuple.
+_ = string.slice_tuple(depth=1)
 
 ```
 ##### indent:
 ``` python
 
-# call string.String.
-_ = string.String(indent=4)
+# call string.indent.
+_ = string.indent(indent=4)
 
 ```
 ##### line_indent:
 ``` python
 
-# call string.String.
-_ = string.String(line="")
+# call string.line_indent.
+_ = string.line_indent(line="")
 
 ```
 ##### slice_indent:
 ``` python
 
-# call string.String.
-_ = string.String(indent=4, depth=1, string=None, remove_indent=True)
+# call string.slice_indent.
+_ = string.slice_indent(indent=4, depth=1, string=None, remove_indent=True)
 
 ```
 ##### first:
 ``` python
 
-# call string.String.
-_ = string.String(count)
+# call string.first.
+_ = string.first(count)
 
 ```
 ##### last:
 ``` python
 
-# call string.String.
-_ = string.String(count)
+# call string.last.
+_ = string.last(count)
 
 ```
 ##### remove_first:
 ``` python
 
-# call string.String.
-_ = string.String(count)
+# call string.remove_first.
+_ = string.remove_first(count)
 
 ```
 ##### remove_last:
 ``` python
 
-# call string.String.
-_ = string.String(count)
+# call string.remove_last.
+_ = string.remove_last(count)
 
 ```
 ##### split:
 ``` python
 
-# call string.String.
-_ = string.String(string)
+# call string.split.
+_ = string.split(string)
 
 ```
 ##### count:
 ``` python
 
-# call string.String.
-_ = string.String(string)
+# call string.count.
+_ = string.count(string)
 
 ```
 ##### replace:
 ``` python
 
-# call string.String.
-_ = string.String(from_, to_)
+# call string.replace.
+_ = string.replace(from_, to_)
 
 ```
 ##### lower:
 ``` python
 
-# call string.String.
-_ = string.String(string)
+# call string.lower.
+_ = string.lower(string)
 
 ```
 ##### upper:
 ``` python
 
-# call string.String.
-_ = string.String(string)
+# call string.upper.
+_ = string.upper(string)
 
 ```
 ##### instance:
 ``` python
 
-# call string.String.
-_ = string.String()
+# call string.instance.
+_ = string.instance()
 
 ```
 ##### assign:
 ``` python
 
-# call string.String.
-_ = string.String(string)
+# call string.assign.
+_ = string.assign(string)
 
 ```
 ##### raw:
 ``` python
 
-# call string.String.
-_ = string.String()
+# call string.raw.
+_ = string.raw()
 
 ```
 
@@ -4208,29 +4138,29 @@ thread = Thread(
 ##### run:
 ``` python
 
-# call thread.Thread.
-_ = thread.Thread()
+# call thread.run.
+_ = thread.run()
 
 ```
 ##### safe_start:
 ``` python
 
-# call thread.Thread.
-_ = thread.Thread(timeout=120, sleeptime=1)
+# call thread.safe_start.
+_ = thread.safe_start(timeout=120, sleeptime=1)
 
 ```
 ##### safe_stop:
 ``` python
 
-# call thread.Thread.
-_ = thread.Thread(timeout=120, sleeptime=1)
+# call thread.safe_stop.
+_ = thread.safe_stop(timeout=120, sleeptime=1)
 
 ```
 ##### send_stop:
 ``` python
 
-# call thread.Thread.
-_ = thread.Thread(
+# call thread.send_stop.
+_ = thread.send_stop(
     # all optional.
     # option 1: the success message.
     message=None, # (1)
@@ -4250,8 +4180,8 @@ _ = thread.Thread(
 ##### send_crash:
 ``` python
 
-# call thread.Thread.
-_ = thread.Thread(
+# call thread.send_crash.
+_ = thread.send_crash(
     # all optional.
     # option 1: the success message.
     message=None, # (1)
@@ -4271,8 +4201,8 @@ _ = thread.Thread(
 ##### log:
 ``` python
 
-# call thread.Thread.
-_ = thread.Thread(
+# call thread.log.
+_ = thread.log(
     # option 1:
     # the message (#1 param).
     message=None,
@@ -4301,28 +4231,28 @@ _ = thread.Thread(
 #### Properties:
 ```python
 
-# the Thread property.
-Thread = thread.Thread
+# the run permission property.
+run_permission = thread.run_permission
 ```
 ```python
 
-# the Thread property.
-Thread = thread.Thread
+# the running property.
+running = thread.running
 ```
 ```python
 
-# the Thread property.
-Thread = thread.Thread
+# the stopped property.
+stopped = thread.stopped
 ```
 ```python
 
-# the Thread property.
-Thread = thread.Thread
+# the crashed property.
+crashed = thread.crashed
 ```
 ```python
 
-# the Thread property.
-Thread = thread.Thread
+# the response property.
+response = thread.response
 ```
 
 ## Traceback:
@@ -4340,8 +4270,8 @@ traceback = Traceback(
 #### Properties:
 ```python
 
-# the Traceback property.
-Traceback = traceback.Traceback
+# the traceback property.
+traceback = traceback.traceback
 ```
 
 ## User:
@@ -4360,43 +4290,43 @@ user = dev0s.system.User(
 ##### create:
 ``` python
 
-# call user.User.
-_ = user.User()
+# call user.create.
+_ = user.create()
 
 ```
 ##### delete:
 ``` python
 
-# call user.User.
-_ = user.User()
+# call user.delete.
+_ = user.delete()
 
 ```
 ##### check:
 ``` python
 
-# call user.User.
-_ = user.User(silent=False)
+# call user.check.
+_ = user.check(silent=False)
 
 ```
 ##### set_password:
 ``` python
 
-# call user.User.
-_ = user.User(password=None)
+# call user.set_password.
+_ = user.set_password(password=None)
 
 ```
 ##### add_groups:
 ``` python
 
-# call user.User.
-_ = user.User(groups=[])
+# call user.add_groups.
+_ = user.add_groups(groups=[])
 
 ```
 ##### delete_groups:
 ``` python
 
-# call user.User.
-_ = user.User(groups=[])
+# call user.delete_groups.
+_ = user.delete_groups(groups=[])
 
 ```
 
@@ -4421,70 +4351,70 @@ webserver = dev0s.database.WebServer(
 ##### set:
 ``` python
 
-# call webserver.WebServer.
-_ = webserver.WebServer(group=None, id=None, data=None, timeout=3)
+# call webserver.set.
+_ = webserver.set(group=None, id=None, data=None, timeout=3)
 
 ```
 ##### get:
 ``` python
 
-# call webserver.WebServer.
-_ = webserver.WebServer(group=None, id=None, timeout=3)
+# call webserver.get.
+_ = webserver.get(group=None, id=None, timeout=3)
 
 ```
 ##### app:
 ``` python
 
-# call webserver.WebServer.
-_ = webserver.WebServer()
+# call webserver.app.
+_ = webserver.app()
 
 ```
 ##### run:
 ``` python
 
-# call webserver.WebServer.
-_ = webserver.WebServer()
+# call webserver.run.
+_ = webserver.run()
 
 ```
 ##### fork:
 ``` python
 
-# call webserver.WebServer.
-_ = webserver.WebServer(timeout=15, sleeptime=1)
+# call webserver.fork.
+_ = webserver.fork(timeout=15, sleeptime=1)
 
 ```
 ##### stop:
 ``` python
 
-# call webserver.WebServer.
-_ = webserver.WebServer()
+# call webserver.stop.
+_ = webserver.stop()
 
 ```
 ##### start_thread:
 ``` python
 
-# call webserver.WebServer.
-_ = webserver.WebServer(thread, group="daemons", id=None)
+# call webserver.start_thread.
+_ = webserver.start_thread(thread, group="daemons", id=None)
 
 ```
 ##### get_thread:
 ``` python
 
-# call webserver.WebServer.
-_ = webserver.WebServer(group="daemos", id=None)
+# call webserver.get_thread.
+_ = webserver.get_thread(group="daemos", id=None)
 
 ```
 
 #### Properties:
 ```python
 
-# the WebServer property.
-WebServer = webserver.WebServer
+# the token property.
+token = webserver.token
 ```
 ```python
 
-# the WebServer property.
-WebServer = webserver.WebServer
+# the running property.
+running = webserver.running
 ```
 
 ## Zip:
@@ -4501,8 +4431,8 @@ zip = Zip(path=None, check=False)
 ##### create:
 ``` python
 
-# call zip.Zip.
-_ = zip.Zip(
+# call zip.create.
+_ = zip.create(
     # source can either be a string or an array.
     source=None,
     # remove the source file(s).
@@ -4514,8 +4444,8 @@ _ = zip.Zip(
 ##### extract:
 ``` python
 
-# call zip.Zip.
-_ = zip.Zip(
+# call zip.extract.
+_ = zip.extract(
     # the base extract directory.
     base=None,
     # remove the zip after extraction.
@@ -4527,15 +4457,15 @@ _ = zip.Zip(
 ##### instance:
 ``` python
 
-# call zip.Zip.
-_ = zip.Zip()
+# call zip.instance.
+_ = zip.instance()
 
 ```
 ##### raw:
 ``` python
 
-# call zip.Zip.
-_ = zip.Zip()
+# call zip.raw.
+_ = zip.raw()
 
 ```
 

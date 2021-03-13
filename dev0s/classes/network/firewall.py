@@ -5,17 +5,16 @@
 from dev0s.classes.config import *
 from dev0s.classes.response import response as _response_
 from dev0s.classes import code
-from dev0s.classes.code.docs import Docs
 
 # the firewall class.
 class FireWall(object):
 	def __init__(self):	
 		
 		# docs.
-		Docs.__init__(self,
-			initialized=True,
-			module="dev0s.network.firewall", 
-			notes=[], )
+		DOCS = {
+			"module":"dev0s.network.firewall", 
+			"initialized":True,
+			"description":[], }
 
 		#
 	def enable(self):

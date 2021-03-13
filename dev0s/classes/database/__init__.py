@@ -20,10 +20,10 @@ class Database(Traceback):
 	):
 		
 		# docs.
-		Docs.__init__(self,
-			initialized=False,
-			module="dev0s.database.Database", 
-			notes=[], )
+		DOCS = {
+			"module":"dev0s.database.Database", 
+			"initialized":False,
+			"description":[], }
 
 		# traceback.
 		Traceback.__init__(self, traceback="Database")
@@ -180,10 +180,10 @@ class WebServer(Thread):
 	):
 
 		# docs.
-		Docs.__init__(self,
-			initialized=False,
-			module="dev0s.database.WebServer", 
-			notes=[], )
+		DOCS = {
+			"module":"dev0s.database.WebServer", 
+			"initialized":False,
+			"description":[], }
 
 		# defaults.
 		Thread.__init__(self)

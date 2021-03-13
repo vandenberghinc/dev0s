@@ -42,10 +42,10 @@ class Service(Object):
 	):	
 
 		# docs.
-		Docs.__init__(self,
-			initialized=False,
-			module="dev0s.system.Service", 
-			notes=[], )
+		DOCS = {
+			"module":"dev0s.system.Service", 
+			"initialized":False,
+			"description":[], }
 
 		# defaults.
 		Object.__init__(self, traceback=traceback)

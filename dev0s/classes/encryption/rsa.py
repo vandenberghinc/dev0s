@@ -7,7 +7,6 @@ from dev0s.classes.response import response as _response_
 from dev0s.classes.defaults.objects import *
 from dev0s.classes import utils
 from dev0s.classes import console
-from dev0s.classes.code.docs import Docs
 
 # new imports.
 import zlib, base64, binascii, glob
@@ -32,10 +31,10 @@ class RSA(object):
 	):
 
 		# docs.
-		Docs.__init__(self,
-			initialized=False,
-			module="dev0s.encryption.RSA", 
-			notes=[], )
+		DOCS = {
+			"module":"dev0s.encryption.RSA", 
+			"initialized":False,
+			"description":[], }
 
 		# defaults.
 		self.passphrase = passphrase
@@ -531,10 +530,10 @@ class EncryptedDictionary(Dictionary):
 	):
 
 		# docs.
-		Docs.__init__(self,
-			initialized=False,
-			module="dev0s.encryption.EncryptedDictionary", 
-			notes=[], )
+		DOCS = {
+			"module":"dev0s.encryption.EncryptedDictionary", 
+			"initialized":False,
+			"description":[], }
 
 		# the dictionary object.
 		self.default = default
