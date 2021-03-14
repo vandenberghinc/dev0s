@@ -231,15 +231,15 @@ def execute(
 	elif spawn.exit_status not in [0]:
 
 		# await.
-		success = False
-		for i in range(10):
-			if spawn.running: 
-				success = True
-				break
-			time.sleep(1)
-		if not success: 
-			if stop_loader and isinstance(loader, console.Loader): loader.stop(success=False)
-			return OutputObject(error=f"Unable to start {response_str}.", log_level=log_level)
+		#success = False
+		#for i in range(10):
+		#	if spawn.running: 
+		#		success = True
+		#		break
+		#	time.sleep(1)
+		#if not success: 
+		#	if stop_loader and isinstance(loader, console.Loader): loader.stop(success=False)
+		#	return OutputObject(error=f"Unable to start {response_str}.", log_level=log_level)
 
 		# str input.
 		if isinstance(input, (list, Array)):
