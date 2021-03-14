@@ -202,77 +202,70 @@ class Response(object):
 	
 	# init a response blank object.
 	def serialize(self, 
-		# the response (#1) (dict) (str repr of dict) (ResponseObject) (generator) .
-		response={}, 
-		# init to response object.
-		init=True,
+		# the variable to serialize.
+		variable={}, 
+		# serialize to json format.
+		json=False,
 	):
-
-		# check async generator.
-		if response.__class__.__name__ in ["generator"]:
-			raise ValueError("Not supported yet.")
-			return self.serialize(response=response.value, init=init)
-			#print("Converting generator.")
-			#print(f"Generator value ({response.value.__class__.__name__}) [{response.value}].")
-			#try:
-			#	value = next(response)
-			#except StopIteration as e:
-			#	return self.serialize(response=str(e), init=True)
-			#	#print(f"Generator output: [{e}].")
-			#	#response = self.serialize(response=str(e), init=True)
-			#	#print(f"Serialized generator output instance: [{response.__class__.__name__}].")
-			#	#return response
-			#except Eception as e:
-			#	return _response_.error(f"An error occured during the execution of generator [{response}], error: {e}")
-
-		# check ResponseObject.
-		elif response.__class__.__name__ in ["ResponseObject"]:
-			return response
-		
-		# check Output.
-		elif response.__class__.__name__ in ["OutputObject"]:
-			try:
-				return _response_.response()
-			except AttributeError:
-				return response
-
-		# dict / str.
-		elif response.__class__.__name__ in ["str", "String", "dict", "Dictionary"]:
-			if response.__class__.__name__ in ["str", "String"]:
+		if variable.__class__.__name__ in ["str", "String", "NoneType", "bool", "Boolean"]:
+			if str(variable) in ["true", "True", "TRUE", True]:
+				if json:
+					return "true"
+				else:
+					return True
+			elif str(variable) in ["false", "False", "FALSE", False]:
+				if json:
+					return "false"
+				else:
+					return False
+			elif str(variable) in ["null", "None", "Nan", None]:
+				if json:
+					return "null"
+				else:
+					return None
+			else:
+				integer = None
 				try:
-					try:
-						response = ast.literal_eval(response)
-					except:
-						response = json.loads(response)
-				except Exception as e: 
-					raise Exceptions.JsonDecodeError(f"Unable to parse a dictionary from [{response}], {e}.")
-			for key in list(response.keys()):
-				value = response[key]
-				no_dict = False
-				if isinstance(value, dict):
-					value = self.serialize(value)
-				elif value in [None, "None", "none", "null"]: value = None
-				elif value in [True, "True", "true", "TRUE"]: value = True
-				elif value in [False, "False", "false", "FALSE"]: value = False
-				elif isinstance(value, str):
-					if "." in value:
-						try: value = float(value)
-						except: a=1
+					if "." in str(variable):
+						integer = float(variable)
 					else:
-						try: value = int(value)
-						except: a=1
-				response[key] = value
-
-		# invalid.
+						integer = int(variable)
+				except:
+					integer = None
+				if integer != None:
+					return integer
+				else:
+					try:
+						variable = pypi_json.loads(variable)
+					except:
+						try:
+							variable = ast.literal_eval(variable)
+						except:
+							try:
+								variable = pypi_json.loads(String(variable).slice_dict())
+							except: 
+								return variable
+		elif isinstance(variable, ResponseObject):
+			variable = variable.dict()
+		elif variable.__class__.__name__ in ["OutputObject"]:
+			variable = variable.response().dict()
+		elif isinstance(variable, (dict,Dictionary, list, Array)):
+			variable = variable
 		else:
-			raise Exceptions.InvalidUsage(f"The parameter [response] must be [str, String, dict, Dictionary, generator] not [{response.__class__.__name__}].")
-
-		# return dict.
-		if init:
-			return ResponseObject(response)
+			return variable
+		if isinstance(variable, (dict, Dictionary)):
+			_variable_ = {}
+			for key, value in variable.items():
+				_variable_[key] = self.serialize(variable=value, json=json)
+			return _variable_
+		elif isinstance(variable, (list, Array)):
+			_variable_ = []
+			for value in variable:
+				_variable_.append(self.serialize(variable=value, json=json))
+			return _variable_
 		else:
-			return response
-
+			return variable
+		
 		#
 	def response(self, 
 		# the blank response (dict, str, generator) (#1).
@@ -283,7 +276,7 @@ class Response(object):
 		},
 	):
 		# serialize shortcut.
-		return self.serialize(response, init=True)
+		return self.ResponseObject(response)
 		#
 
 	# system functions.
@@ -504,62 +497,11 @@ class ResponseObject(object):
 	):
 
 		# serialize attributes to dict.
-		def serialize(attributes, all_formats_allowed=False):
-			if isinstance(attributes, (str,String)):
-				if str(attributes) in ["true", "True", "TRUE", True]:
-					return True
-				elif str(attributes) in ["false", "False", "FALSE", False]:
-					return False
-				elif str(attributes) in ["null", "None", "Nan", None]:
-					return None
-				else:
-					integer = None
-					try:
-						if "." in str(attributes):
-							integer = float(attributes)
-						else:
-							integer = int(attributes)
-					except:
-						integer = None
-					if integer != None:
-						return integer
-					else:
-						try:
-							attributes = pypi_json.loads(attributes)
-						except:
-							try:
-								attributes = ast.literal_eval(attributes)
-							except:
-								try:
-									attributes = pypi_json.loads(String(attributes).slice_dict())
-								except Exception as e:
-									if all_formats_allowed:
-										return attributes
-									else:
-										raise Exceptions.InvalidUsage(f"<ResponseObject.attributes>: unable to parse a dict from attributes [str] [{attributes}].")
-			elif isinstance(attributes, ResponseObject):
-				attributes = attributes.dict()
-			elif attributes.__class__.__name__ in ["OutputObject"]:
-				attributes = attributes.response().dict()
-			elif isinstance(attributes, (dict,Dictionary)):
-				attributes = attributes
-			else:
-				if all_formats_allowed:
-					return attributes
-				else:
-					raise Exceptions.InvalidUsage(f"<ResponseObject.attributes>: parameter [attributes] must be a [dict, dict in str format], not [{attributes.__class__.__name__}].")
-			if isinstance(attributes, (dict,Dictionary)):
-				_attributes_ = {}
-				for key, value in attributes.items():
-					_attributes_[key] = serialize(value, all_formats_allowed=True)
-				return _attributes_
-			else:
-				return attributes
-		print("RAW:")
-		print(attributes)
-		self.assign(serialize(attributes))
+		serialized = _response_.serialize(attributes)
+		if not isinstance(serialized, (dict, Dictionary)):
+			raise Exceptions.InvalidUsage(f"<ResponseObject.attributes>: parameter [attributes] must be a [dict, dict in str format], not [{attributes.__class__.__name__}].")
+		self.assign(serialized)
 		
-
 		# catch error so you can also init custom ResponseObjects.
 		try:
 
@@ -753,36 +695,16 @@ class ResponseObject(object):
 		if isinstance(dictionary, Dictionary):
 			dictionary = dictionary.dictionary
 		if sorted:
-			items = self.items(reversed=reversed, dictionary=self.sort(alphabetical=True, dictionary=dictionary))
+			d = {}
+			for key, value in self.items(reversed=reversed, dictionary=self.sort(alphabetical=True, dictionary=dictionary)):
+				d[key] = value
+			dictionary = d
 		else:
-			items = self.items(reversed=reversed, dictionary=dictionary)
-		dictionary = {}
-		for key, value in items:
-			value = Formats.denitialize(value)
-			if isinstance(value, (dict, Dictionary)):
-				value = self.serialize(json=json, sorted=sorted, reversed=reversed, dictionary=value)
-			elif isinstance(value, (list, Array)):
-				value = Array(value).serialize(json=json, sorted=sorted, reversed=reversed)
-			elif isinstance(value, object):
-				value = str(value)
-			elif isinstance(value, str) or isinstance(value, bool) or value == None:
-				if value in [True, "True", "True".lower()]: 
-					if json:
-						value = "true"
-					else: 
-						value = True
-				elif value in [False, "False", "False".lower()]: 
-					if json:
-						value = "false"
-					else: 
-						value = False
-				elif value in [None, "None", "None".lower()]: 
-					if json:
-						value = "null"
-					else: 
-						value = None
-			dictionary[key] = value
-		return dictionary
+			d = {}
+			for key, value in self.items(reversed=reversed, dictionary=dictionary):
+				d[key] = value
+			dictionary = d
+		return _response_.serialize(variable=dictionary, json=json)
 	# support default iteration.
 	def __iter__(self):
 		return iter(self.keys())
