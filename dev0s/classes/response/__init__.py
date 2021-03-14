@@ -512,19 +512,37 @@ class ResponseObject(object):
 			elif isinstance(attributes, (dict,Dictionary)):
 				attributes = attributes
 			elif isinstance(attributes, (str,String)):
-				try:
-					attributes = pypi_json.loads(attributes)
-				except:
+				if attributes in ["true", "True", "TRUE", True]:
+					attributes = True
+				elif attributes in ["false", "False", "FALSE", False]:
+					attributes = False
+				elif attributes in ["null", "None", "Nan", None]:
+					attributes = None
+				else:
+					integer = None
 					try:
-						attributes = ast.literal_eval(attributes)
+						if "." in attributes:
+							integer = float(attributes)
+						else:
+							integer = int(attributes)
 					except:
+						integer = None
+					if integer:
+						attributes = integer
+					else:
 						try:
-							attributes = pypi_json.loads(String(attributes).slice_dict())
-						except Exception as e:
-							if all_formats_allowed:
-								attributes = attributes
-							else:
-								raise Exceptions.InvalidUsage(f"<ResponseObject.attributes>: unable to parse a dict from attributes [str] [{attributes}].")
+							attributes = pypi_json.loads(attributes)
+						except:
+							try:
+								attributes = ast.literal_eval(attributes)
+							except:
+								try:
+									attributes = pypi_json.loads(String(attributes).slice_dict())
+								except Exception as e:
+									if all_formats_allowed:
+										attributes = attributes
+									else:
+										raise Exceptions.InvalidUsage(f"<ResponseObject.attributes>: unable to parse a dict from attributes [str] [{attributes}].")
 			else:
 				if all_formats_allowed:
 					attributes = attributes
