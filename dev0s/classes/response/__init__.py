@@ -527,7 +527,7 @@ class ResponseObject(object):
 							integer = int(attributes)
 					except:
 						integer = None
-					if integer:
+					if integer != None:
 						attributes = integer
 					else:
 						try:
