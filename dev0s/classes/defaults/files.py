@@ -2044,8 +2044,9 @@ class Formats():
 			for _ in range(int(self.timeout/self.sleeptime)):
 				l.append(self)
 			return iter(l)
-		def sleep(self):
-			time.sleep(int(self))
+		def sleep(self, chapters=1):
+			for _ in range(chapters):
+				time.sleep(int(self)/chapters)
 
 		#for interval in Interval(sleeptime=60, timeout=3600):
 		#	...
