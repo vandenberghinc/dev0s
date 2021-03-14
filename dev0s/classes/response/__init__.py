@@ -319,6 +319,14 @@ class Response(object):
 			
 		#
 
+	# quote & unqoute dict.
+	def quote(self, dictionary):
+		return urllib.parse.quote(json.dumps(dictionary))
+		#
+	def unquote(self, encoded):
+		return json.loads(urllib.parse.unquote(encoded))
+		#
+
 	#
 	
 # the parameters manager object class.
@@ -332,6 +340,7 @@ class Parameters(object):
 			"description":[], }
 
 		#
+	
 	# get request parameters.
 	def get(self, 
 		# the django request (1).
@@ -349,6 +358,8 @@ class Parameters(object):
 		
 		# single parameter.
 		if isinstance(parameters, (str,String)):
+
+			# get params & format.
 			parameters = str(parameters)
 			format = None
 			if ":" in parameters:
@@ -356,6 +367,8 @@ class Parameters(object):
 				while True:
 					if " " in format: format = format.replace(" ","")
 					else: break
+
+			# get variable.
 			if request.method in ["post", "POST"]:
 				variable = request.POST.get(parameters)
 			else:
@@ -365,16 +378,51 @@ class Parameters(object):
 					return variable, _response_.error(f"{traceback}: Define parameter: [{parameters}].")
 				else:
 					return variable, _response_.error(f"Define parameter: [{parameters}].")
-			elif format != None:
-				if format.lower() in ["str", "string"]: variable = str(variable)
-				elif format.lower() in ["int", "integer"]: variable = int(variable)
-				elif format.lower() in ["bool", "boolean"]: 
-					if variable in ["true", "True", "TRUE", True]: variable = True
-					else: variable = False
-				elif format.lower() in ["float", "double"]: variable = float(variable)
-				elif format.lower() in ["array", "list"]: variable = variable.split(",")
-				else:
-					raise ValueError(f"Unrecognized <dev0s.response.parameters.get> format: {format}.")
+
+			# handle format.
+			if format != None:
+				format_options = format.split(",")
+				found = False
+				for format in format_options:
+					if format.lower() in ["str", "string"]: 
+						try:
+							variable = str(variable)
+							found = True
+						except: a=1
+					elif format.lower() in ["int", "integer"]: 
+						try:
+							variable = int(variable)
+							found = True
+						except: a=1
+					elif format.lower() in ["bool", "boolean"]: 
+						try:
+							if variable in ["true", "True", "TRUE", True]: variable = True
+							else: variable = False
+							found = True
+						except: a=1
+					elif format.lower() in ["float", "double"]: 
+						try:
+							variable = float(variable)
+							found = True
+						except: a=1
+					elif format.lower() in ["array", "list", "dict", "dictionary"]: 
+						try:
+							variable = ast.literal_eval(variable)
+							found = True
+						except:
+							try:
+								variable = json.loads(variable)
+								found = True
+							except:
+								a=1
+					else:
+						raise Exceptions.InvalidUsage(f"Selected format [{format}] is not a valid format option.")
+					if found:
+						break
+				if not found:
+					return variable, _response_.error(f"Unable to parse excepted format [{Array(format_options).string(joiner=', ')}] from parameter [{parameters}:{variable}].")
+
+			# normalize.
 			if variable == "None": variable = None
 
 			# handler.

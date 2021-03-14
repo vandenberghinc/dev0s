@@ -1233,7 +1233,7 @@ class Formats():
 			else:
 				count = len(count)
 			removed = self.first(count)
-			self.string = self.string[:count]
+			self.string = self.string[count:]
 			return removed
 		def remove_last(self, count):
 			if isinstance(count, (int, float, Integer)):
@@ -1241,7 +1241,7 @@ class Formats():
 			else:
 				count = len(count)
 			removed = self.last(count)
-			self.string = self.string[count:]
+			self.string = self.string[:-count]
 			return removed
 			#
 

@@ -25,10 +25,20 @@ class Requests(object):
 		self.https = True
 		self.allow_redirects = True
 
-	# utils.
-	def encode(self, data):
-		return f"?{urllib.parse.urlencode(data)}"
-		#
+	# encode & decode data.
+	def encode(self, data={}):
+		_data_ = {}
+		for key,value in data.items():
+			if value.__class__.__name__ in ["OutputObject", "ResponseObject"]:
+				value = str(value.dict())
+			elif isinstance(value, (list,Array,dict,Dictionary)):
+				value = str(value)
+			_data_[key] = value
+		return f"?{urllib.parse.urlencode(_data_)}"
+	def quote(self, data={}):
+		return urllib.parse.quote(json.dumps(data))
+	def unquote(self, encoded, depth=30):
+		return json.loads(urllib.parse.unquote(encoded))
 
 	# get.
 	def get(self,
