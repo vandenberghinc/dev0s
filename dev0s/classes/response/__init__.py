@@ -506,28 +506,28 @@ class ResponseObject(object):
 		# serialize attributes to dict.
 		def serialize(attributes, all_formats_allowed=False):
 			if isinstance(attributes, ResponseObject):
-				return attributes.dict()
+				attributes = attributes.dict()
 			elif attributes.__class__.__name__ in ["OutputObject"]:
-				return attributes.response()
+				attributes = attributes.response().dict()
 			elif isinstance(attributes, (dict,Dictionary)):
-				return attributes
+				attributes = attributes
 			elif isinstance(attributes, (str,String)):
 				try:
-					return pypi_json.loads(attributes)
+					attributes = pypi_json.loads(attributes)
 				except:
 					try:
-						return ast.literal_eval(attributes)
+						attributes = ast.literal_eval(attributes)
 					except:
 						try:
-							return pypi_json.loads(String(attributes).slice_dict())
+							attributes = pypi_json.loads(String(attributes).slice_dict())
 						except Exception as e:
 							if all_formats_allowed:
-								return attributes
+								attributes = attributes
 							else:
 								raise Exceptions.InvalidUsage(f"<ResponseObject.attributes>: unable to parse a dict from attributes [str] [{attributes}].")
 			else:
 				if all_formats_allowed:
-					return attributes
+					attributes = attributes
 				else:
 					raise Exceptions.InvalidUsage(f"<ResponseObject.attributes>: parameter [attributes] must be a [dict, dict in str format], not [{attributes.__class__.__name__}].")
 			if isinstance(attributes, (dict,Dictionary)):
@@ -597,7 +597,7 @@ class ResponseObject(object):
 					del self[str(i)]
 				else:
 					del attributes[str(i)]
-			except KeyError: a=1
+			except: a=1
 		if serialize:
 			return self
 		else:
