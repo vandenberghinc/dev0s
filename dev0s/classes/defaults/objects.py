@@ -335,8 +335,10 @@ class Thread(Object, threading.Thread):
 		try:
 			response = self.__run__()
 		except AttributeError as e:  
-			missing = str(e).split("has no attribute '")[1].split("'")[0]
-			if missing == "__run__": raise Exceptions.InvalidUsage(f"Thread [{self.id}] is missing the main [__run__] function.")
+			if "has no attribute '" in str(e):
+				missing = str(e).split("has no attribute '")[1].split("'")[0]
+				if missing == "__run__": raise Exceptions.InvalidUsage(f"Thread [{self.id}] is missing the main [__run__] function.")
+				else: raise AttributeError(str(e))
 			else: raise AttributeError(str(e))
 		if isinstance(response, ResponseObject):
 			if response.success:
