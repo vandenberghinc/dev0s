@@ -220,11 +220,11 @@ Copyright: © Daan van den Bergh 2021. All rights reserved."""
     fi
 }
 
-# pull nas-server storage.
+# pull vserver storage.
 function pull-storage() {
     program="pull-storage"
     if [[ "$(argument-present --help $@)" == "true" ]]  || [[ "$(argument-present -h $@)" == "true" ]] ; then
-        echo """Description: safely pull nas-server storages over ssh.
+        echo """Description: safely pull vserver storages over ssh.
 Usage: $program sshalias storagename <options> 
 Modes:
     -h / --help         Show the documentaton.
@@ -288,17 +288,17 @@ Copyright: © Daan van den Bergh 2021. All rights reserved."""
                 no_exclude=""
             fi
             # pull.
-            pull $alias /nas-server/storages/$storagename ~/pulls/$storagename --safe $delete $forced $no_exclude
+            pull $alias /vserver/storages/$storagename ~/pulls/$storagename --safe $delete $forced $no_exclude
         fi
     done
 }
 
-# push nas-server storage.
+# push vserver storage.
 function push-storage() {
     # help.
     program="push-storage"
     if [[ "$(argument-present --help $@)" == "true" ]]  || [[ "$(argument-present -h $@)" == "true" ]] ; then
-        echo """Description: safely push nas-server storages over ssh.
+        echo """Description: safely push vserver storages over ssh.
 Usage: $program sshalias storagename <options> 
 Modes:
     -h / --help         Show the documentaton.
@@ -362,7 +362,7 @@ Copyright: © Daan van den Bergh 2021. All rights reserved."""
                 no_exclude=""
             fi
             # push.
-            push $alias ~/pulls/$storagename /nas-server/storages/$storagename --safe $delete $forced $no_exclude
+            push $alias ~/pulls/$storagename /vserver/storages/$storagename --safe $delete $forced $no_exclude
         fi
     done
 }

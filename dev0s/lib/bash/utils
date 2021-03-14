@@ -513,6 +513,16 @@ if [[ "$OS" == "linux" ]] ; then
         fi
     }
 
+    # renew dhcp lease.
+    function renew-dhcp() {
+        program="renew-dhcp"
+        interface=$1
+        if [[ "$(empty $interface)" == "true" ]] ; then
+            error "Error: Specify the interface parameter: $ $program eth0" $@ ; return
+        fi
+        sudo dhclient -r $interface && sudo dhclient $interface
+    }
+
 # macos only functions.
 elif [[ "$OS" == "macos" ]] ; then
 
