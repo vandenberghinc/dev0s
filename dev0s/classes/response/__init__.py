@@ -551,7 +551,11 @@ class ResponseObject(object):
 			if isinstance(attributes, (dict,Dictionary)):
 				_attributes_ = {}
 				for key, value in attributes.items():
-					_attributes_[key] = serialize(value, all_formats_allowed=True)
+					value = serialize(value, all_formats_allowed=True)
+					if value in ["true", "True", "TRUE", True]: value = True
+					elif value in ["false", "False", "FALSE", False]: value = False
+					elif value in ["null", "None", "Nan", None]: value = None
+					_attributes_[key] = value
 				return _attributes_
 			else:
 				return attributes
