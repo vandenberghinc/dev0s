@@ -163,7 +163,6 @@ class CLI(dev0s.cli.CLI):
 			dev0s.response.log(response=response, json=dev0s.defaults.options.json)
 			if not response.success: sys.exit(1)
 			response = encryption.encrypt_directory(input=input, output=output, remove=self.arguments.present("--remove"))
-			dev0s.response.log(response=response)
 			self.stop(response=response, json=dev0s.defaults.options.json)
 
 		# decrypt env.
@@ -207,36 +206,36 @@ class CLI(dev0s.cli.CLI):
 			# check if the user exists.
 			if self.arguments.present(['--check']):
 				response = user.check()
-				dev0s.response.log(response)
+				dev0s.response.log(response=response)
 				if response.success: print("User existance:",response["exists"])
 
 			# create a user.
 			elif self.arguments.present(['--create']):
 				response = user.create()
-				dev0s.response.log(response)
+				self.stop(response=response)
 
 			# delete a user.
 			elif self.arguments.present(['--delete']):
 				response = user.delete()
-				dev0s.response.log(response)
+				self.stop(response=response)
 
 			# set a users password.
 			elif self.arguments.present(['--password']):
 				password = self.get_password(retrieve=True, message=f"Enter a new password of user [{user.username}]:")
 				response = user.set_password(password=password)
-				dev0s.response.log(response)
+				self.stop(response=response)
 
 			# add the user to groups.
 			elif self.arguments.present(['--add-groups']):
 				groups = self.arguments.get("--delete-groups").split(",")
 				response = user.add_groups(groups=groups)
-				dev0s.response.log(response)
+				self.stop(response=response)
 
 			# delete the user from groups.
 			elif self.arguments.present(['--delete-groups']):
 				groups = self.arguments.get("--delete-groups").split(",")
 				response = user.add_groups(groups=groups)
-				dev0s.response.log(response)
+				self.stop(response=response)
 
 
 			# invalid.
@@ -252,24 +251,24 @@ class CLI(dev0s.cli.CLI):
 			# check if the group exists.
 			if self.arguments.present(['--check']):
 				response = group.check()
-				dev0s.response.log(response)
+				dev0s.response.log(response=response)
 				if response.success: 
 					print("Group existance:",response["exists"])
 
 			# create a group.
 			elif self.arguments.present(['--create']):
 				response = group.create()
-				dev0s.response.log(response)
+				self.stop(response=response)
 
 			# delete a group.
 			elif self.arguments.present(['--delete']):
 				response = group.delete()
-				dev0s.response.log(response)
+				self.stop(response=response)
 
 			# list the current users.
 			elif self.arguments.present(['--list-users']):
 				response = group.list_users()
-				dev0s.response.log(response)
+				self.stop(response=response)
 				if response.success: 
 					print(f"Users of group {group.name}:",response["users"])
 
@@ -277,19 +276,19 @@ class CLI(dev0s.cli.CLI):
 			elif self.arguments.present(['--add-users']):
 				users = self.arguments.get("--add-users").split(",")
 				response = group.add_users(users=users)
-				dev0s.response.log(response)
+				self.stop(response=response)
 
 			# delete users from the group.
 			elif self.arguments.present(['--delete-users']):
 				users = self.arguments.get("--delete-users").split(",")
 				response = group.delete_users(users=users)
-				dev0s.response.log(response)
+				self.stop(response=response)
 
 			# check if the specified users are enabled and remove all other users.
 			elif self.arguments.present(['--force-users']):
 				users = self.arguments.get("--force-users").split(",")
 				response = group.check_users(users=users)
-				dev0s.response.log(response)
+				self.stop(response=response)
 
 
 			# invalid.
