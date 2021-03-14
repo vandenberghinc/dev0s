@@ -542,10 +542,7 @@ class ResponseObject(object):
 			elif attributes.__class__.__name__ in ["OutputObject"]:
 				attributes = attributes.response().dict()
 			elif isinstance(attributes, (dict,Dictionary)):
-				if isinstance(attributes, Dictionary):
-					attributes = attributes.dictionary
-				else:
-					attributes = attributes
+				attributes = attributes
 			else:
 				if all_formats_allowed:
 					return attributes
@@ -558,6 +555,8 @@ class ResponseObject(object):
 				return _attributes_
 			else:
 				return attributes
+		print("RAW:")
+		print(attributes)
 		self.assign(serialize(attributes))
 		
 
