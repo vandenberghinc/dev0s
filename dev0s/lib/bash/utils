@@ -323,7 +323,6 @@ function python-alias() {
 }
 
 # activate dev0s env.
-#DEVOS_LIB=$(clean-path $(get-argument --lib $@))
 function activate-dev0s-env() {
     import-bash $(clean-path $DEVOS_LIB/bash/env) --lib $DEVOS_LIB
 }

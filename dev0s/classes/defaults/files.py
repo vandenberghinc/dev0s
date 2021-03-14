@@ -2043,7 +2043,7 @@ class Formats():
 			l = []
 			for _ in range(int(self.timeout/self.sleeptime)):
 				l.append(self)
-			return l
+			return iter(l)
 		def sleep(self):
 			time.sleep(int(self))
 
