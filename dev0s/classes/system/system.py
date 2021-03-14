@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # imports.
-from dev0s.classes.files import *
+from dev0s.classes.defaults.files import *
 from dev0s.classes.response import response as _response_
 from dev0s.classes import code
 from dev0s.classes.defaults.defaults import defaults
