@@ -503,23 +503,42 @@ class ResponseObject(object):
 		},
 	):
 
-		# check self instance.
-		if isinstance(attributes, ResponseObject):
-			attributes = attributes.dict()
-		elif attributes.__class__.__name__ in ["OutputObject"]:
-			attributes = attributes.response()
-		elif isinstance(attributes, (str,String)):
+		# serialize attributes to dict.
+		def serialize(attributes, all_formats_allowed=False):
+			if isinstance(attributes, ResponseObject):
+				return attributes.dict()
+			elif attributes.__class__.__name__ in ["OutputObject"]:
+				return attributes.response()
+			elif isinstance(attributes, (dict,Dictionary)):
+				return attributes
+			elif isinstance(attributes, (str,String)):
 				try:
-					self.assign(pypi_json.loads(attributes))
+					return pypi_json.loads(attributes)
 				except:
 					try:
-						self.assign(ast.literal_eval(attributes))
+						return ast.literal_eval(attributes)
 					except:
-						self.assign(pypi_json.loads(String(attributes).slice_dict()))
-		elif isinstance(attributes, (dict,Dictionary)):
-			self.assign(attributes)
-		else:
-			raise Exceptions.InvalidUsage(f"<ResponseObject.attributes>: parameter [attributes] must be a [dict, dict in str format], not [{attributes.__class__.__name__}].")
+						try:
+							return pypi_json.loads(String(attributes).slice_dict())
+						except Exception as e:
+							if all_formats_allowed:
+								return attributes
+							else:
+								raise Exceptions.InvalidUsage(f"<ResponseObject.attributes>: unable to parse a dict from attributes [str] [{attributes}].")
+			else:
+				if all_formats_allowed:
+					return attributes
+				else:
+					raise Exceptions.InvalidUsage(f"<ResponseObject.attributes>: parameter [attributes] must be a [dict, dict in str format], not [{attributes.__class__.__name__}].")
+			if isinstance(attributes, (dict,Dictionary)):
+				_attributes_ = {}
+				for key, value in attributes.items():
+					_attributes_[key] = serialize(value, all_formats_allowed=True)
+				return _attributes_
+			else:
+				return attributes
+		self.assign(serialize(attributes))
+		
 
 		# catch error so you can also init custom ResponseObjects.
 		try:
