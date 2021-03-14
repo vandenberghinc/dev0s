@@ -506,16 +506,16 @@ class ResponseObject(object):
 		# serialize attributes to dict.
 		def serialize(attributes, all_formats_allowed=False):
 			if isinstance(attributes, (str,String)):
-				if attributes == "True" or attributes in ["true", "True", "TRUE", True]:
+				if str(attributes) in ["true", "True", "TRUE", True]:
 					return True
-				elif attributes == "True" or attributes in ["false", "False", "FALSE", False]:
+				elif str(attributes) in ["false", "False", "FALSE", False]:
 					return False
-				elif attributes == "True" or attributes in ["null", "None", "Nan", None]:
+				elif str(attributes) in ["null", "None", "Nan", None]:
 					return None
 				else:
 					integer = None
 					try:
-						if "." in attributes:
+						if "." in str(attributes):
 							integer = float(attributes)
 						else:
 							integer = int(attributes)
