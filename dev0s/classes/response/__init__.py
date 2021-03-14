@@ -505,60 +505,12 @@ class ResponseObject(object):
 
 		# serialize attributes to dict.
 		def serialize(attributes, all_formats_allowed=False):
-			if isinstance(attributes, ResponseObject):
-				attributes = attributes.dict()
-			elif attributes.__class__.__name__ in ["OutputObject"]:
-				attributes = attributes.response().dict()
-			elif isinstance(attributes, (dict,Dictionary)):
-				attributes = attributes
-			elif isinstance(attributes, (str,String)):
-				if attributes in ["true", "True", "TRUE", True]:
-					attributes = True
-				elif attributes in ["false", "False", "FALSE", False]:
-					attributes = False
-				elif attributes in ["null", "None", "Nan", None]:
-					attributes = None
-				else:
-					integer = None
-					try:
-						if "." in attributes:
-							integer = float(attributes)
-						else:
-							integer = int(attributes)
-					except:
-						integer = None
-					if integer != None:
-						attributes = integer
-					else:
-						try:
-							attributes = pypi_json.loads(attributes)
-						except:
-							try:
-								attributes = ast.literal_eval(attributes)
-							except:
-								try:
-									attributes = pypi_json.loads(String(attributes).slice_dict())
-								except Exception as e:
-									if all_formats_allowed:
-										attributes = attributes
-									else:
-										raise Exceptions.InvalidUsage(f"<ResponseObject.attributes>: unable to parse a dict from attributes [str] [{attributes}].")
-			else:
-				if all_formats_allowed:
-					attributes = attributes
-				else:
-					raise Exceptions.InvalidUsage(f"<ResponseObject.attributes>: parameter [attributes] must be a [dict, dict in str format], not [{attributes.__class__.__name__}].")
-			if isinstance(attributes, (dict,Dictionary)):
-				_attributes_ = {}
-				for key, value in attributes.items():
-					_attributes_[key] = serialize(value, all_formats_allowed=True)
-				return _attributes_
-			else:
-				if attributes in ["true", "True", "TRUE", True]:
+			if isinstance(attributes, (str,String)):
+				if attributes == "True" or attributes in ["true", "True", "TRUE", True]:
 					return True
-				elif attributes in ["false", "False", "FALSE", False]:
+				elif attributes == "True" or attributes in ["false", "False", "FALSE", False]:
 					return False
-				elif attributes in ["null", "None", "Nan", None]:
+				elif attributes == "True" or attributes in ["null", "None", "Nan", None]:
 					return None
 				else:
 					integer = None
@@ -572,7 +524,40 @@ class ResponseObject(object):
 					if integer != None:
 						return integer
 					else:
-						return attributes
+						try:
+							attributes = pypi_json.loads(attributes)
+						except:
+							try:
+								attributes = ast.literal_eval(attributes)
+							except:
+								try:
+									attributes = pypi_json.loads(String(attributes).slice_dict())
+								except Exception as e:
+									if all_formats_allowed:
+										return attributes
+									else:
+										raise Exceptions.InvalidUsage(f"<ResponseObject.attributes>: unable to parse a dict from attributes [str] [{attributes}].")
+			elif isinstance(attributes, ResponseObject):
+				attributes = attributes.dict()
+			elif attributes.__class__.__name__ in ["OutputObject"]:
+				attributes = attributes.response().dict()
+			elif isinstance(attributes, (dict,Dictionary)):
+				if isinstance(attributes, Dictionary):
+					attributes = attributes.dictionary
+				else:
+					attributes = attributes
+			else:
+				if all_formats_allowed:
+					return attributes
+				else:
+					raise Exceptions.InvalidUsage(f"<ResponseObject.attributes>: parameter [attributes] must be a [dict, dict in str format], not [{attributes.__class__.__name__}].")
+			if isinstance(attributes, (dict,Dictionary)):
+				_attributes_ = {}
+				for key, value in attributes.items():
+					_attributes_[key] = serialize(value, all_formats_allowed=True)
+				return _attributes_
+			else:
+				return attributes
 		self.assign(serialize(attributes))
 		
 
