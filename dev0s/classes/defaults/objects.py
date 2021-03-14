@@ -424,7 +424,7 @@ class Thread(Object, threading.Thread):
 				msg = response["error"]
 		#else:
 		#	raise Exceptions.InvalidUsage("Define one of the following parameters: [message:str, error:str, response:ResponseObject].")
-		self.__status__ = "stopping"
+		self.__status__ = "stopped"
 		if msg != None and log_level >= required_log_level or save:
 			_response_.log(response=self.__response__, save=save, log_level=log_level, required_log_level=required_log_level)
 		return self.__response__
@@ -526,7 +526,7 @@ class Thread(Object, threading.Thread):
 		return self.__status__ in ["running"]
 	@property
 	def running(self):
-		return self.__status__ in ["running", "stopping"]
+		return self.__status__ in ["running"]
 	@property
 	def stopped(self):
 		return self.__status__ in ["stopped"]
