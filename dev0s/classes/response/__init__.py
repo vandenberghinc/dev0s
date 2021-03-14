@@ -251,6 +251,8 @@ class Response(object):
 			variable = variable.response().dict()
 		elif isinstance(variable, (dict,Dictionary, list, Array)):
 			variable = variable
+		elif json and not isinstance(variable, (Dictionary)) and isinstance(variable, object):
+			return str(variable)
 		else:
 			return variable
 		if isinstance(variable, (dict, Dictionary)):
@@ -671,7 +673,7 @@ class ResponseObject(object):
 	# dump json string.
 	def json(self, sorted=False, reversed=False, indent=4, dictionary=None, ):
 		if dictionary == None: dictionary = self.dict()
-		return json.dumps(self.serialize(json=False, sorted=sorted, reversed=reversed, dictionary=dictionary), indent=indent).replace(': "False"', ': false').replace(': "True"', ': true').replace(': "None"', ': null')
+		return json.dumps(self.serialize(json=True, sorted=sorted, reversed=reversed, dictionary=dictionary), indent=indent).replace(': "False"', ': false').replace(': "True"', ': true').replace(': "None"', ': null')
 	# serialize dict.
 	def serialize(self, sorted=False, reversed=False, json=False, dictionary=None):
 		if dictionary == None: dictionary = self.dict()
