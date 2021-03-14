@@ -234,15 +234,15 @@ Options:
     --no-exclude        Do not exluce any files.
 Notes:
     - Pass localhost as alias parameter to sync within the local system.
-    - Define environment variable NAS_SERVER_CLIENT to set a default alias, storagename then becomes number 1 parameter.
+    - Define environment variable VSERVER_CLIENT to set a default alias, storagename then becomes number 1 parameter.
 Author: Daan van den Bergh. 
 Copyright: © Daan van den Bergh 2021. All rights reserved."""
         return
     fi
     # by env variable alias.
-    #if [[ "$NAS_SERVER_CLIENT" != "" ]] ; then
+    #if [[ "$VSERVER_CLIENT" != "" ]] ; then
     #    if [[ ! "$2" =~ "--" ]] ; then
-    #        alias=$NAS_SERVER_CLIENT
+    #        alias=$VSERVER_CLIENT
     #        storagename=$1
     #        if [[ "$storagename" == "" ]] ; then
     #            error "Error: Specify the storage name (#1) parameter: $ $program mystorage" $@ ; return
@@ -308,15 +308,15 @@ Options:
     --no-exclude        Do not exluce any files.
 Notes:
     - Pass localhost as alias parameter to sync within the local system.
-    - Define environment variable NAS_SERVER_CLIENT to set a default alias, storagename then becomes number 1 parameter.
+    - Define environment variable VSERVER_CLIENT to set a default alias, storagename then becomes number 1 parameter.
 Author: Daan van den Bergh. 
 Copyright: © Daan van den Bergh 2021. All rights reserved."""
         return
     fi
     # by env variable alias.
-    #if [[ "$NAS_SERVER_CLIENT" != "" ]] ; then
+    #if [[ "$VSERVER_CLIENT" != "" ]] ; then
     #    if [[ ! "$2" =~ "--" ]] ; then
-    #        alias=$NAS_SERVER_CLIENT
+    #        alias=$VSERVER_CLIENT
     #        storagename=$1
     #        if [[ "$storagename" == "" ]] ; then
     #            error "Error: Specify the storage name (#1) parameter: $ $program mystorage" $@ ; return
