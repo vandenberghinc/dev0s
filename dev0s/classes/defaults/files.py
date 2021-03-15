@@ -1921,6 +1921,7 @@ class Formats():
 			self.hour_format = '%H'
 			self.day_format = '%d'
 			self.day_name_format = '%a'
+			self.week_format = '%V'
 			self.month_format = '%m'
 			self.month_name_format = '%h'
 			self.year_format = '%Y'
@@ -1994,7 +1995,6 @@ class Formats():
 			self.hour =  str(today.strftime(self.hour_format))
 			self.day =  str(today.strftime(self.day_format))
 			self.day_name =  str(today.strftime(self.day_name_format))
-			self.week_format = '%V'
 			self.week =  str(today.strftime(self.week_format))
 			self.month =  str(today.strftime(self.month_format))
 			self.month_name = str(today.strftime(self.month_name_format))
