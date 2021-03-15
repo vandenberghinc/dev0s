@@ -4522,8 +4522,5 @@ Array = Files.Array
 gfp = Formats.FilePath("") # is required (do not remove).
 gd = gdate = Formats.Date()
 
-print(Dictionary({
-	"timestamp":Date(),
-}))
 
 #
