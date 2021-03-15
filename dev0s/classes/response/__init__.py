@@ -179,15 +179,18 @@ class Response(object):
 
 		#
 	def load_logs(self, format="webserver", options=["webserver", "cli", "array", "string"]):
+		if self.log_file == None:
+			return self.error("Define the dev0s.response.log_file attribute.")
+		if not Files.exists(self.log_file): Files.create(self.log_file)
 		try:
-			logs = File(str(self.log_file), load=True, blank="").data
-		except:
-			return self.error("Failed to load the logs.")
+			logs = Files.load(self.log_file)
+		except Exception as e:
+			return self.error(f"Failed to load the logs, error: {e}.")
 		if format == "webserver":
 			while True:
 				if "<!DOCTYPE html>" in logs:
 					old = str(logs)
-					logs = logs.replace(String(logs).between(["<!DOCTYPE html>", "</html>"], depth=1), "")
+					logs = String(logs).replace_between(["<!DOCTYPE html>", "</html>"], " *** HTML CODE ****")
 					if logs == old:
 						return self.error("Unable remove the html code from the logs.")
 				else: break
@@ -203,7 +206,7 @@ class Response(object):
 
 		return self.success("Succesfully loaded the logs.", {"logs":logs})
 	def reset_logs(self, format="webserver", options=["webserver", "cli", "array", "string"]):
-		Formats.File(str(self.log_file)).save(f"Resetted log file.\n")
+		Files.save(self.log_file, f"Resetted log file.\n")
 		response = self.load_logs(format=format)
 		if not response.success:  return self.error(f"Failed to load the logs after restting, error: {response.error}")
 		return self.success("Succesfully resetted the logs.", {

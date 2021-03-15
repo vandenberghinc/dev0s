@@ -1095,20 +1095,80 @@ class Formats():
 		# get the first text between an 2 string identifiers [start,end] by depth.
 		# identifiers must be parameter number 1.
 		def between(self, identifiers=["{","}"], depth=1, include=True, string=None):
+
+			# vars.
 			if string == None: string = self.string
-			s, open, opened = "", 0, False
+			keep_last = [len(identifiers[0]), len(identifiers[1])]
+			last = ["", ""]
+			unadded = ""
+			s, open, opened, first_open = "", 0, False, False
+
+			# iterate.
 			for i in string:
-				if i == identifiers[0]:
+
+				# set last & unadded.
+				unadded += i
+				last[0] += i
+				last[1] += i
+				if len(last[0]) > keep_last[0]:
+					last[0] = str(String(last[0]).remove_first(1))
+				if len(last[1]) > keep_last[1]:
+					last[1] = str(String(last[1]).remove_first(1))
+
+				# check ids.
+				if last[0] == identifiers[0]:
 					open += 1
-				elif i == identifiers[1]:
+					first_open = True
+				elif last[1] == identifiers[1]:
 					open -= 1
 				if open >= depth:
-					if include or open == depth: s += i
+					if include or open == depth: 
+						if include and first_open:
+							s += identifiers[0]
+							unadded = ""
+							first_open = False
+						else:
+							s += unadded
+							unadded = ""
 					opened = True
 				if opened and open < depth:
-					if include: s += i
+					if include: 
+						s += unadded
+						unadded = ""
 					break
+
+			# remainders.
+			if unadded != "" and opened and open < depth:
+				if include: 
+					s += unadded
+					unadded = ""
+				
+			# handler.
 			return Formats.String(s)
+
+			#
+		# get the text with betwee & replace the inside between str with a new str.
+		def replace_between(self, 
+			# the between identifiers (list) (#1).
+			identifiers=["{","}"], 
+			# the new string (str) (#2).
+			to="", 
+			# the identifiers depth.
+			depth=1, 
+			# the optional string.
+			string=None,
+		):
+			update = False
+			if string == None: 
+				update = True
+				string = self.string
+			sliced = self.between(identifiers, depth=depth, include=True, string=string)
+			string = string.replace(str(sliced), to)
+			if update:
+				self.string = string
+			return string
+
+			#
 		# increase version.
 		def increase_version(self):
 
@@ -1234,7 +1294,7 @@ class Formats():
 				count = len(count)
 			removed = self.first(count)
 			self.string = self.string[count:]
-			return removed
+			return self.string
 		def remove_last(self, count):
 			if isinstance(count, (int, float, Integer)):
 				count = int(count)
@@ -1242,7 +1302,7 @@ class Formats():
 				count = len(count)
 			removed = self.last(count)
 			self.string = self.string[:-count]
-			return removed
+			return self.string
 			#
 
 		# support default str functions.
