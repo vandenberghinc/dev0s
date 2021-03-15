@@ -2018,7 +2018,7 @@ class Formats():
 				comparison_format = format
 			comparison = self.to_seconds(comparison, format=comparison_format)
 			if format == None: 
-				current_format = self.parse_format(comparison)
+				current_format = self.parse_format(current)
 				if current_format == None: 
 					raise Exceptions.ParseError(f"Unable to parse the date format from current [{current}].")
 			else:
