@@ -165,8 +165,13 @@ class Service(Object):
 
 		#
 	# control functions.
-	def start(self):
+	def start(self, log_level=dev0s.defaults.options.log_level):
 		
+		# loader.
+		loader = None
+		if log_level >= 0:
+			loader = Loader(f"Starting {self.id}")
+
 		# launchd.
 		if defaults.vars.os in ["macos"]:
 			command = ""
@@ -174,10 +179,14 @@ class Service(Object):
 				command += f"sudo launchctl start {i} &&"
 			command = command[:-3]
 			output = code.execute(command)
-			if not output.success: return output
+			if not output.success: 
+				if loader != None: loader.stop(success=False)
+				return output
 			elif output.output in ["", "\n"]:
+				if loader != None: loader.stop()
 				return _response_.success(f"Successfully started {self.id}.")
 			else:
+				if loader != None: loader.stop(success=False)
 				return _response_.error(f"Failed to start {self.id}.")
 
 		# systemd.
@@ -187,15 +196,24 @@ class Service(Object):
 				command += f"sudo systemctl start {i} &&"
 			command = command[:-3]
 			output = code.execute(command)
-			if not output.success: return output
+			if not output.success: 
+				if loader != None: loader.stop(success=False)
+				return output
 			elif output.output in ["", "\n"]:
+				if loader != None: loader.stop()
 				return _response_.success(f"Successfully started {self.id}.")
 			else:
+				if loader != None: loader.stop(success=False)
 				return _response_.error(f"Failed to start {self.id}.")
 
 		#
-	def stop(self):
+	def stop(self, log_level=dev0s.defaults.options.log_level):
 		
+		# loader.
+		loader = None
+		if log_level >= 0:
+			loader = Loader(f"Stopping {self.id}")
+
 		# launchd.
 		if defaults.vars.os in ["macos"]:
 			command = ""
@@ -203,10 +221,14 @@ class Service(Object):
 				command += f"sudo launchctl stop {i} &&"
 			command = command[:-3]
 			output = code.execute(command)
-			if not output.success: return output
+			if not output.success: 
+				if loader != None: loader.stop(success=False)
+				return output
 			elif output.output in ["", "\n"]:
+				if loader != None: loader.stop()
 				return _response_.success(f"Successfully stopped {self.id}")
 			else:
+				if loader != None: loader.stop(success=False)
 				return _response_.error(f"Failed to stop {self.id}")
 
 		# systemd.
@@ -216,21 +238,35 @@ class Service(Object):
 				command += f"sudo systemctl stop {i} &&"
 			command = command[:-3]
 			output = code.execute(command)
-			if not output.success: return output
+			if not output.success: 
+				if loader != None: loader.stop(success=False)
+				return output
 			elif output.output in ["", "\n"]:
+				if loader != None: loader.stop()
 				return _response_.success(f"Successfully stopped {self.id}")
 			else:
+				if loader != None: loader.stop(success=False)
 				return _response_.error(f"Failed to stop {self.id}")
 
 		#
-	def restart(self):
+	def restart(self, log_level=dev0s.defaults.options.log_level):
 		
+		# loader.
+		loader = None
+		if log_level >= 0:
+			loader = Loader(f"Restarting {self.id}")
+
 		# launchd.
 		if defaults.vars.os in ["macos"]:
 			response = self.stop()
-			if not response.success: return response
+			if not response.success: 
+				if loader != None: loader.stop(success=False)
+				return response
 			response = self.start()
-			if not response.success: return response
+			if not response.success: 
+				if loader != None: loader.stop(success=False)
+				return response
+			if loader != None: loader.stop()
 			return _response_.success(f"Successfully restarted {self.id}")
 
 		# systemd.	
@@ -240,20 +276,32 @@ class Service(Object):
 				command += f"sudo systemctl restart {i} &&"
 			command = command[:-3]
 			output = code.execute(command)
-			if not output.success: return output
+			if not output.success: 
+				if loader != None: loader.stop(success=False)
+				return output
 			elif output.output in ["", "\n"]:
+				if loader != None: loader.stop()
 				return _response_.success(f"Successfully restarted {self.id}")
 			else:
-				return _response_.error(f"Failed to restarted {self.id}")
+				if loader != None: loader.stop(success=False)
+				return _response_.error(f"Failed to restart {self.id}")
 
 		#
-	def status(self):
+	def status(self, log_level=dev0s.defaults.options.log_level):
 		
+		# loader.
+		loader = None
+		if log_level >= 0:
+			loader = Loader(f"Retrieving the status of {self.id}")
+
 		# launchd.
 		if defaults.vars.os in ["macos"]:
 			output = code.execute(f"sudo launchctl list | grep {self.id}")
-			if not output.success: return output
+			if not output.success: 
+				if loader != None: loader.stop(success=False)
+				return output
 			else:
+				if loader != None: loader.stop()
 				return _response_.success(f"Successfully retrieved the status of {self.id}",{
 					"status":output.output,
 				})
@@ -262,20 +310,29 @@ class Service(Object):
 		else:
 			#output = code.execute(f"sudo systemctl status {self.id}")
 			output = code.execute(f"sudo systemctl status {self.id} > /tmp/status && cat /tmp/status && rm -fr /tmp/status")
-			if not output.success: return output
+			if not output.success: 
+				if loader != None: loader.stop(success=False)
+				return output
 			else:
+				if loader != None: loader.stop()
 				return _response_.success(f"Successfully retrieved the status of {self.id}",{
 					"status":output.output,
 				})
 
 			#
-	def reset_logs(self):
+	def reset_logs(self, log_level=dev0s.defaults.options.log_level):
+
+		# loader.
+		loader = None
+		if log_level >= 0:
+			loader = Loader(f"Resetting the logs of {self.id}")
 
 		# execute.
 		if "logs" in options:
 			self.logs.save(data="")
 		if "errors" in options:
 			self.logs.save(data="")
+		if loader != None: loader.stop()
 		return _response_.success("Successfully resetted the logs.")
 
 		#
