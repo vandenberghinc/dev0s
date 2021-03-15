@@ -1908,8 +1908,9 @@ class Formats():
 		def __init__(self, 
 			# 
 			# Leave all parameters None to initialize a Date() object with the current date.
+			# Pass another Date object, str repr or timestamp in seconds to initialize a Date object from that timestamp.
 			#
-			# the date parameter (str, int, Date) (#1).
+			# the date parameter (str, int, Date) (optional) (#1).
 			date=None,
 		):
 
@@ -1929,6 +1930,15 @@ class Formats():
 			self.seconds_timestamp_format = '%d-%m-%y %H:%M.%S'
 			self.shell_seconds_timestamp_format = '%d_%m_%y-%H_%M.%S'
 			self.formats = [
+				# the order of this array is very important for the self.parse_format function.
+				# it must be in the largest string that will not be able to be parsed by other to the smallest.
+				# since striptime also works when you parse year_format on a a date_format since the year_format str is in the date_format str.
+				self.shell_seconds_timestamp_format,
+				self.seconds_timestamp_format,
+				self.shell_timestamp_format,
+				self.timestamp_format,
+				self.date_format,
+				self.year_format,
 				self.seconds_format,
 				#self.minute_format,
 				#self.hour_format,
@@ -1937,12 +1947,12 @@ class Formats():
 				#self.week_format,
 				#self.month_format,
 				#self.month_name_format,
-				self.year_format,
-				self.date_format,
-				self.timestamp_format,
-				self.shell_timestamp_format,
-				self.seconds_timestamp_format,
-				self.shell_seconds_timestamp_format,
+				
+				
+				
+				
+				
+				
 			]
 
 			# assign
@@ -1960,13 +1970,11 @@ class Formats():
 			#   option 1:
 			#     specify the timestamp to initialize a previous / future date (format required).
 			timestamp=None, 
-			#     required for parameter [timestamp].
+			#     the timestamp format (leave None to parse).
 			format=None,
 			#   options 2:
 			#     initialize by seconds.
 			seconds=None,
-
-
 		):
 
 			# defaults.
