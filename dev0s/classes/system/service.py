@@ -260,7 +260,8 @@ class Service(Object):
 
 		# systemd.
 		else:
-			output = code.execute(f"sudo systemctl status {self.id}")
+			#output = code.execute(f"sudo systemctl status {self.id}")
+			output = code.execute(f"sudo systemctl status {self.id} > /tmp/status && cat /tmp/status && rm -fr /tmp/status")
 			if not output.success: return output
 			else:
 				return _response_.success(f"Successfully retrieved the status of {self.id}",{

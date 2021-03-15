@@ -184,6 +184,13 @@ class Response(object):
 		except:
 			return self.error("Failed to load the logs.")
 		if format == "webserver":
+			while True:
+				if "<!DOCTYPE html>" in logs:
+					old = str(logs)
+					logs = logs.replace(String(logs).between(["<!DOCTYPE html>", "</html>"], depth=1), "")
+					if logs == old:
+						return self.error("Unable remove the html code from the logs.")
+				else: break
 			logs = logs.replace("\n", "<br>")
 		elif format == "cli":
 			a=1
@@ -195,8 +202,13 @@ class Response(object):
 			return self.error(f"Invalid format parameter [{format}], valid options: {options}.")
 
 		return self.success("Succesfully loaded the logs.", {"logs":logs})
-	def reset_logs(self):
+	def reset_logs(self, format="webserver", options=["webserver", "cli", "array", "string"]):
 		Formats.File(str(self.log_file)).save(f"Resetted log file.\n")
+		response = self.load_logs(format=format)
+		if not response.success:  return self.error(f"Failed to load the logs after restting, error: {response.error}")
+		return self.success("Succesfully resetted the logs.", {
+			"logs":response.logs,
+		})
 		
 		#
 	
