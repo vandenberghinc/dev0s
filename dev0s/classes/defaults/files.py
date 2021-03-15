@@ -2036,7 +2036,7 @@ class Formats():
 			if isinstance(string, Formats.Date):
 				string = str(string)
 			if format == None: 
-				format = self.parse_format(seconds)
+				format = self.parse_format(string)
 				if format == None: 
 					raise Exceptions.ParseError(f"Unable to parse the date format from string [{string}].")
 			seconds += 60*minutes
@@ -2050,7 +2050,7 @@ class Formats():
 			if isinstance(string, Formats.Date):
 				string = str(string)
 			if format == None: 
-				format = self.parse_format(seconds)
+				format = self.parse_format(string)
 				if format == None: 
 					raise Exceptions.ParseError(f"Unable to parse the date format from string [{string}].")
 			seconds += 60*minutes
@@ -2081,14 +2081,18 @@ class Formats():
 			return string.strftime(str(ouput))
 		def parse_format(self, string):
 			if isinstance(string, Formats.Date):
-				string = str(string)
+				return self.default_format
+			elif isinstance(string, (int,float,Integer)):
+				return self.seconds_format
 			formats = []
 			if "-" in str(string):
-				self.shell_seconds_timestamp_format,
-				self.seconds_timestamp_format,
-				self.shell_timestamp_format,
-				self.timestamp_format,
-				self.date_format,
+				formats += [
+					self.shell_seconds_timestamp_format,
+					self.seconds_timestamp_format,
+					self.shell_timestamp_format,
+					self.timestamp_format,
+					self.date_format,
+				]
 			else:
 				formats += [
 					self.year_format,
@@ -4501,5 +4505,7 @@ Array = Files.Array
 # initialized objects.
 gfp = Formats.FilePath("") # is required (do not remove).
 gd = gdate = Formats.Date()
+
+
 
 #
