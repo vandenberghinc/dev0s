@@ -3217,15 +3217,20 @@ class Files():
 			if dictionary_ == None: dictionary_ = self.dictionary
 			else: dictionary_ = self.dictionary
 			if dictionary == dictionary_: return dictionary
+			if dictionary_ == {}: return dictionary
 			for key, value in dictionary.items():
 				if key not in banned:
-					format = Formats.get(value, serialize=True)
-					if format in ["dict"]:
-						try: ldictionary_ = dictionary_[key]
-						except: ldictionary_ = {}
-						value = self.append(value, overwrite=overwrite, sum=sum, banned=banned, dictionary_=ldictionary_)
+					format = value.__class__.__name__
+					if format in ["dict", "Dictionary"]:
+						try: 
+							dictionary_[key]
+							do = True
+						except: 
+							do = False
+						if do:
+							value = self.append(value, overwrite=overwrite, sum=sum, banned=banned, dictionary_=dictionary_[key], save=False, update=False)
 					if "*" in sum or format in sum:
-						if format in ["str", "int", "float", "list"]:
+						if format in ["str", "int", "float", "list", "Array"]:
 							try: dictionary_[key] += value
 							except KeyError: dictionary_[key] = value
 						else: # already summed.
@@ -3514,7 +3519,7 @@ class Files():
 				dictionary = dictionary.dictionary
 			elif not isinstance(dictionary, self.__class__):
 				raise Exceptions.FormatError(f"Can not add object {self.__class__} & {dictionary.__class__}.")
-			return self.append(dictionary=dictionary, overwrite=["*"], update=False)
+			return self.append(dictionary=dictionary, overwrite=["*"], sum=[], update=False)
 		def __iadd__(self, dictionary):
 			if isinstance(dictionary, dict):
 				a=1
@@ -3522,7 +3527,7 @@ class Files():
 				dictionary = dictionary.dictionary
 			elif not isinstance(dictionary, self.__class__):
 				raise Exceptions.FormatError(f"Can not add object {self.__class__} & {dictionary.__class__}.")
-			self.append(dictionary=dictionary, overwrite=["*"], update=True)
+			self.append(dictionary=dictionary, overwrite=["*"], sum=[], update=True)
 			return self
 		def __sub__(self, dictionary):
 			if isinstance(dictionary, dict):
@@ -3557,7 +3562,7 @@ class Files():
 				dictionary = dictionary.dictionary
 			elif not isinstance(dictionary, self.__class__):
 				raise Exceptions.FormatError(f"Can not add object {self.__class__} & {dictionary.__class__}.")
-			return self.append(dictionary=dictionary, overwrite=["*"], update=False)
+			return self.append(dictionary=dictionary, sum=[], overwrite=["*"], update=False)
 		# support default iteration.
 		def __iter__(self):
 			return iter(self.dictionary)
