@@ -261,7 +261,7 @@ class Response(object):
 							try:
 								variable = pypi_json.loads(String(variable).slice_dict())
 							except: 
-								return variable
+								return str(variable)
 		elif isinstance(variable, ResponseObject):
 			variable = variable.dict()
 		elif variable.__class__.__name__ in ["OutputObject"]:
@@ -269,10 +269,8 @@ class Response(object):
 		elif isinstance(variable, (dict,Dictionary, list, Array)):
 			variable = variable
 		elif (json or safe) and not isinstance(variable, (Dictionary)) and isinstance(variable, object):
-			if isinstance(variable, (Integer)):
-				return variable.value	
-			elif isinstance(variable, (Boolean)):
-				return variable.bool
+			if isinstance(variable, (Integer,Boolean,Version,Bytes,Array,File,ResponseObject)):
+				return variable.raw()	
 			elif variable in [None, "None"]:
 				return None
 			else:
