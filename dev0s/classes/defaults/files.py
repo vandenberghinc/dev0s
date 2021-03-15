@@ -1909,7 +1909,7 @@ class Formats():
 			# 
 			# Leave all parameters None to initialize a Date() object with the current date.
 			#
-			# the date parameter (str, int, Date).
+			# the date parameter (str, int, Date) (#1).
 			date=None,
 		):
 
