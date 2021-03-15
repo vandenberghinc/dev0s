@@ -59,7 +59,7 @@ class Response(object):
 		self.log(message=response["message"], log_level=log_level, save=save, required_log_level=required_log_level)
 		if django: 
 			try:
-				response = JsonResponse(response.dict(), safe=False)
+				response = JsonResponse(response.dict(safe=True))
 			except AttributeError:
 				response = JsonResponse(response)
 		return response
@@ -87,7 +87,7 @@ class Response(object):
 			raise ValueError(response["error"])
 		if django: 
 			try:
-				response = JsonResponse(response.dict(), safe=False)
+				response = JsonResponse(response.dict(safe=True))
 			except AttributeError:
 				response = JsonResponse(response)
 		return response
@@ -221,6 +221,8 @@ class Response(object):
 		variable={}, 
 		# serialize to json format.
 		json=False,
+		# serialize all unknown objects to str.
+		safe=True,
 	):
 		if variable.__class__.__name__ in ["str", "String", "NoneType", "bool", "Boolean"]:
 			if str(variable) in ["true", "True", "TRUE", True]:
@@ -266,7 +268,7 @@ class Response(object):
 			variable = variable.response().dict()
 		elif isinstance(variable, (dict,Dictionary, list, Array)):
 			variable = variable
-		elif json and not isinstance(variable, (Dictionary)) and isinstance(variable, object):
+		elif (json or safe) and not isinstance(variable, (Dictionary)) and isinstance(variable, object):
 			if isinstance(variable, (Integer)):
 				return variable.value	
 			elif isinstance(variable, (Boolean)):
@@ -735,17 +737,17 @@ class ResponseObject(object):
 			new[Formats.denitialize(key)] = dictionary[Formats.denitialize(key)]
 		return new
 	# return self as dict.
-	def dict(self, sorted=False, reversed=False, json=False):
+	def dict(self, sorted=False, reversed=False, json=False, safe=False):
 		dictionary = {}
 		for key in self.keys():
 			dictionary[Formats.denitialize(key)] = self[Formats.denitialize(key)]
-		return self.serialize(json=json, sorted=sorted, reversed=reversed, dictionary=dictionary)
+		return self.serialize(json=json, sorted=sorted, reversed=reversed, safe=safe, dictionary=dictionary)
 	# dump json string.
-	def json(self, sorted=False, reversed=False, indent=4, dictionary=None, ):
+	def json(self, sorted=False, reversed=False, indent=4, safe=True, dictionary=None, ):
 		if dictionary == None: dictionary = self.dict()
-		return json.dumps(self.serialize(json=True, sorted=sorted, reversed=reversed, dictionary=dictionary), indent=indent).replace(': "false"', ': false').replace(': "true"', ': true').replace(': "null"', ': null')
+		return json.dumps(self.serialize(json=True, sorted=sorted, reversed=reversed, safe=safe, dictionary=dictionary), indent=indent).replace(': "false"', ': false').replace(': "true"', ': true').replace(': "null"', ': null')
 	# serialize dict.
-	def serialize(self, sorted=False, reversed=False, json=False, dictionary=None):
+	def serialize(self, sorted=False, reversed=False, json=False, safe=False, dictionary=None):
 		if dictionary == None: dictionary = self.dict()
 		if isinstance(dictionary, Dictionary):
 			dictionary = dictionary.dictionary
@@ -759,7 +761,7 @@ class ResponseObject(object):
 			for key, value in self.items(reversed=reversed, dictionary=dictionary):
 				d[key] = value
 			dictionary = d
-		return _response_.serialize(variable=dictionary, json=json)
+		return _response_.serialize(variable=dictionary, json=json, safe=safe)
 	# support default iteration.
 	def __iter__(self):
 		return iter(self.keys())
