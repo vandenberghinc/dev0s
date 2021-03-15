@@ -222,7 +222,7 @@ class Response(object):
 		# serialize to json format.
 		json=False,
 		# serialize all unknown objects to str.
-		safe=True,
+		safe=False,
 	):
 		if variable.__class__.__name__ in ["str", "String", "NoneType", "bool", "Boolean"]:
 			if str(variable) in ["true", "True", "TRUE", True]:
