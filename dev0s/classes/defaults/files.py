@@ -1930,9 +1930,6 @@ class Formats():
 			self.seconds_timestamp_format = '%d-%m-%y %H:%M.%S'
 			self.shell_seconds_timestamp_format = '%d_%m_%y-%H_%M.%S'
 			self.formats = [
-				# the order of this array is very important for the self.parse_format function.
-				# it must be in the largest string that will not be able to be parsed by other to the smallest.
-				# since striptime also works when you parse year_format on a a date_format since the year_format str is in the date_format str.
 				self.shell_seconds_timestamp_format,
 				self.seconds_timestamp_format,
 				self.shell_timestamp_format,
@@ -1940,19 +1937,13 @@ class Formats():
 				self.date_format,
 				self.year_format,
 				self.seconds_format,
-				#self.minute_format,
-				#self.hour_format,
-				#self.day_format,
-				#self.day_name_format,
-				#self.week_format,
-				#self.month_format,
-				#self.month_name_format,
-				
-				
-				
-				
-				
-				
+				self.minute_format,
+				self.hour_format,
+				self.day_format,
+				self.day_name_format,
+				self.week_format,
+				self.month_format,
+				self.month_name_format,
 			]
 
 			# assign
@@ -2091,7 +2082,26 @@ class Formats():
 		def parse_format(self, string):
 			if isinstance(string, Formats.Date):
 				string = str(string)
-			for format in self.formats:
+			formats = []
+			if "-" in str(string):
+				self.shell_seconds_timestamp_format,
+				self.seconds_timestamp_format,
+				self.shell_timestamp_format,
+				self.timestamp_format,
+				self.date_format,
+			else:
+				formats += [
+					self.year_format,
+					self.seconds_format,
+					#self.minute_format,
+					#self.hour_format,
+					#self.day_format,
+					#self.day_name_format,
+					#self.week_format,
+					#self.month_format,
+					#self.month_name_format,
+				]
+			for format in formats:
 				try:
 					datetime.strptime(str(string), str(format))
 					return format
