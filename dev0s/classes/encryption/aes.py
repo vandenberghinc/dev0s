@@ -133,14 +133,17 @@ class AsymmetricAES(object):
 	# functions.
 	def generate_keys(self):
 		return self.rsa.generate_keys()
-	def edit_passphrase(self, passphrase=None):
-		return self.rsa.edit_passphrase(passphrase=passphrase)
 	def load_keys(self):
 		return self.rsa.load_keys()
 	def load_private_key(self):
 		return self.rsa.load_private_key()
+		#
 	def load_public_key(self):
 		return self.rsa.load_public_key()
+		#
+	def edit_passphrase(self, passphrase=None):
+		return self.rsa.edit_passphrase(passphrase=passphrase)
+		#
 	def encrypt(self, string, decode=False):
 		string = Formats.denitialize(string)
 		if isinstance(string, bytes):

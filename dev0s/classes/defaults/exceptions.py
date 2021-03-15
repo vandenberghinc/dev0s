@@ -7,6 +7,8 @@ class Exceptions():
 		pass
 	class DuplicateError(Exception):
 		pass
+	class ParseError(Exception):
+		pass
 	class InstanceError(Exception):
 		pass
 	class FormatError(Exception):

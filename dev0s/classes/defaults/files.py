@@ -1908,13 +1908,60 @@ class Formats():
 		def __init__(self, 
 			# 
 			# Leave all parameters None to initialize a Date() object with the current date.
+			#
+			# the date parameter (str, int, Date).
+			date=None,
+		):
+
+			# formats.
+			self.default_format = "%d-%m-%y %H:%M" # is Date() str repr
+			self.seconds_format = '%S'
+			self.minute_format = '%M'
+			self.hour_format = '%H'
+			self.day_format = '%d'
+			self.day_name_format = '%a'
+			self.month_format = '%m'
+			self.month_name_format = '%h'
+			self.year_format = '%Y'
+			self.date_format = '%d-%m-%y'
+			self.timestamp_format = '%d-%m-%y %H:%M'
+			self.shell_timestamp_format = '%d_%m_%y-%H_%M'
+			self.seconds_timestamp_format = '%d-%m-%y %H:%M.%S'
+			self.shell_seconds_timestamp_format = '%d_%m_%y-%H_%M.%S'
+			self.formats = [
+				self.seconds_format,
+				#self.minute_format,
+				#self.hour_format,
+				#self.day_format,
+				#self.day_name_format,
+				#self.week_format,
+				#self.month_format,
+				#self.month_name_format,
+				self.year_format,
+				self.date_format,
+				self.timestamp_format,
+				self.shell_timestamp_format,
+				self.seconds_timestamp_format,
+				self.shell_seconds_timestamp_format,
+			]
+
+			# assign
+			if date == None:
+				self.initialize()
+			else:
+				self.assign(date)
+
+			#
+		def initialize(self, 
+			# 
+			# Leave all parameters None to initialize a Date() object with the current date.
 			# 
 			# Initialize a future / previous date.
 			#   option 1:
 			#     specify the timestamp to initialize a previous / future date (format required).
 			timestamp=None, 
 			#     required for parameter [timestamp].
-			format="%d-%m-%y %H:%M",
+			format=None,
 			#   options 2:
 			#     initialize by seconds.
 			seconds=None,
@@ -1926,7 +1973,11 @@ class Formats():
 			#self.__class__.__name__ = "Date"
 
 			# by timestamp & format.
-			if timestamp != None and format != None:
+			if timestamp != None:
+				if format == None: 
+					format = self.parse_format(timestamp)
+					if format == None: 
+						raise Exceptions.ParseError(f"Unable to parse the date format from timestamp [{timestamp}].")
 				seconds = time.mktime(datetime.strptime(str(timestamp), str(format)).timetuple())
 				today = datetime.fromtimestamp(int(seconds))
 
@@ -1939,38 +1990,41 @@ class Formats():
 				today = datetime.today()
 
 			# attributes.
-			self.seconds_format = '%S'
 			self.seconds = str(today.strftime(self.seconds_format))
-			self.minute_format = '%M'
 			self.minute =  str(today.strftime(self.minute_format))
-			self.hour_format = '%H'
 			self.hour =  str(today.strftime(self.hour_format))
-			self.day_format = '%d'
 			self.day =  str(today.strftime(self.day_format))
-			self.day_name_format = '%a'
 			self.day_name =  str(today.strftime(self.day_name_format))
 			self.week_format = '%V'
 			self.week =  str(today.strftime(self.week_format))
-			self.month_format = '%m'
 			self.month =  str(today.strftime(self.month_format))
-			self.month_name_format = '%h'
 			self.month_name = str(today.strftime(self.month_name_format))
-			self.year_format = '%Y'
 			self.year =  str(today.strftime(self.year_format))
-			self.date_format = '%d-%m-%y'
 			self.date =  str(today.strftime(self.date_format))
-			self.timestamp_format = '%d-%m-%y %H:%M'
 			self.timestamp =  str(today.strftime(self.timestamp_format))
-			self.shell_timestamp_format = '%d_%m_%y-%H_%M'
 			self.shell_timestamp =  str(today.strftime(self.shell_timestamp_format))
-			self.seconds_timestamp_format = '%d-%m-%y %H:%M.%S'
 			self.seconds_timestamp =  str(today.strftime(self.seconds_timestamp_format))
-			self.shell_seconds_timestamp_format = '%d_%m_%y-%H_%M.%S'
 			self.shell_seconds_timestamp =  str(today.strftime(self.shell_seconds_timestamp_format))
 			self.time = self.hour + ":" + self.minute
-		def compare(self, comparison=None, current=None, format="%d-%m-%y %H:%M"):
-			comparison = self.to_seconds(comparison, format=format)
-			current = self.to_seconds(current, format=format)
+		def compare(self, comparison=None, current=None, format=None):
+			if isinstance(comparison, Formats.Date):
+				comparison = str(comparison)
+			if isinstance(current, Formats.Date):
+				current = str(current)
+			if format == None: 
+				comparison_format = self.parse_format(comparison)
+				if comparison_format == None: 
+					raise Exceptions.ParseError(f"Unable to parse the date format from comparison [{comparison}].")
+			else:
+				comparison_format = format
+			comparison = self.to_seconds(comparison, format=comparison_format)
+			if format == None: 
+				current_format = self.parse_format(comparison)
+				if current_format == None: 
+					raise Exceptions.ParseError(f"Unable to parse the date format from current [{current}].")
+			else:
+				current_format = format
+			current = self.to_seconds(current, format=current_format)
 			if comparison >= current:
 				return "future"
 			elif comparison <= current:
@@ -1979,7 +2033,13 @@ class Formats():
 				return "present"
 			else:
 				raise ValueError(f"Unexpected error, comparison seconds: {comparison} current seconds: {current}.")
-		def increase(self, string, weeks=0, days=0, hours=0, minutes=0, seconds=0, format="%d-%m-%y %H:%M"):
+		def increase(self, string, weeks=0, days=0, hours=0, minutes=0, seconds=0, format=None):
+			if isinstance(string, Formats.Date):
+				string = str(string)
+			if format == None: 
+				format = self.parse_format(seconds)
+				if format == None: 
+					raise Exceptions.ParseError(f"Unable to parse the date format from string [{string}].")
 			seconds += 60*minutes
 			seconds += 3600*hours
 			seconds += 3600*24*days
@@ -1987,7 +2047,13 @@ class Formats():
 			s = self.to_seconds(string, format=format)
 			s += seconds
 			return self.from_seconds(s, format=format)
-		def decrease(self, string, weeks=0, days=0, hours=0, minutes=0, seconds=0, format="%d-%m-%y %H:%M"):
+		def decrease(self, string, weeks=0, days=0, hours=0, minutes=0, seconds=0, format=None):
+			if isinstance(string, Formats.Date):
+				string = str(string)
+			if format == None: 
+				format = self.parse_format(seconds)
+				if format == None: 
+					raise Exceptions.ParseError(f"Unable to parse the date format from string [{string}].")
 			seconds += 60*minutes
 			seconds += 3600*hours
 			seconds += 3600*24*days
@@ -1995,15 +2061,51 @@ class Formats():
 			s = self.to_seconds(string, format=format)
 			s -= seconds
 			return self.from_seconds(s, format=format)
-		def to_seconds(self, string, format="%d-%m-%y %H:%M"):
+		def to_seconds(self, string, format=None):
+			if isinstance(string, Formats.Date):
+				string = str(string)
+			if format == None:
+				format = self.default_format
 			return time.mktime(datetime.strptime(str(string), str(format)).timetuple())
 			#
-		def from_seconds(self, seconds, format="%d-%m-%y %H:%M"):
-			return datetime.fromtimestamp(seconds).strftime(format)
+		def from_seconds(self, seconds, format=None):
+			if isinstance(string, (str,String,Integer)):
+				string = int(string)
+			if format == None:
+				format = self.default_format
+			return datetime.fromtimestamp(int(seconds)).strftime(format)
 			#
 		def convert(self, string, input="%d-%m-%y %H:%M", output="%Y%m%d"):
+			if isinstance(string, Formats.Date):
+				string = str(string)
 			string = datetime.strptime(str(string), str(input))
 			return string.strftime(str(ouput))
+		def parse_format(self, string):
+			if isinstance(string, Formats.Date):
+				string = str(string)
+			for format in self.formats:
+				try:
+					datetime.strptime(str(string), str(format))
+					return format
+				except Exception as e: 
+					a=1
+					#print(f"{format}: {e}.")
+			return None
+		def assign(self, string, format=None):
+			if isinstance(string, Formats.Date):
+				self = string
+				return self
+			else:
+				if format == None:
+					format = self.parse_format(string)
+				if format == None:
+					raise Exceptions.ParseError(f"Unable to parse a Date() object from string [{string}].")
+				if format == self.seconds_format:
+					self.initialize(seconds=int(string))
+				else:
+					self.initialize(timestamp=string, format=format)
+				return self
+
 		# support default iteration.
 		def __iter__(self):
 			return iter([self.year, self.month, self.week, self.hour, self.minutes, self.seconds])
@@ -4381,6 +4483,5 @@ Array = Files.Array
 # initialized objects.
 gfp = Formats.FilePath("") # is required (do not remove).
 gd = gdate = Formats.Date()
-
 
 #
