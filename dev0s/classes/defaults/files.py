@@ -190,25 +190,41 @@ class Formats():
 			elif isinstance(obj, (list, Array)):
 				new = []
 				for i in obj:
-					new.append(Formats.denitialize(i, file_paths=file_paths))
+					if isinstance(i, (Formats.Date)):
+						new.append(str(i))
+					else:
+						new.append(Formats.denitialize(i, file_paths=file_paths))
 				obj = new
 			elif isinstance(obj, (dict, Dictionary)):
 				new = {}
 				for k,v in obj.items():
-					new[Formats.denitialize(k)] = Formats.denitialize(v, file_paths=file_paths)
+					if isinstance(v, (Formats.Date)):
+						new[str(k)] = str(v)
+					else:
+						new[Formats.denitialize(k)] = Formats.denitialize(v, file_paths=file_paths)
 				obj = new
 			return obj
 		else:
 			if isinstance(objects, dict) or isinstance(objects, Dictionary):
 				objs = {}
 				for i,default in objects.items(): 
-					try:
-						objs[Formats.denitialize(i)] = Formats.denitialize(i, file_paths=file_paths)
-					except:
-						objs[Formats.denitialize(i)] = default
+					if isinstance(i, (Formats.Date)) or isinstance(default, (Formats.Date)):
+						try:
+							new[str(k)] = str(i)
+						except:
+							new[str(k)] = str(default)
+					else:
+						try:
+							objs[Formats.denitialize(i)] = Formats.denitialize(i, file_paths=file_paths)
+						except:
+							objs[Formats.denitialize(i)] = default
 			else:
 				objs = []
-				for i in objects: objs.append(Formats.denitialize(i, file_paths=file_paths))
+				for i in objects: 
+					if isinstance(i, (Formats.Date)):
+						objs.append(str(i))
+					else:
+						objs.append(Formats.denitialize(i, file_paths=file_paths))
 				return objs
 
 	# the file path object class.
@@ -3628,7 +3644,7 @@ class Files():
 			#
 		# str representation.
 		def __str__(self):
-			return str(self.dictionary)
+			return str(Formats.denitialize(self.dictionary))
 		# content count.
 		def __len__(self):
 			return len(self.dictionary)
@@ -4506,6 +4522,8 @@ Array = Files.Array
 gfp = Formats.FilePath("") # is required (do not remove).
 gd = gdate = Formats.Date()
 
-
+print(Dictionary({
+	"timestamp":Date(),
+}))
 
 #

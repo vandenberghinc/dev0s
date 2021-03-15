@@ -165,7 +165,7 @@ class Service(Object):
 
 		#
 	# control functions.
-	def start(self, log_level=dev0s.defaults.options.log_level):
+	def start(self, log_level=defaults.options.log_level):
 		
 		# loader.
 		loader = None
@@ -207,7 +207,7 @@ class Service(Object):
 				return _response_.error(f"Failed to start {self.id}.")
 
 		#
-	def stop(self, log_level=dev0s.defaults.options.log_level):
+	def stop(self, log_level=defaults.options.log_level):
 		
 		# loader.
 		loader = None
@@ -249,7 +249,7 @@ class Service(Object):
 				return _response_.error(f"Failed to stop {self.id}")
 
 		#
-	def restart(self, log_level=dev0s.defaults.options.log_level):
+	def restart(self, log_level=defaults.options.log_level):
 		
 		# loader.
 		loader = None
@@ -287,7 +287,7 @@ class Service(Object):
 				return _response_.error(f"Failed to restart {self.id}")
 
 		#
-	def status(self, log_level=dev0s.defaults.options.log_level):
+	def status(self, log_level=defaults.options.log_level):
 		
 		# loader.
 		loader = None
@@ -320,7 +320,7 @@ class Service(Object):
 				})
 
 			#
-	def reset_logs(self, log_level=dev0s.defaults.options.log_level):
+	def reset_logs(self, log_level=defaults.options.log_level):
 
 		# loader.
 		loader = None
