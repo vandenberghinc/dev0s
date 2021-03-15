@@ -366,6 +366,9 @@ class AsymmetricAES(object):
 
 	# properties.
 	@property
+	def generated(self):
+		return self.rsa.generated
+	@property
 	def activated(self):
 		return self.rsa.activated
 	@property

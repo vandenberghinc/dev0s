@@ -221,6 +221,7 @@ class RSA(object):
 			return _response_.error(f"Failed to edit the passphrase of key [{self.id}], error: {output}.")
 
 		#
+	
 	# encrypting.
 	def encrypt_string(self, string, layers=1, decode=True):
 
@@ -318,6 +319,7 @@ class RSA(object):
 				
 
 		#
+	
 	# decrypting.
 	def decrypt_string(self, string, layers=1, decode=True):
 		
@@ -415,6 +417,7 @@ class RSA(object):
 				return _response_.error(f"Failed to decrypted directory [{path}].")
 
 		#
+	
 	# system functions.
 	def __encrypt_blob__(self, blob, public_key, silent=True):
 		blob = Formats.denitialize(blob)
@@ -496,6 +499,12 @@ class RSA(object):
 
 		#return the decompressed decrypted data
 		return zlib.decompress(decrypted)
+
+	# propeties.
+	@property
+	def generated(self):
+		if self.memory: return self.private_key != None and self.public_key != None
+		else: return Files.exists(self.private_key) and Files.exists(self.public_key)
 	@property
 	def activated(self):
 		return str(self.private_key_object) != str(None) and str(self.public_key_object) != str(None)
@@ -505,6 +514,8 @@ class RSA(object):
 	@property
 	def public_key_activated(self):
 		return str(self.public_key_object) != str(None)
+
+	#
 
 # the encrypted dictionary class.
 class EncryptedDictionary(Dictionary):
