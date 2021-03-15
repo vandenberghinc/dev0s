@@ -270,7 +270,7 @@ class Response(object):
 			variable = variable
 		elif (json or safe) and not isinstance(variable, (Dictionary)) and isinstance(variable, object):
 			if isinstance(variable, (Date)):
-				return str(variable)
+				return f'"{variable.raw()}"'
 			elif isinstance(variable, (Integer,Boolean,Version,Bytes,Array,File,ResponseObject)):
 				return variable.raw()	
 			elif variable in [None, "None"]:

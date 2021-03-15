@@ -30,7 +30,9 @@ class Requests(object):
 		_data_ = {}
 		for key,value in data.items():
 			if value.__class__.__name__ in ["OutputObject", "ResponseObject"]:
-				value = str(value.dict())
+				value = str(value.dict(safe=True))
+			elif value.__class__.__name__ in ["Dictionary", "Array"]:
+				value = str(_response_.serialize(value.raw(), safe=True))
 			elif isinstance(value, (list,Array,dict,Dictionary)):
 				value = str(value)
 			_data_[key] = value

@@ -2179,7 +2179,7 @@ class Formats():
 			return float(self.to_seconds(self.seconds_timestamp, format=self.seconds_timestamp_format))
 		# str representation.
 		def __str__(self):
-			return f'"{self.timestamp}"'
+			return self.timestamp
 		# content count.
 		def __len__(self):
 			return len(self.timestamp)
