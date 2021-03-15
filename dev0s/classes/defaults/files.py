@@ -2068,8 +2068,8 @@ class Formats():
 			return time.mktime(datetime.strptime(str(string), str(format)).timetuple())
 			#
 		def from_seconds(self, seconds, format=None):
-			if isinstance(string, (str,String,Integer)):
-				string = int(string)
+			if isinstance(seconds, (str,String,Integer)):
+				seconds = int(seconds)
 			if format == None:
 				format = self.default_format
 			return datetime.fromtimestamp(int(seconds)).strftime(format)
