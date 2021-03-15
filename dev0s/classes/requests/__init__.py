@@ -25,8 +25,14 @@ class Requests(object):
 		self.https = True
 		self.allow_redirects = True
 
-	# encode & decode data.
+	# encode, quote, unqoute & serialize data.
 	def encode(self, data={}):
+		return f"?{urllib.parse.urlencode(self.serialize(data))}"
+	def quote(self, data={}):
+		return urllib.parse.quote(json.dumps(self.serialize(data)))
+	def unquote(self, encoded, depth=30):
+		return json.loads(urllib.parse.unquote(encoded))
+	def serialize(self, data={}):
 		_data_ = {}
 		for key,value in data.items():
 			if value.__class__.__name__ in ["OutputObject", "ResponseObject"]:
@@ -36,11 +42,7 @@ class Requests(object):
 			elif isinstance(value, (list,Array,dict,Dictionary)):
 				value = str(value)
 			_data_[key] = value
-		return f"?{urllib.parse.urlencode(_data_)}"
-	def quote(self, data={}):
-		return urllib.parse.quote(json.dumps(data))
-	def unquote(self, encoded, depth=30):
-		return json.loads(urllib.parse.unquote(encoded))
+		return _data_
 
 	# get.
 	def get(self,
