@@ -188,8 +188,8 @@ class WebServer(Thread):
 		Thread.__init__(self)
 
 		# check home dir.
-		if not Files.exists(f"{defaults.vars.home}/{ALIAS}"):
-			Files.create(f"{defaults.vars.home}/{ALIAS}", directory=True, owner=defaults.vars.user, permission=700)
+		if not Files.exists(f"{defaults.vars.home}/.{ALIAS}"):
+			Files.create(f"{defaults.vars.home}/.{ALIAS}", directory=True, owner=defaults.vars.user, permission=700)
 
 		# by serialization.
 		if serialized != {}:
