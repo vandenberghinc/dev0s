@@ -3220,26 +3220,28 @@ class Files():
 			if dictionary_ == {}: return dictionary
 			for key, value in dictionary.items():
 				if key not in banned:
-					format = value.__class__.__name__
-					if format in ["dict", "Dictionary"]:
-						try: 
-							dictionary_[key]
-							do = True
-						except: 
-							do = False
-						if do:
-							value = self.append(value, overwrite=overwrite, sum=sum, banned=banned, dictionary_=dictionary_[key], save=False, update=False)
-					if "*" in sum or format in sum:
-						if format in ["str", "int", "float", "list", "Array"]:
-							try: dictionary_[key] += value
-							except KeyError: dictionary_[key] = value
-						else: # already summed.
-							dictionary_[key] = value
-					elif "*" in overwrite or format in overwrite:
-						dictionary_[key] = value
-					else:
+					#print(f"Append: [{key}] [{value.__class__.__name__}]")
+					if isinstance(value, (dict, Dictionary)):
+						found = True
 						try: dictionary_[key]
-						except KeyError: dictionary_[key] = value
+						except: found = False
+						if found:
+							dictionary_[key] = self.append(value, overwrite=overwrite, sum=sum, banned=banned, dictionary_=dictionary_[key], save=False, update=False)
+						else:
+							dictionary_[key] = value
+					else:
+						format = value.__class__.__name__
+						if "*" in sum or format in sum:
+							if format in ["str", "int", "float", "list", "Array"]:
+								try: dictionary_[key] += value
+								except KeyError: dictionary_[key] = value
+							else: # cant be summed.
+								dictionary_[key] = value
+						elif "*" in overwrite or format in overwrite:
+							dictionary_[key] = value
+						else:
+							try: dictionary_[key]
+							except KeyError: dictionary_[key] = value
 			if update: self.dictionary = dictionary_
 			if save: 
 				self.dictionary = dictionary_
@@ -4526,6 +4528,5 @@ Array = Files.Array
 # initialized objects.
 gfp = Formats.FilePath("") # is required (do not remove).
 gd = gdate = Formats.Date()
-
 
 #
