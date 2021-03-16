@@ -3154,16 +3154,16 @@ class Files():
 				#print("\niterating new dictionary: [{}] & default [{}]\n".format(dictionary, default))
 				for identifier, item in default.items():
 					if isinstance(item, (dict,Dictionary)):
-						try: dictionary[identifier] = __iterate_dict__(dictionary[identifier], item)
-						except KeyError: dictionary[identifier] = dict(item)
+						try: dictionary[str(identifier)] = __iterate_dict__(dictionary[str(identifier)], item)
+						except KeyError: dictionary[str(identifier)] = dict(item)
 					elif isinstance(item, (list,Array)):
 						if isinstance(item, (list)): item = list(item)
 						elif isinstance(item, (Array)): item = item.array
-						try: dictionary[identifier]
-						except KeyError: dictionary[identifier] = item
+						try: dictionary[str(identifier)]
+						except KeyError: dictionary[str(identifier)] = item
 					else:
-						try: dictionary[identifier]
-						except KeyError: dictionary[identifier] = item
+						try: dictionary[str(identifier)]
+						except KeyError: dictionary[str(identifier)] = item
 				return dictionary
 
 			# init.
