@@ -59,9 +59,9 @@ class Response(object):
 		self.log(message=response["message"], log_level=log_level, save=save, required_log_level=required_log_level)
 		if django: 
 			try:
-				response = JsonResponse(response.dict(safe=True))
+				response = JsonResponse(response.dict(safe=True), safe=False)
 			except AttributeError:
-				response = JsonResponse(response)
+				response = JsonResponse(response, safe=False)
 		return response
 	def error(self,
 		# the error message.
@@ -87,9 +87,9 @@ class Response(object):
 			raise ValueError(response["error"])
 		if django: 
 			try:
-				response = JsonResponse(response.dict(safe=True))
+				response = JsonResponse(response.dict(safe=True), safe=False)
 			except AttributeError:
-				response = JsonResponse(response)
+				response = JsonResponse(response, safe=False)
 		return response
 		#
 
@@ -278,7 +278,10 @@ class Response(object):
 			else:
 				return str(variable)
 		else:
-			return variable
+			if json or safe:
+				return str(variable)
+			else:
+				return variable
 		if isinstance(variable, (dict, Dictionary)):
 			_variable_ = {}
 			for key, value in variable.items():
@@ -290,7 +293,10 @@ class Response(object):
 				_variable_.append(self.serialize(variable=value, json=json))
 			return _variable_
 		else:
-			return variable
+			if json or safe:
+				return str(variable)
+			else:
+				return variable
 		
 		#
 	def response(self, 

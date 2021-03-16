@@ -96,7 +96,7 @@ class Requests(object):
 			self.data = data
 
 			#
-		def request(self, url="/", data={}):
+		def get(self, url="/", data={}):
 			
 			# data.
 			for key,value in self.data.items(): 
