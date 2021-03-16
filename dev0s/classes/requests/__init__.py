@@ -7,6 +7,7 @@ from dev0s.classes.defaults import objects
 from dev0s.classes.response import response as _response_
 
 # pip imports.
+from bs4 import BeautifulSoup as bs4
 import urllib
 import requests as __requests__
 
@@ -19,6 +20,7 @@ class Requests(object):
 			"module":"dev0s.requests", 
 			"initialized":True,
 			"description":[], 
+			"chapter":"requests",
 		}
 
 		# attributes.
@@ -53,6 +55,18 @@ class Requests(object):
 		# serialize output to dictionary.
 		serialize=False,
 	):
+
+		# clean txt.
+		def clean_txt(txt, raw=True):
+			#txt = bs4(txt, 'html.parser')
+			while True:
+				if "<!DOCTYPE html>" in txt:
+					old = str(txt)
+					txt = String(txt).replace_between(["<!DOCTYPE html>", "</html>"], " *** HTML CODE ****")
+					if txt == old:
+						return self.error("Unable remove the html code from the txt.")
+				else: break
+			return txt
 		
 		# url.
 		url = url.replace("http://", "").replace("https://", "")
@@ -62,11 +76,11 @@ class Requests(object):
 		# request.
 		original_request_object = __requests__.get(url, allow_redirects=self.allow_redirects)
 		if original_request_object.status_code != 200:
-			return _response_.error(f"Invalid request ({url}) [{original_request_object.status_code}]: {original_request_object.text}")
+			return _response_.error(f"Invalid request ({url}) [{original_request_object.status_code}]: {(clean_txt(original_request_object.text))}")
 		if serialize:
 			try: response = _response_.ResponseObject(original_request_object.json())
 			except Exception as e: 
-				return _response_.error(f"Request ({url}) [{original_request_object.status_code}]: Unable to serialize output: {original_request_object.text}.")
+				return _response_.error(f"Request ({url}) [{original_request_object.status_code}]: Unable to serialize output: {(clean_txt(original_request_object.text))}.")
 			return response
 		return original_request_object
 
@@ -84,9 +98,11 @@ class Requests(object):
 			
 			# docs.
 			DOCS = {
-			"module":"dev0s.requests.RestAPI", 
-			"initialized":False,
-			"description":[], }
+				"module":"dev0s.requests.RestAPI", 
+				"initialized":False,
+				"description":[], 
+				"chapter":"requests",
+			}
 
 			# defaults.
 			objects.Object.__init__(self, traceback="dev0s.requests.RestAPI")

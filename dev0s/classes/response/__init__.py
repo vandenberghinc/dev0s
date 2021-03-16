@@ -18,7 +18,8 @@ class Response(object):
 		DOCS = {
 			"module":"dev0s.response", 
 			"initialized":True,
-			"description":[], }
+			"description":[], 
+			"chapter":"response", }
 
 		# set log file.
 		#	assign new values with self.log_file.assign(...) to keep it shared across other objects.
@@ -360,7 +361,8 @@ class Parameters(object):
 		DOCS = {
 			"module":"dev0s.response.parameters", 
 			"initialized":True,
-			"description":[], }
+			"description":[], 
+			"chapter":"response", }
 
 		#
 	

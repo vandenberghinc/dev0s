@@ -14,6 +14,7 @@ selenium
 jinja2
 werkzeug
 click
+beautifulsoup4
 
 # inc requirements.
 

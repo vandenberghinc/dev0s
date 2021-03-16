@@ -16,14 +16,14 @@ There are lots additionals though. But a dict and Dictionary should be able to b
 
 # the format classes.
 class Formats():
-	#
+
 	# variables.
 	digits = [0,1,2,3,4,5,6,7,8,9,]
 	str_digits = ["0","1","2","3","4","5","6","7","8","9"]
 	alphabet, capitalized_alphabet = ["a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"], []
 	for i in alphabet: capitalized_alphabet.append(i.upper())
 	special_characters = ["±","§","!","@","€","#","£","$","¢","%","∞","^","&","ª","(",")","–","_","+","=","{","}","[","]",";",":","'",'"',"|","\\","//","?",">",".",",","<"]
-	#
+
 	# check & get format / instance.
 	def check(
 		nones=None,
@@ -122,6 +122,85 @@ class Formats():
 			else:               return "object"
 		else: raise ValueError(f"Unknown format [{value}].")
 		#
+		#
+	# try to parse variable to format, when failed it returns None.
+	def parse(
+		# the variable to parse (required) (#1).
+		variable, 
+		# the expected format (required) (#2).
+		format=None, 
+		# with safe disabled it throws a ParseError when the variable can't be parsed to the expected format.
+		safe=True, 
+		# the default return value for when safe is enabled.
+		default=None,
+	):
+		if format in [bool, "bool", Boolean, "Boolean"]:
+			try: 
+				return bool(variable)
+			except:
+				if safe:
+					return default
+				else:
+					raise Exceptions.ParseError(f"Unable to parse a bool from ({variable.__class__.__name__}) [{variable}].")
+		elif format in [int, "int"]:
+			try: 
+				return int(variable)
+			except:
+				if safe:
+					return default
+				else:
+					raise Exceptions.ParseError(f"Unable to parse a int from ({variable.__class__.__name__}) [{variable}].")
+		elif format in [float, "float", Integer, "Integer"]:
+			try: 
+				return float(variable)
+			except:
+				if safe:
+					return default
+				else:
+					raise Exceptions.ParseError(f"Unable to parse a float from ({variable.__class__.__name__}) [{variable}].")
+		elif format in [str, "str", String, "String"]:
+			try: 
+				return str(variable)
+			except:
+				if safe:
+					return default
+				else:
+					raise Exceptions.ParseError(f"Unable to parse a str from ({variable.__class__.__name__}) [{variable}].")
+		elif format in [list, "list", Array, "Array"]:
+			if isinstance(variable, (list,Array)):
+				return variable
+			elif not isinstance(variable, (str, String)):
+				if safe:
+					return default
+				else:
+					raise Exceptions.ParseError(f"Unable to parse an array from ({variable.__class__.__name__}) [{variable}].")
+			try: 
+				return ast.literal_eval(variable)
+			except:
+				try: 
+					return json.loads(variable)
+				except:
+					if safe:
+						return default
+					else:
+						raise Exceptions.ParseError(f"Unable to parse an array from ({variable.__class__.__name__}) [{variable}].")
+		elif format in [dict, "dict", Dictionary, "Dictionary"]:
+			if isinstance(variable, (dict,Dictionary)):
+				return variable
+			elif not isinstance(variable, (str, String)):
+				raise Exceptions.ParseError(f"Unable to parse a dict from ({variable.__class__.__name__}) [{variable}].")
+			try: 
+				return ast.literal_eval(variable)
+			except:
+				try: 
+					return json.loads(variable)
+				except:
+					if safe:
+						return default
+					else:
+						raise Exceptions.ParseError(f"Unable to parse a dict from ({variable.__class__.__name__}) [{variable}].")
+		else:
+			raise Exceptions.InvalidUsage(f"Specified format [{format}] is not a valid format option.")
 	#
 	# initialize from default format to dev0s format.
 	def initialize(
@@ -653,9 +732,9 @@ class Formats():
 			return self.path.upper(str(path))
 		# support subscriptionable.
 		def __getitem__(self, index):
-			return self.path[Formats.denitialize(index)]
+			return self.path[int(index)]
 		def __setitem__(self, index, value):
-			self.path[Formats.denitialize(index)] = str(value)
+			self.path[int(index)] = str(value)
 		# support "+" & "-" .
 		def __add__(self, path):
 			if isinstance(path, str):
@@ -1397,9 +1476,9 @@ class Formats():
 			return self
 		# support subscriptionable.
 		def __getitem__(self, index):
-			return self.string[Formats.denitialize(index)]
+			return self.string[int(index)]
 		def __setitem__(self, index, value):
-			self.string[Formats.denitialize(index)] = str(value)
+			self.string[int(index)] = str(value)
 		# support default iteration.
 		def __iter__(self):
 			return iter(self.string)
@@ -3021,20 +3100,20 @@ class Files():
 		def __setitem__(self, index, value):
 			#if "/" in item
 			try:
-				self.array[Formats.denitialize(index)] = Formats.initialize(value)
+				self.array[int(index)] = value
 			except IndexError:
-				self.array.append(Formats.initialize(value))
+				self.array.append(int(value))
 		def __getitem__(self, index):
 			#if "/" in item
 			if isinstance(index, slice):
-				return self.array[Formats.denitialize(index)]
+				return self.array[int(index)]
 			else:
-				v = self.array[Formats.denitialize(index)]
+				v = self.array[int(index)]
 				if isinstance(v, list): return v
 				return v
-		def __delitem__(self, index:int):
+		def __delitem__(self, index):
 			#if "/" in item
-			return self.array.pop(index)
+			return self.array.pop(int(index))
 		# representation.
 		def __repr__(self):
 			return str(self)
@@ -3629,18 +3708,18 @@ class Files():
 		def __setitem__(self, key, value):
 			if isinstance(key, (int, Integer)):
 				key = self.keys()[key]
-			self.dictionary[Formats.denitialize(key)] = Formats.initialize(value)
+			self.dictionary[str(key)] = value
 		def __getitem__(self, key):
 			if isinstance(key, slice):
 				raise ValueError("Coming soon.")
 			elif isinstance(key, (int, Integer)):
 				key = self.keys()[key]
-			return self.dictionary[Formats.denitialize(key)]
+			return self.dictionary[str(key)]
 			#
 		def __delitem__(self, key):
 			if isinstance(key, (int, Integer)):
 				key = self.keys()[key]
-			del self.dictionary[key]
+			del self.dictionary[str(key)]
 		def __splitkey__(self, key):
 			if key in self:
 				return [key]

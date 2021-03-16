@@ -467,7 +467,7 @@ class __Response__ {
 
 	// init.
 	constructor() {
-		this.parameters = null // should be filled after init.
+		this.parameters = null
 	}
 
 	// success response.
@@ -559,7 +559,6 @@ class Parameters {
 
 	// init.
 	constructor(Response) {
-		a=1
 	}
 
 	// check if a parameter is defined if not return & return succes / error response.
@@ -602,6 +601,6 @@ class Parameters {
 
 // initialize classes.
 const Response = new __Response__();
-Response
+Response.parameters = new Parameters();
 
 </script>
