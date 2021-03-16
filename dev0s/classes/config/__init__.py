@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # imports.
-import os, sys, requests, ast, json, pathlib, platform, random, shutil, zipfile, pwd, grp, subprocess, time, threading, sysconfig, urllib, flask, multiprocessing
+import os, sys, requests, ast, json, pathlib, platform, random, shutil, zipfile, pwd, grp, subprocess, time, threading, sysconfig, urllib, flask, multiprocessing, socket
 from datetime import datetime
 
 # settings.

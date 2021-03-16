@@ -84,15 +84,25 @@ class CLI(dev0s.cli.CLI):
 				"        --add-users user1,user2":"Add users from the specified group.",
 				"        --delete-users user1,user2":"Delete users from the specified group.",
 				"        --force-users user1,user2":"Add the specified users to the group and remove all others.",
-				"    --disk-space":"Get the free disk space (linux).",
-				"    --size /path/to/file":"Get the size of a file / directory (linux).",
+				"    --disk-space":"Get the free disk space.",
+				"    --size /path/to/file":"Get the size of a file / directory.",
+				"Network":"*chapter*",
+				"    --network":"Access the network.",
+				"        --info":"Retrieve the current network information.",
+				"    --firewall":"Access the firewall (linux only).",
+				"        --info":"Retrieve the current firewall information.",
+				"        --disable":"Disable the firewall.",
+				"        --enable":"Enable the firewall.",
+				"        --set-default false":"Set the default firewall behaviour (deny/allow).",
+				"        --allow 22":"Allow a port in the firewall settings.",
+				"        --deny 22":"Deny a port in the firewall settings.",
 				"Installation":"*chapter*",
-				"    --install":"Install the DevOS library.",
-				"    --uninstall":"Uninstall the DevOS library.",
-				"    --reinstall":"Reinstall the DevOS library.",
-				"    --link":"Link (activate) the DevOS library.",
-				"    --unlink":"Unlink (deactivate) the DevOS library.",
-				"    --update":"Update the DevOS library.",
+				"    --install":f"Install the {ALIAS} library.",
+				"    --uninstall":f"Uninstall the {ALIAS} library.",
+				"    --reinstall":f"Reinstall the {ALIAS} library.",
+				"    --link":f"Link (activate) the {ALIAS} library.",
+				"    --unlink":f"Unlink (deactivate) the {ALIAS} library.",
+				"    --update":f"Update the {ALIAS} library.",
 				"Defaults":"*chapter*",
 				"    --version":"Show the dev0s version.",
 				"    -h / --help":"Show the documentation.",
@@ -108,6 +118,7 @@ class CLI(dev0s.cli.CLI):
 		# check arguments.
 		self.arguments.check(exceptions=["--log-level", "--create-alias", "--version", "--non-interactive", "--remove"], json=dev0s.defaults.options.json)
 
+		# ____________________________________________________________________________________________________
 		#
 		# BASICS
 		#
@@ -120,6 +131,7 @@ class CLI(dev0s.cli.CLI):
 		elif self.arguments.present(['--version']):
 			print(f"{ALIAS} version:",Files.load(f"{SOURCE_PATH}/.version").replace("\n",""))
 
+		# ____________________________________________________________________________________________________
 		#
 		# ENCRYPTION
 		#
@@ -192,6 +204,7 @@ class CLI(dev0s.cli.CLI):
 		elif self.arguments.present('--generate-passphrase'):
 			self.stop(message=f"Generated passphrase: {String('').generate(length=length, capitalize=True, digits=True)}", json=dev0s.defaults.options.json)
 
+		# ____________________________________________________________________________________________________
 		#
 		# SYSTEM.
 		#
@@ -318,6 +331,76 @@ class CLI(dev0s.cli.CLI):
 				loader.stop()
 				print(f"{fp.path}\n * size: {size}")
 
+		# ____________________________________________________________________________________________________
+		#
+		# NETWORK
+		#
+
+		# network.
+		elif self.arguments.present(['--network']):
+
+			# info.
+			if self.arguments.present(['--info']):
+				response = dev0s.network.info()
+				dev0s.response.log(response=response)
+				if response.success: 
+					del response["message"] ; del response["error"] ; del response["success"]
+					print("Network info:")
+					print(response.json(indent=3)[:-2].replace('",',"").replace('"',"").replace('\n  ',"\n * ")[2:])
+
+
+			# invalid.
+			else:  self.invalid()
+
+		# firewall.
+		elif self.arguments.present(['--firewall']):
+
+			# check os.
+			dev0s.defaults.operating_system(supported=["linux"])
+
+			# retrieve the firewall information.
+			if self.arguments.present(['--info']):
+				response = dev0s.network.firewall.info()
+				dev0s.response.log(response=response)
+				if response.success: 
+					del response["message"] ; del response["error"] ; del response["success"]
+					print(response.json(indent=3).replace("{\n","").replace("\n}","").replace('",',"").replace('"',"").replace('\n  ',"\n * "))
+
+			# disable the firewall.
+			elif self.arguments.present(['--disable']):
+				response = dev0s.network.firewall.disable()
+				dev0s.response.log(response=response)
+
+			# enable the firewall.
+			elif self.arguments.present(['--enable']):
+				response = dev0s.network.firewall.enable()
+				dev0s.response.log(response=response)
+
+			# set the default port action.
+			elif self.arguments.present(['--set-default']):
+				deny = self.arguments.get("--set-default")
+				if deny in ["True", "true", True]: deny = True
+				else: deny = False
+				response = dev0s.network.firewall.set_default(deny=deny)
+				dev0s.response.log(response=response)
+
+			# allow a port.
+			elif self.arguments.present(['--allow']):
+				port = int(self.arguments.get("--allow"))
+				response = dev0s.network.firewall.allow(port)
+				dev0s.response.log(response=response)
+
+			# deny a port.
+			elif self.arguments.present(['--deny']):
+				port = int(self.arguments.get("--deny"))
+				response = dev0s.network.firewall.deny(port)
+				dev0s.response.log(response=response)
+
+
+			# invalid.
+			else:  self.invalid()
+
+		# ____________________________________________________________________________________________________
 		#
 		# INSTALLATION.
 		#
@@ -349,6 +432,7 @@ class CLI(dev0s.cli.CLI):
 			response = manager.installation.unlink()
 			dev0s.response.log(response=response)
 
+		# ____________________________________________________________________________________________________
 		#
 		# INVALID.
 		#
