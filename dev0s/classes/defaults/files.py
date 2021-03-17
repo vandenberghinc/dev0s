@@ -3212,6 +3212,7 @@ class Files():
 			if not os.path.exists(self.file_path.path) and default != None: 
 				self.save(default, sudo=sudo)
 			self.dictionary = Files.load(self.file_path.path, format="json", sudo=sudo)
+			print(self.dictionary, self.dictionary.__class__.__name__)
 			return self.dictionary
 		def load_line(self, line_number, sudo=False):
 			utils.__check_memory_only__(self.file_path.path)
