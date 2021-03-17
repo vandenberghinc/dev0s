@@ -133,9 +133,9 @@ Welcome to $NAME $VERSION $(date +"%B %dth %T"):
   * Active SSH Sessions: $ACTIVE_SSH_SESSIONS
   * Private IP: $PRIVATE_IP
   * Public IP: $PUBLIC_IP
-  * Disk Usage: $DISK_USAGE%
+  * Disk Usage: $DISK_USAGE
   * CPU Usage: $CPU_USAGE%
-  * Memory Usage: $MEMORY_USAGE
+  * Memory Usage: $MEMORY_USAGE%
   * Processes: $PROCESSES
   * Last Login: $LAST_LOGIN
 """ 
