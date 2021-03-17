@@ -76,11 +76,12 @@ if [[ "$HIDE_WELCOME_MESSAGE" != "true" ]] ; then
         output=$(top -l 1 -s 0)
         welcome="""
 Welcome to $NAME $VERSION ($(timestamp)):
-  * Host: $hs 
-  * User: $user 
-  * Operating System: $OS 
+  * Host: $hs
+  * User: $user
+  * Operating System: $OS
+  * Private IP: $PRIVATE_IP
+  * Public IP: $PUBLIC_IP
   * Signed in Users: $SIGNED_USERS
-  * Private IP: $PRIVATE_IP 
   * $(echo $output | awk ' /Processes/ ')
   * $(echo $output | awk ' /CPU usage/ ')
 """
@@ -90,11 +91,12 @@ Welcome to $NAME $VERSION ($(timestamp)):
         output=$(top -l 1 -s 0)
         welcome="""
 Welcome to $NAME $VERSION ($(timestamp)):
-  \* Host: $hs 
-  \* User: $user 
-  \* Operating System: $OS 
+  \* Host: $hs
+  \* User: $user
+  \* Operating System: $OS
+  \* Private IP: $PRIVATE_IP
+  \* Public IP: $PUBLIC_IP
   \* Signed in Users: $SIGNED_USERS
-  \* Private IP: $PRIVATE_IP 
 """ 
     fi
     echo $welcome
