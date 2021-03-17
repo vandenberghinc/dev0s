@@ -93,7 +93,7 @@ elif [[ "$OS" == "linux" ]] ; then
     ACTIVE_SSH_SESSIONS=$(replace-str $(replace-str $(ss | grep ssh | awk '{print $1","$2","$3","$4","$5","$6}' | wc -l) " " "") "    " "")
     PROCESSES=$(replace-str "$(replace-str "$(top -bn1 | grep zombie )" ' ' '')" "Tasks:" "")
     MEMORY_USAGE=$(printf "%0.2f\n" $(free | grep Mem | awk '{print $3/$2 * 100.0}'))
-    CPU_USAGE=$(printf "%0.2f\n" $(grep 'cpu ' /proc/stat | awk '{usage=($2+$4)*100/($2+$4+$5)} END {print usage "%"}'))
+    CPU_USAGE=$(printf "%0.2f\n" $(grep 'cpu ' /proc/stat | awk '{usage=($2+$4)*100/($2+$4+$5)} END {print usage }'))
 fi
 
 # welcome message.
