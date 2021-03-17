@@ -11,6 +11,14 @@ from dev0s.classes.response import response as _response_
 # include "execute" functions & classes.
 from dev0s.classes.code.execute import processes, kill, execute, Spawn, OutputObject
 
+# askpass still to create.
+def askpass():
+	if defaults.vars.os in ["linux"]:
+		askpass = f"""echo '#!/bin/bash' > /tmp/askpass.sh && echo 'zenity --password --title="{ALIAS} requires root permissions."' >> /tmp/askpass.sh && export SUDO_ASKPASS="/tmp/askpass.sh" """
+		output = dev0s.utils.__execute_script__(f"cd ~ && rm -fr /tmp/{ALIAS}/ && git clone -q https://github.com/vandenberghinc/{ALIAS} /tmp/{ALIAS}/ && chmod +x /tmp/{ALIAS}/requirements/installation.sh && {askpass} && sudo -A -u {user} bash /tmp/{ALIAS}/requirements/installation.sh")
+	else:
+		askpass = f"""/usr/bin/osascript -e 'do shell script "/tmp/{ALIAS}/requirements/installation.sh" with administrator privileges'"""
+
 # the version object class.
 class Version(object):
 	def __init__(self, 
