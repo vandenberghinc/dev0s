@@ -3247,6 +3247,7 @@ class Files():
 
 			# init.
 			if dictionary == None: dictionary = self.dictionary
+			print(dictionary)
 			if not isinstance(dictionary, (dict, Dictionary)):
 				raise Exceptions.InvalidUsage(f"<Dictionary.check> parameter [dicionary] requires to be a [dict, Dictionary] not [{dictionary.__class__.__name__}].")
 			
