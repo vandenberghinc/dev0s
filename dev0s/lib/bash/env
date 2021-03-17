@@ -52,6 +52,9 @@ elif [[ "$OS" == "linux" ]] ;  then
     . /etc/os-release
 
     # zombie processes.
+    if [[ "$(command-exists notify-send)" == "false" ]] ; then
+        sudo apt-get -y install libnotify-bin
+    fi
     alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" "$(history|tail -n1|sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'\'')"'
     alert
 
@@ -69,7 +72,7 @@ if [[ "$OS" == "macos" ]] ; then
     PROCESSES="$(replace-str "$(echo $output | awk ' /Processes/ ')" "Processes: " "" )"
     CPU_USAGE="$(replace-str "$(echo $output | awk ' /CPU usage/ ')" "CPU usage: " "" )"
 elif [[ "$OS" == "linux" ]] ; then
-    PUBLIC_IP="$(curl https://ipinfo.io/ip)"
+    PUBLIC_IP="$(curl -s https://ipinfo.io/ip)"
     ACTIVE_SSH_SESSIONS=$(replace-str $(replace-str $(ss | grep ssh | awk '{print $1","$2","$3","$4","$5","$6}' | wc -l) " " "") "    " "")
     PROCESSES=$(replace-str "$(replace-str "$(top -bn1 | grep zombie )" ' ' '')" "Tasks:" "")
     MEMORY_USAGE=$(free | grep Mem | awk '{print $3/$2 * 100.0}')
