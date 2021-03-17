@@ -64,7 +64,7 @@ PRIVATE_IP=$before
 if [[ "$OS" == "macos" ]] ; then
     PUBLIC_IP="$(dig +short myip.opendns.com @resolver1.opendns.com)"
 elif [[ "$OS" == "linux" ]] ; then
-    PUBLIC_IP="$(dig +short myip.opendns.com @resolver1.opendns.com)"
+    PUBLIC_IP="$(curl https://ipinfo.io/ip)"
 fi
 
 # welcome message.
