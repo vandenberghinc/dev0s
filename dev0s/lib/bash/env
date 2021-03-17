@@ -49,13 +49,13 @@ elif [[ "$OS" == "linux" ]] ;  then
     fi
 
     # os info.
-    . /etc/os-release
+    . /etc/os-release # to get $NAME &VERSION
 
     # zombie processes.
-    if [[ "$(command-exists notify-send)" == "false" ]] ; then
-        sudo apt-get -y install libnotify-bin
-    fi
-    alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" "$(history|tail -n1|sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'\'')"'
+    #if [[ "$(command-exists notify-send)" == "false" ]] ; then
+    #    sudo apt-get -y install libnotify-bin
+    #fi
+    #alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" "$(history|tail -n1|sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'\'')"'
 
 fi
 
