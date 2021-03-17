@@ -20,7 +20,7 @@ if [[ "$OS" == "macos" ]] ; then
     if [[ "$user" != "root" ]] ; then
         #export PS1='%{%F{green}%}%n%{%f%}%{%F{green}%}@%{%f%}%{%F{green}%}%m %{%F{blue}%}%1~ %{%f%}%$$ '
         hs=$(replace-str `hostname` "_" ".")
-        export PS1='%F{green}%}%n%{%f%}%{%F{green}%}@'$hs' %{%F{blue}%}%1~ %{%f%}%$$ '
+        export PS1='%F{green}%}%n%{%f%}%{%F{green}%}@'$hs'%F{white}%}:%{%F{blue}%}%0~ %{%f%}%$$ '
         export CLICOLOR=1
         export LSCOLORS=ExGxBxDxCxegedabagaced
     fi
@@ -32,6 +32,6 @@ elif [[ "$OS" == "linux" ]] ;  then
 
     # replace hostname.
     hs=$(replace-str `hostname` "_" ".")
-    export PS1='%F{green}%}%n%{%f%}%{%F{green}%}@'$hs' %{%F{blue}%}%1~ %{%f%}%$$ '
+    export PS1='%F{green}%}%n%{%f%}%{%F{green}%}@'$hs'%F{white}%}:%{%F{blue}%}%0~ %{%f%}%$$ '
 
 fi
