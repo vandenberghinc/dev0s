@@ -63,6 +63,10 @@ fi
 # vars.
 SIGNED_USERS=$(replace-str $(replace-str $(users | wc -w) " " "") "    " "")
 ACTIVE_TTY_SESSIONS=$(replace-str $(replace-str $(who | wc -l) " " "") "    " "")
+value=$(last -1 $USER | awk '{print $1""$2" "$3" "$4" "$5" "$6}' | awk '{$1="" ; print$0}')
+LAST_DATE=${value:1}
+LAST_TTY=$(last -1 $USER | awk '{print $2}')
+LAST_LOGIN="$LAST_DATE on $LAST_TTY"
 ips=$(ifconfig | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '([0-9]*\.){3}[0-9]*' | grep -v '127.0.0.1')
 IFS=" " read before after <<< $ips 
 PRIVATE_IP=$before
@@ -81,6 +85,11 @@ fi
 # welcome message.
 if [[ "$HIDE_WELCOME_MESSAGE" != "true" ]] ; then
 
+    # hide default last login.
+    if [[ ! -f "$HOME/.hushlogin" ]] ; then
+        touch ~/.hushlogin
+    fi
+
     # welcome message macos.
     if [[ "$OS" == "macos" ]] ; then
         welcome="""
@@ -94,6 +103,7 @@ Welcome to $NAME $VERSION ($(timestamp)):
   * Public IP: $PUBLIC_IP
   * Processes: $PROCESSES
   * CPU Usage: $CPU_USAGE
+  * Last Login: $LAST_LOGIN
 """
 
     # welcome message linux.
@@ -110,6 +120,7 @@ Welcome to $NAME $VERSION ($(timestamp)):
   \* Public IP: $PUBLIC_IP
   \* Processes: $PROCESSES
   \* Memory Usage: $MEMORY_USAGE%
+  \* Last Login: $LAST_LOGIN
 """ 
     fi
     echo $welcome
