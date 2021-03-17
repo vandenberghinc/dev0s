@@ -63,10 +63,23 @@ fi
 # vars.
 SIGNED_USERS=$(replace-str $(replace-str $(users | wc -w) " " "") "    " "")
 ACTIVE_TTY_SESSIONS=$(replace-str $(replace-str $(who | wc -l) " " "") "    " "")
-value=$(last -1 $USER | awk '{print $1""$2" "$3" "$4" "$5" "$6}' | awk '{$1="" ; print$0}')
+LAST_IP=$(last -1 $USER | awk '{print $3}')
+if [[ "0123456789" =~ "${LAST_IP:0:1}" ]] ; then
+    IFS="\n" read LAST_IP after <<< $LAST_IP 
+    value=$(last -1 $USER | awk '{print $1""$2""$3" "$4" "$5" "$6" "$7}' | awk '{$1="" ; print$0}')
+else
+    LAST_IP=""
+    value=$(last -1 $USER | awk '{print $1""$2" "$3" "$4" "$5" "$6}' | awk '{$1="" ; print$0}')
+fi
 LAST_DATE=${value:1}
+IFS="\n" read LAST_DATE after <<< $LAST_DATE 
 LAST_TTY=$(last -1 $USER | awk '{print $2}')
-LAST_LOGIN="$LAST_DATE on $LAST_TTY"
+IFS="\n" read LAST_TTY after <<< $LAST_TTY 
+if [[ "$LAST_IP" == "" ]] ; then
+    LAST_LOGIN="$LAST_DATE on $LAST_TTY"
+else
+    LAST_LOGIN="$LAST_DATE on $LAST_TTY from $LAST_IP"
+fi
 ips=$(ifconfig | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '([0-9]*\.){3}[0-9]*' | grep -v '127.0.0.1')
 IFS=" " read before after <<< $ips 
 PRIVATE_IP=$before
@@ -79,7 +92,8 @@ elif [[ "$OS" == "linux" ]] ; then
     PUBLIC_IP="$(curl -s https://ipinfo.io/ip)"
     ACTIVE_SSH_SESSIONS=$(replace-str $(replace-str $(ss | grep ssh | awk '{print $1","$2","$3","$4","$5","$6}' | wc -l) " " "") "    " "")
     PROCESSES=$(replace-str "$(replace-str "$(top -bn1 | grep zombie )" ' ' '')" "Tasks:" "")
-    MEMORY_USAGE=$(free | grep Mem | awk '{print $3/$2 * 100.0}')
+    MEMORY_USAGE=$(printf "%0.2f\n" $(free | grep Mem | awk '{print $3/$2 * 100.0}'))
+    CPU_USAGE=$(printf "%0.2f\n" $(grep 'cpu ' /proc/stat | awk '{usage=($2+$4)*100/($2+$4+$5)} END {print usage "%"}'))
 fi
 
 # welcome message.
@@ -108,22 +122,22 @@ Welcome to $NAME $VERSION ($(timestamp)):
 
     # welcome message linux.
     elif [[ "$OS" == "linux" ]] ; then
-        output=$(top -l 1 -s 0)
         welcome="""
 Welcome to $NAME $VERSION ($(timestamp)):
-  \* Host: $hs
-  \* User: $user
-  \* Operating System: $OS
-  \* Signed in Users: $SIGNED_USERS
-  \* Active SSH Sessions: $ACTIVE_SSH_SESSIONS
-  \* Private IP: $PRIVATE_IP
-  \* Public IP: $PUBLIC_IP
-  \* Processes: $PROCESSES
-  \* Memory Usage: $MEMORY_USAGE%
-  \* Last Login: $LAST_LOGIN
+  * Host: $hs
+  * User: $user
+  * Operating System: $OS
+  * Signed in Users: $SIGNED_USERS
+  * Active SSH Sessions: $ACTIVE_SSH_SESSIONS
+  * Private IP: $PRIVATE_IP
+  * Public IP: $PUBLIC_IP
+  * CPU Usage: $CPU_USAGE%
+  * Memory Usage: $MEMORY_USAGE%
+  * Processes: $PROCESSES
+  * Last Login: $LAST_LOGIN
 """ 
     fi
-    echo $welcome
+    echo "$welcome"
 fi
 
 #
