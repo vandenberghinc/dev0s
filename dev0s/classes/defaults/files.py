@@ -203,7 +203,7 @@ class Formats():
 			raise Exceptions.InvalidUsage(f"Specified format [{format}] is not a valid format option.")
 
 	# initialize from default format to dev0s format.
-	def initialize(self, variable, file_paths=True):
+	def initialize(variable, file_paths=True):
 		if variable.__class__.__name__ in ["str","String"]:
 			if file_paths and "/" in variable and Files.exists(variable):
 				return FilePath(variable)
@@ -223,7 +223,7 @@ class Formats():
 		#
 
 	# denitialize from dev0s formats to default format.	
-	def denitialize(self, variable, file_paths=True):
+	def denitialize(variable, file_paths=True):
 		if variable.__class__.__name__ in ["String"]:
 			return str(variable)
 		elif variable.__class__.__name__ in ["FilePath"]:
