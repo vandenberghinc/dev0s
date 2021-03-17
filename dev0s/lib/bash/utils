@@ -350,16 +350,6 @@ function timestamp() {
   date +"%T" # current time
 }
 
-# get memory usage in percentage.
-function memory-usage() {
-    if [[ "$OS" == "linux" ]] ; then 
-        free | grep Mem | awk '{print $3/$2 * 100.0}'
-    else
-        top -l 1 -s 0 | awk ' /Processes/ || /CPU usage/ '
-    fi
-}
-
-
 
 # find str.
 #function find-str() {

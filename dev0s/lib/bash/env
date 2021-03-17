@@ -59,6 +59,7 @@ fi
 
 # vars.
 SIGNED_USERS=$(replace-str $(replace-str $(users | wc -w) " " "") "    " "")
+ACTIVE_TTY_SESSIONS=$(replace-str $(replace-str $(who | wc -l) " " "") "    " "")
 ips=$(ifconfig | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '([0-9]*\.){3}[0-9]*' | grep -v '127.0.0.1')
 IFS=" " read before after <<< $ips 
 PRIVATE_IP=$before
@@ -66,6 +67,7 @@ if [[ "$OS" == "macos" ]] ; then
     PUBLIC_IP="$(dig +short myip.opendns.com @resolver1.opendns.com)"
 elif [[ "$OS" == "linux" ]] ; then
     PUBLIC_IP="$(curl https://ipinfo.io/ip)"
+    ACTIVE_SSH_SESSIONS=$(replace-str $(replace-str $(ss | grep ssh | awk '{print $1","$2","$3","$4","$5","$6}' | wc -l) " " "") "    " "")
 fi
 
 # welcome message.
@@ -79,9 +81,10 @@ Welcome to $NAME $VERSION ($(timestamp)):
   * Host: $hs
   * User: $user
   * Operating System: $OS
+  * Signed in Users: $SIGNED_USERS
+  * Active TTY Sessions: $ACTIVE_TTY_SESSIONS
   * Private IP: $PRIVATE_IP
   * Public IP: $PUBLIC_IP
-  * Signed in Users: $SIGNED_USERS
   * $(echo $output | awk ' /Processes/ ')
   * $(echo $output | awk ' /CPU usage/ ')
 """
@@ -94,9 +97,10 @@ Welcome to $NAME $VERSION ($(timestamp)):
   \* Host: $hs
   \* User: $user
   \* Operating System: $OS
+  \* Signed in Users: $SIGNED_USERS
+  \* Active SSH Sessions: $ACTIVE_SSH_SESSIONS
   \* Private IP: $PRIVATE_IP
   \* Public IP: $PUBLIC_IP
-  \* Signed in Users: $SIGNED_USERS
 """ 
     fi
     echo $welcome
