@@ -2375,7 +2375,7 @@ class Files():
 				except json.decoder.JSONDecodeError as e:
 					e = f"Unable to decode file [{path}], error: {e}."
 					try:
-						data = Files.load(path=path, format="str")
+						data = Files.load(path=path, format="json", raw=raw)
 						if data == "":
 							data = {}
 					except:
@@ -2389,7 +2389,7 @@ class Files():
 				except json.decoder.JSONDecodeError as e:
 					e = f"Unable to decode file [{path}] (sudo: {sudo}), error: {e}."
 					try:
-						data = Files.load(path=path, format="str", sudo=sudo)
+						data = Files.load(path=path, format="json", raw=raw, sudo=sudo)
 						if data == "":
 							data = {}
 					except:
