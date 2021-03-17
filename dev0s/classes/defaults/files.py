@@ -232,12 +232,12 @@ class Formats():
 			return bool(variable)
 		elif variable.__class__.__name__ in ["Integer"]:
 			return variable.value
-		elif variable.__class__.__name__ in ["Dictionary", "ResponseObject", "OutputObject"]:
+		elif variable.__class__.__name__ in ["Dictionary", "ResponseObject", "OutputObject", "dict"]:
 			new = {}
 			for key,value in variable.items():
 				new[key] = Formats.denitialize(value, file_paths=file_paths)
 			return new
-		elif variable.__class__.__name__ in ["Array"]:
+		elif variable.__class__.__name__ in ["Array", "list"]:
 			new = []
 			for value in variable:
 				new.append(Formats.denitialize(value, file_paths=file_paths))
@@ -672,9 +672,9 @@ class Formats():
 			return self.path.upper(str(path))
 		# support subscriptionable.
 		def __getitem__(self, index):
-			return self.path[int(index)]
+			return self.path[Formats.denitialize(index)]
 		def __setitem__(self, index, value):
-			self.path[int(index)] = str(value)
+			self.path[Formats.denitialize(index)] = str(value)
 		# support "+" & "-" .
 		def __add__(self, path):
 			if isinstance(path, str):
@@ -1416,9 +1416,9 @@ class Formats():
 			return self
 		# support subscriptionable.
 		def __getitem__(self, index):
-			return self.string[int(index)]
+			return self.string[Formats.denitialize(index)]
 		def __setitem__(self, index, value):
-			self.string[int(index)] = str(value)
+			self.string[Formats.denitialize(index)] = str(value)
 		# support default iteration.
 		def __iter__(self):
 			return iter(self.string)
@@ -2363,11 +2363,11 @@ class Files():
 			if format in [bytes, Bytes, "Bytes"]: format = "bytes"
 			#format = str(format)
 			# match format.
-			data = Formats.denitialize(data)
 			path = gfp.clean(str(path), remove_double_slash=True, remove_last_slash=False)
 			if sudo:
 				__real_path__ = str(path)
 				tmp_path = path = f"/tmp/{String().generate(length=12)}"
+		data = Formats.denitialize(data)
 		if format == "str":
 			file = open(path, "w+") 
 			file.write(data)
@@ -3031,20 +3031,14 @@ class Files():
 		def __setitem__(self, index, value):
 			#if "/" in item
 			try:
-				self.array[int(index)] = value
+				self.array[Formats.denitialize(index)] = value
 			except IndexError:
-				self.array.append(int(value))
+				self.array.append(value)
 		def __getitem__(self, index):
-			#if "/" in item
-			if isinstance(index, slice):
-				return self.array[int(index)]
-			else:
-				v = self.array[int(index)]
-				if isinstance(v, list): return v
-				return v
+			return self.array[Formats.denitialize(index)]
 		def __delitem__(self, index):
 			#if "/" in item
-			return self.array.pop(int(index))
+			return self.array.pop(Formats.denitialize(index))
 		# representation.
 		def __repr__(self):
 			return str(self)
@@ -3441,7 +3435,7 @@ class Files():
 				_sorted_ = Array(path=False, array=list(dictionary.keys())).sort(alphabetical=alphabetical, ascending=ascending, reversed=reversed)
 			else: raise ValueError("Unknown behaviour, alphabetical=False.")
 			for key in _sorted_:
-				new[str(key)] = dictionary[str(key)]
+				new[Formats.denitialize(key)] = dictionary[Formats.denitialize(key)]
 			if update:
 				self.dictionary = new
 			return new
@@ -3641,18 +3635,18 @@ class Files():
 		def __setitem__(self, key, value):
 			if isinstance(key, (int, Integer)):
 				key = self.keys()[key]
-			self.dictionary[str(key)] = value
+			self.dictionary[Formats.denitialize(key)] = value
 		def __getitem__(self, key):
 			if isinstance(key, slice):
 				raise ValueError("Coming soon.")
 			elif isinstance(key, (int, Integer)):
 				key = self.keys()[key]
-			return self.dictionary[str(key)]
+			return self.dictionary[Formats.denitialize(key)]
 			#
 		def __delitem__(self, key):
 			if isinstance(key, (int, Integer)):
 				key = self.keys()[key]
-			del self.dictionary[str(key)]
+			del self.dictionary[Formats.denitialize(key)]
 		def __splitkey__(self, key):
 			if key in self:
 				return [key]

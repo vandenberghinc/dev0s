@@ -22,7 +22,8 @@ class Database(Traceback):
 		DOCS = {
 			"module":"dev0s.database.Database", 
 			"initialized":False,
-			"description":[], }
+			"description":[], 
+			"chapter": "Database", }
 
 		# traceback.
 		Traceback.__init__(self, traceback="Database")

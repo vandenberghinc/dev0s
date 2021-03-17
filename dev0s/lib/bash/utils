@@ -606,6 +606,7 @@ fi
 # macos aliases.
 if [[ "$OS" == "macos" ]] ; then
     alias subl="sublime"
+    alias clear='printf "\033c"'
 
 # linux aliases.
 elif [[ "$OS" == "linux" ]] ; then

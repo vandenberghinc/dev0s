@@ -352,8 +352,12 @@ class Python(Files.File):
 		# only for self recursive use.
 		keep_indent=False,
 	):
+
+		# checks.
 		if data == None: data = self.data
 		if data == None: raise Exceptions.InvalidUsage("Define parameter: [data].")
+
+		# normalize.
 		data = data.replace("	","    ")
 		before = "\n"
 		if len(data) > 0 and data[0] != before: data = before+str(data)
@@ -382,6 +386,8 @@ class Python(Files.File):
 			elif "DOCS    = " in data: data = data.replace("DOCS    = ", "DOCS = ")
 			elif "DOCS     = " in data: data = data.replace("DOCS     = ", "DOCS = ")
 			else: break
+
+		# vars.
 		classes = []
 		to_slice = []
 		for i in range(100):
@@ -398,6 +404,8 @@ class Python(Files.File):
 		elif len(slices) > 1:
 			slices = slices[1:]
 		slice_count = 0
+
+		# slice.
 		for class_ in slices:
 			if class_ not in ["", " "]:
 				try: previous = slices[slice_count-1]
@@ -521,7 +529,37 @@ class Python(Files.File):
 								"type":"class",
 							})
 			slice_count += 1
+
+		# fill DOCS customization.
+		_classes_ = []
+		for info in classes:
+			initialized, module, description, chapter = False, None, [], None
+			if len(info["functions"]) > 0:
+				for func in info["functions"]:
+					if "__init__" in func["name"]:
+						test = "DOCS = {"
+						if test in func["code"]:
+							customization = ast.literal_eval(str(String(func["code"].split(test[:-1])[1]).slice_dict(depth=1)))
+							if "initialized" in customization:
+								initialized = customization["initialized"]
+							if "module" in customization:
+								module = customization["module"]
+							if "notes" in customization:
+								description = customization["description"]
+							if "chapter" in customization:
+								chapter = customization["chapter"]
+							break
+			info["initialized"] = initialized
+			info["module"] = module
+			info["description"] = description
+			info["chapter"] = chapter
+			_classes_.append(info)
+		classes = _classes_
+
+		# handler.
 		return classes
+
+		#
 	# slice functions.
 	def slice_functions(self,
 		# the data (str).
@@ -793,7 +831,35 @@ class Python(Files.File):
 							"return":return_,
 						})
 			slice_count += 1
+
+		# fill DOCS customization.
+		_functions_ = []
+		for info in functions:
+			initialized, module, description, chapter = False, None, [], None
+			if "__init__" not in info["name"]:
+				test = "DOCS = {"
+				if test in info["code"]:
+					customization = ast.literal_eval(str(String(info["code"].split(test[:-1])[1]).slice_dict(depth=1)))
+					if "initialized" in customization:
+						initialized = customization["initialized"]
+					if "module" in customization:
+						module = customization["module"]
+					if "description" in customization:
+						description = customization["description"]
+					if "chapter" in customization:
+						chapter = customization["chapter"]
+					break
+			info["initialized"] = initialized
+			info["module"] = module
+			info["description"] = description
+			info["chapter"] = chapter
+			_functions_.append(info)
+		functions = _functions_
+
+		# handler.
 		return functions
+
+		#
 	# build code examples.
 	def build_code_examples(self,
 		# the path (leave None to use self.fp.path).
@@ -853,27 +919,11 @@ class Python(Files.File):
 			""" """
 
 			# fill DOCS customization.
-			initialized, module, description = False, None, None
-			if len(info["functions"]) > 0:
-				for func in info["functions"]:
-					if "__init__" in func["name"]:
-						set = False
-						test = "DOCS = {"
-						if test in func["code"]:
-							customization = ast.literal_eval(str(String(func["code"].split(test[:-1])[1]).slice_dict(depth=1)))
-							if "initialized" in customization:
-								initialized = customization["initialized"]
-							if "module" in customization:
-								module = customization["module"]
-							if "notes" in customization:
-								description = customization["description"]
-							break
+			initialized, module, description = info["initialized"], info["module"], info["description"]
 			if module == None:
 				module = info["name"]
 
-
-				#if [initialized, module, notes] != [None, None, None]:
-				#	initialized_name = module
+			# docs.
 			parameters = clean_params(info["parameters"]).replace("self.", initialized_name+".")
 			if initialized == True:
 				doc = (
@@ -882,7 +932,8 @@ class Python(Files.File):
 				if description != None:
 					for i in description: doc += f"{i}\n"
 				doc += (
-					f"from {package} import " + module.split('.')[0] + "\n" +
+					#f"from {package} import " + module.split('.')[0] + "\n" +
+					f"import {package}" + "\n" +
 					"")
 			else:
 				doc = (
@@ -993,15 +1044,29 @@ class Python(Files.File):
 			# iterate.
 			for info in first_indent_functions:
 				if "__init__" not in info["name"]:
+					try:
+						chapter = info["chapter"]
+					except KeyError:
+						chapter = "Functions"
+						if chapter == None: chapter = "Functions"
 					if info["raw_name"] in list(docs_dict.keys()):
 						try:info["raw_name"] = info["raw_name"].split("-")[0]+"-"+str(int(info["raw_name"].split("-")[1])+1)
 						except: info["raw_name"] = info["raw_name"]+"-1"
 					else:
-						docs_dict[info["raw_name"]] = {
+						try: docs_dict[chapter]
+						except KeyError: docs_dict[chapter] = {}
+						docs_dict[chapter][info["raw_name"]] = {
 							"docs":build_func_doc(info),
+							"name":info["name"],
 							"raw_name":info["raw_name"].split("-")[0],
 							"unique_name":info["raw_name"],
 							"type":info["type"],
+							#
+							"parameters":info["parameters"],
+							"initialized":info["initialized"],
+							"module":info["module"],
+							"description":info["description"],
+							"chapter":info["chapter"],
 						}
 			for info in classes:
 				l_banned = False
@@ -1010,16 +1075,30 @@ class Python(Files.File):
 						l_banned = True
 						break
 				if not l_banned:
+					try:
+						chapter = info["chapter"]
+					except KeyError:
+						chapter = "Classes"
+					if chapter == None: chapter = "Classes"
 					if info["raw_name"] in list(docs_dict.keys()):
 						try:info["raw_name"] = info["raw_name"].split("-")[0]+"-"+str(int(info["raw_name"].split("-")[1])+1)
 						except: info["raw_name"] = info["raw_name"]+"-1"
 					else:
-						docs_dict[info["raw_name"]] = {
+						try: docs_dict[chapter]
+						except KeyError: docs_dict[chapter] = {}
+						docs_dict[chapter][info["raw_name"]] = {
 							"docs":build_class_doc(info),
+							"name":info["name"],
 							"raw_name":info["raw_name"].split("-")[0],
 							"unique_name":info["raw_name"],
 							"type":info["type"],
 							"functions":info["functions"],
+							#
+							"parameters":info["parameters"],
+							"initialized":info["initialized"],
+							"module":info["module"],
+							"description":info["description"],
+							"chapter":info["chapter"],
 						}
 			if log_level >= 0: loader.stop()
 		
@@ -1029,29 +1108,32 @@ class Python(Files.File):
 		# assign unique id's.
 		_docs_dict_ = {}
 		all_ids = []
-		for _, info in docs_dict.items():
-			while True:
-				if info["raw_name"] in all_ids:
-					try:info["raw_name"] = info["raw_name"].split("-")[0]+"-"+str(int(info["raw_name"].split("-")[1])+1)
-					except: info["raw_name"] = info["raw_name"]+"-1"
-				else:
-					all_ids.append(info["raw_name"])
-					if info["type"] == "class":
-						new = []
-						for _info_ in info["functions"]:
-							if "__init__" not in _info_["name"]:
-								while True:
-									if _info_["raw_name"] in all_ids:
-										#print(_info_["name"], "vs", all_ids)
-										try:_info_["raw_name"] = _info_["raw_name"].split("-")[0]+"-"+str(int(_info_["raw_name"].split("-")[1])+1)
-										except: _info_["raw_name"] = _info_["raw_name"]+"-1"
-									else:
-										all_ids.append(_info_["raw_name"]) 
-										break
-								new.append(_info_)
-						info["functions"] = new
-					_docs_dict_[info["raw_name"]] = info
-					break
+		for chapter, l_docs_dict in docs_dict.items():
+			try: _docs_dict_[chapter]
+			except KeyError: _docs_dict_[chapter] = {}
+			for _, info in l_docs_dict.items():
+				while True:
+					if info["raw_name"] in all_ids:
+						try:info["raw_name"] = info["raw_name"].split("-")[0]+"-"+str(int(info["raw_name"].split("-")[1])+1)
+						except: info["raw_name"] = info["raw_name"]+"-1"
+					else:
+						all_ids.append(info["raw_name"])
+						if info["type"] == "class":
+							new = []
+							for _info_ in info["functions"]:
+								if "__init__" not in _info_["name"]:
+									while True:
+										if _info_["raw_name"] in all_ids:
+											#print(_info_["name"], "vs", all_ids)
+											try:_info_["raw_name"] = _info_["raw_name"].split("-")[0]+"-"+str(int(_info_["raw_name"].split("-")[1])+1)
+											except: _info_["raw_name"] = _info_["raw_name"]+"-1"
+										else:
+											all_ids.append(_info_["raw_name"]) 
+											break
+									new.append(_info_)
+							info["functions"] = new
+						_docs_dict_[chapter][info["raw_name"]] = info
+						break
 		docs_dict = _docs_dict_
 
 		# return.
@@ -1155,40 +1237,49 @@ class Python(Files.File):
 			l = (
 				f"""\n# Code Examples:""" + "\n" + 
 				"")
+			
 			# add table content.
 			l += f"""\n### Table of content:""" + "\n"
-			for id, example in code_examples.items(): 
-				if example["type"] == "class":
-					l += f"- [__{example['raw_name']}__](#{example['unique_name'].replace(' ','-').lower()})" + "\n"
-					properties = False
-					for fexample in example["functions"]:
-						if "__init__" not in fexample["raw_name"]: 
-							if fexample["type"] in ["property"]:
-								if not properties:
-									properties = True
-									unique = "properties"
-									while True:
-										if unique not in all_ids:
-											all_ids.append(unique)
-											break
-										else:
-											try:unique = unique.split("-")[0]+"-"+str(int(unique.split("-")[1])+1)
-											except: unique = unique+"-1"
-									unique_name = str(unique)
+			last_chapter = None
+			for chapter, l_code_examples in code_examples.items():
+				for id, example in l_code_examples.items(): 
+					if example["type"] == "class":
+						if chapter == None: chapter = "Classes"
+						if chapter != last_chapter:
+							l += f"- [__{chapter}__](#{chapter.replace(' ','-').lower()})" + "\n"
+							last_chapter = chapter
+						l += f"  - [__{example['raw_name']}__](#{example['unique_name'].replace(' ','-').lower()})" + "\n"
+						properties = False
+						for fexample in example["functions"]:
+							if "__init__" not in fexample["raw_name"]: 
+								if fexample["type"] in ["property"]:
+									if not properties:
+										properties = True
+										unique = "properties"
+										while True:
+											if unique not in all_ids:
+												all_ids.append(unique)
+												break
+											else:
+												try:unique = unique.split("-")[0]+"-"+str(int(unique.split("-")[1])+1)
+												except: unique = unique+"-1"
+										unique_name = str(unique)
+										raw_name = str(fexample['raw_name']).split("-")[0]
+										l += f"    * [{raw_name}](#{unique_name.replace(' ','-').lower()})" + "\n"	
+								else:
+									unique_name = str(fexample['raw_name'])
 									raw_name = str(fexample['raw_name']).split("-")[0]
-									l += f"  * [{raw_name}](#{unique_name.replace(' ','-').lower()})" + "\n"	
-							else:
-								unique_name = str(fexample['raw_name'])
-								raw_name = str(fexample['raw_name']).split("-")[0]
-								l += f"  * [{raw_name}](#{unique_name.replace(' ','-').lower()})" + "\n"
+									l += f"    * [{raw_name}](#{unique_name.replace(' ','-').lower()})" + "\n"
 			l += "\n"#------\n\n"
 			_code_examples_ += l
 			_readme_ += l
+			
 			# add codes.
-			for _, example in code_examples.items(): 
-				#print(example)
-				_code_examples_ += example["docs"]
-				_readme_ += example["docs"]
+			for chapter, l_code_examples in code_examples.items():
+				for _, example in l_code_examples.items(): 
+					#print(example)
+					_code_examples_ += example["docs"]
+					_readme_ += example["docs"]
 
 		# create header table of content.
 		code_open, headers = False, []
@@ -1228,12 +1319,12 @@ class Python(Files.File):
 		# examples export.
 		if examples != None:
 			if log_level >= 0: loader = console.Loader(f"Saving created code examples to [{examples}]")
-			if not os.path.exists(gfp.base(path=examples)): os.system(f"mkdir -p {gfp.base(path=examples)}")
+			if not Files.exists(gfp.base(examples)): Files.create(gfp.base(examples), directory=True)
 			Files.save(examples, _code_examples_)
 			if log_level >= 0: loader.stop()
 
 		# handler.
-		return _readme_
+		return code_examples, _readme_
 		#
 
 	#
