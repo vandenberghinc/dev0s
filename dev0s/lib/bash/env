@@ -101,6 +101,7 @@ Welcome to $NAME $VERSION ($(timestamp)):
   \* Active SSH Sessions: $ACTIVE_SSH_SESSIONS
   \* Private IP: $PRIVATE_IP
   \* Public IP: $PUBLIC_IP
+  \* Memory Usage: $(free | grep Mem | awk '{print $3/$2 * 100.0}')%
 """ 
     fi
     echo $welcome
