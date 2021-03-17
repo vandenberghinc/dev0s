@@ -201,111 +201,51 @@ class Formats():
 						raise Exceptions.ParseError(f"Unable to parse a dict from ({variable.__class__.__name__}) [{variable}].")
 		else:
 			raise Exceptions.InvalidUsage(f"Specified format [{format}] is not a valid format option.")
-	#
-	# initialize from default format to dev0s format.
-	def initialize(
-		# the object / value (#1 param).
-		obj=None, 
-		# list / dict with objects.
-		objects=None, 
-		# initialize file paths.
-		file_paths=False,
-		# the forced format.
-		format=None,
-	):
-		#if obj == None and objects == None: raise Exceptions.InvalidUsage("Define either parameter obj (#1) or objects.")
-		if objects == None:
-			if format in ["file_path", "path"] or (file_paths and os.path.exists(obj)):
-				if os.path.isdir(obj):
-					obj = Files.Directory(path=obj)
-				else:
-					obj = Formats.FilePath(obj)
-			elif format in [str, "str", "string"] or isinstance(obj, str):
-				obj = Formats.String(obj)
-			elif format in [bool, "bool", "boolean"] or isinstance(obj, bool):
-				obj = Formats.Boolean(obj)
-			elif format in [int, "int", "integer"] or isinstance(obj, int):
-				obj = Formats.Integer(obj)
-			elif format in [float, "float", "double"] or isinstance(obj, float):
-				obj = Formats.Integer(obj, format="float")
-			elif format in [list, "list", "array"] or isinstance(obj, list):
-				obj = Files.Array(obj)
-			elif format in [dict, "dict", "dictionary"] or isinstance(obj, dict):
-				obj = Files.Dictionary(obj)
-			return obj
-		else:
-			if isinstance(objects, dict) or isinstance(objects, Dictionary):
-				objs = {}
-				for i,default in objects.items(): 
-					try:
-						objs[i] = self.serialize(i, file_paths=file_paths)
-					except:
-						objs[i] = default
-			else:
-				objs = []
-				for i in objects: objs.append(self.serialize(i, file_paths=file_paths))
-				return objs
-	# denitialize from dev0s formats to default format.
-	def denitialize(
-		# the object / value (#1 param).
-		obj=None, 
-		# list / dict with objects.
-		objects=None, 
-		# initialize file paths.
-		file_paths=True,
-	):
-		#if obj == None and objects == None: raise Exceptions.InvalidUsage("Define either parameter obj (#1) or objects.")
-		if objects == None:
-			if file_paths and isinstance(obj, Directory):
-				obj = str(obj)
-			elif file_paths and isinstance(obj, FilePath):
-				obj = str(obj)
-			elif isinstance(obj, String):
-				obj = str(obj)
-			elif isinstance(obj, Boolean):
-				obj = bool(obj)
-			elif isinstance(obj, Integer):
-				obj = obj.value
-			elif isinstance(obj, (list, Array)):
-				new = []
-				for i in obj:
-					if isinstance(i, (Formats.Date)):
-						new.append(str(i))
-					else:
-						new.append(Formats.denitialize(i, file_paths=file_paths))
-				obj = new
-			elif isinstance(obj, (dict, Dictionary)):
-				new = {}
-				for k,v in obj.items():
-					if isinstance(v, (Formats.Date)):
-						new[str(k)] = str(v)
-					else:
-						new[Formats.denitialize(k)] = Formats.denitialize(v, file_paths=file_paths)
-				obj = new
-			return obj
-		else:
-			if isinstance(objects, dict) or isinstance(objects, Dictionary):
-				objs = {}
-				for i,default in objects.items(): 
-					if isinstance(i, (Formats.Date)) or isinstance(default, (Formats.Date)):
-						try:
-							new[str(k)] = str(i)
-						except:
-							new[str(k)] = str(default)
-					else:
-						try:
-							objs[Formats.denitialize(i)] = Formats.denitialize(i, file_paths=file_paths)
-						except:
-							objs[Formats.denitialize(i)] = default
-			else:
-				objs = []
-				for i in objects: 
-					if isinstance(i, (Formats.Date)):
-						objs.append(str(i))
-					else:
-						objs.append(Formats.denitialize(i, file_paths=file_paths))
-				return objs
 
+	# initialize from default format to dev0s format.
+	def initialize(self, variable, file_paths=True):
+		if variable.__class__.__name__ in ["str","String"]:
+			if file_paths and "/" in variable and Files.exists(variable):
+				return FilePath(variable)
+			else:
+				return String(variable)
+		elif variable.__class__.__name__ in ["bool","Boolean"]:
+			return Boolean(variable)
+		elif variable.__class__.__name__ in ["int","float","Integer"]:
+			return Integer(variable)
+		elif variable.__class__.__name__ in ["dict","Dictionary"]:
+			return Dictionary(variable)
+		elif variable.__class__.__name__ in ["list","Array"]:
+			return Array(variable)
+		else:
+			return variable
+
+		#
+
+	# denitialize from dev0s formats to default format.	
+	def denitialize(self, variable, file_paths=True):
+		if variable.__class__.__name__ in ["String"]:
+			return str(variable)
+		elif variable.__class__.__name__ in ["FilePath"]:
+			return str(variable)
+		elif variable.__class__.__name__ in ["Boolean"]:
+			return bool(variable)
+		elif variable.__class__.__name__ in ["Integer"]:
+			return variable.value
+		elif variable.__class__.__name__ in ["Dictionary", "ResponseObject", "OutputObject"]:
+			new = {}
+			for key,value in variable.items():
+				new[key] = Formats.denitialize(value, file_paths=file_paths)
+			return new
+		elif variable.__class__.__name__ in ["Array"]:
+			new = []
+			for value in variable:
+				new.append(Formats.denitialize(value, file_paths=file_paths))
+			return new
+		else:
+			return variable
+		#
+		
 	# the file path object class.
 	class FilePath(object):
 		def __init__(self, path, default=False, check=False, load=False):
@@ -3112,7 +3052,7 @@ class Files():
 			#
 		# str representation.
 		def __str__(self):
-			return str(self.array)
+			return str(Formats.denitialize(self.array))
 		# content count.
 		def __len__(self):
 			return len(self.array)
@@ -3502,7 +3442,7 @@ class Files():
 				_sorted_ = Array(path=False, array=list(dictionary.keys())).sort(alphabetical=alphabetical, ascending=ascending, reversed=reversed)
 			else: raise ValueError("Unknown behaviour, alphabetical=False.")
 			for key in _sorted_:
-				new[Formats.denitialize(key)] = dictionary[Formats.denitialize(key)]
+				new[str(key)] = dictionary[str(key)]
 			if update:
 				self.dictionary = new
 			return new
