@@ -2342,7 +2342,7 @@ class Files():
 		path = str(path)
 		if os.path.exists(path) and os.path.isdir(path) and path[len(path)-1] != "/": path += '/'
 		return gfp.clean("{}{}{}".format(path, name, type), remove_double_slash=True, remove_last_slash=False)
-	def load(path, data="not to be used", format="str", raw=False, sudo=False): # keep data as second param to prevent save load errors.
+	def load(path, data="not to be used", format="str", raw=True, sudo=False): # keep data as second param to prevent save load errors.
 		# correct format.
 		if format in [str, String, "String", "string", "file"]: format = "str"
 		if format in [dict, Dictionary, "Dictionary", "dict", "array"]: format = "json"
@@ -3247,7 +3247,7 @@ class Files():
 
 			# init.
 			if dictionary == None: dictionary = self.dictionary
-			print(dictionary)
+			print(dictionary, dictionary.__class__.__name__)
 			if not isinstance(dictionary, (dict, Dictionary)):
 				raise Exceptions.InvalidUsage(f"<Dictionary.check> parameter [dicionary] requires to be a [dict, Dictionary] not [{dictionary.__class__.__name__}].")
 			
