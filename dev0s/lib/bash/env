@@ -8,9 +8,9 @@ fi
 
 # import.
 if [[ "$OSTYPE" == "darwin"* ]] ; then
-    source $lib/bash/import --lib $lib
+    source $lib/bash/import --lib $lib --no-error-exit
 else
-    . $lib/bash/import --lib $lib
+    . $lib/bash/import --lib $lib --no-error-exit
 fi
 
 # macos.
