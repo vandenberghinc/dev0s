@@ -2369,20 +2369,22 @@ class Files():
 				try: 
 					with open(path, 'r+') as json_file:
 						data = json.load(json_file)
-				except PermissionError:
-					data = ast.literal_eval(Files.load(path=path, format="str", raw=True, sudo=sudo))
 				except json.decoder.JSONDecodeError as e:
-					e = f"Unable to decode file [{path}] (sudo: {sudo}), error: {e}."
-					raise Exceptions.JSONDecodeError(e)
+					try:
+						data = ast.literal_eval(Files.load(path=path, format="str", raw=True, sudo=sudo))
+					except:
+						e = f"Unable to decode file [{path}] (sudo: {sudo}), error: {e}."
+						raise Exceptions.JSONDecodeError(e)
+
 			else:
 				try: 
-					try: 
-						data = json.loads(data)
-					except:
-						data = ast.literal_eval(Files.load(path=path, format="str", raw=True, sudo=sudo))
+					data = json.loads(data)
 				except json.decoder.JSONDecodeError as e:
-					e = f"Unable to decode file [{path}] (sudo: {sudo}), error: {e}."
-					raise Exceptions.JSONDecodeError(e)
+					try:
+						data = ast.literal_eval(Files.load(path=path, format="str", raw=True, sudo=sudo))
+					except:
+						e = f"Unable to decode file [{path}] (sudo: {sudo}), error: {e}."
+						raise Exceptions.JSONDecodeError(e)
 		elif format == "bytes":
 			if not sudo:
 				with open(path, "rb") as file:
