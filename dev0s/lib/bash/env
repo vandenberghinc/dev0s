@@ -65,9 +65,14 @@ IFS=" " read before after <<< $ips
 PRIVATE_IP=$before
 if [[ "$OS" == "macos" ]] ; then
     PUBLIC_IP="$(dig +short myip.opendns.com @resolver1.opendns.com)"
+    output=$(top -l 1 -s 0)
+    PROCESSES="$(replace-str "$(echo $output | awk ' /Processes/ ')" "Processes: " "" )"
+    CPU_USAGE="$(replace-str "$(echo $output | awk ' /CPU usage/ ')" "CPU usage: " "" )"
 elif [[ "$OS" == "linux" ]] ; then
     PUBLIC_IP="$(curl https://ipinfo.io/ip)"
     ACTIVE_SSH_SESSIONS=$(replace-str $(replace-str $(ss | grep ssh | awk '{print $1","$2","$3","$4","$5","$6}' | wc -l) " " "") "    " "")
+    PROCESSES=$(replace-str "$(replace-str "$(top -bn1 | grep zombie )" ' ' '')" "Tasks:" "")
+    MEMORY_USAGE=$(free | grep Mem | awk '{print $3/$2 * 100.0}')
 fi
 
 # welcome message.
@@ -75,7 +80,6 @@ if [[ "$HIDE_WELCOME_MESSAGE" != "true" ]] ; then
 
     # welcome message macos.
     if [[ "$OS" == "macos" ]] ; then
-        output=$(top -l 1 -s 0)
         welcome="""
 Welcome to $NAME $VERSION ($(timestamp)):
   * Host: $hs
@@ -85,8 +89,8 @@ Welcome to $NAME $VERSION ($(timestamp)):
   * Active TTY Sessions: $ACTIVE_TTY_SESSIONS
   * Private IP: $PRIVATE_IP
   * Public IP: $PUBLIC_IP
-  * $(echo $output | awk ' /Processes/ ')
-  * $(echo $output | awk ' /CPU usage/ ')
+  * Processes: $PROCESSES
+  * CPU Usage: $CPU_USAGE
 """
 
     # welcome message linux.
@@ -101,7 +105,8 @@ Welcome to $NAME $VERSION ($(timestamp)):
   \* Active SSH Sessions: $ACTIVE_SSH_SESSIONS
   \* Private IP: $PRIVATE_IP
   \* Public IP: $PUBLIC_IP
-  \* Memory Usage: $(free | grep Mem | awk '{print $3/$2 * 100.0}')%
+  \* Processes: $PROCESSES
+  \* Memory Usage: $MEMORY_USAGE%
 """ 
     fi
     echo $welcome
