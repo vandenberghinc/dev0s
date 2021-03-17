@@ -17,3 +17,6 @@ python3-dev
 opensc
 yubico-piv-tool
 yubikey-manager
+
+# alerts.
+libnotify-bin

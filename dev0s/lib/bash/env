@@ -107,7 +107,7 @@ if [[ "$HIDE_WELCOME_MESSAGE" != "true" ]] ; then
     # welcome message macos.
     if [[ "$OS" == "macos" ]] ; then
         welcome="""
-Welcome to $NAME $VERSION ($(timestamp)):
+Welcome to $NAME $VERSION $(date +"%B %dth %T"):
   * Host: $hs
   * User: $user
   * Operating System: $OS
@@ -123,7 +123,7 @@ Welcome to $NAME $VERSION ($(timestamp)):
     # welcome message linux.
     elif [[ "$OS" == "linux" ]] ; then
         welcome="""
-Welcome to $NAME $VERSION ($(timestamp)):
+Welcome to $NAME $VERSION $(date +"%B %dth %T"):
   * Host: $hs
   * User: $user
   * Operating System: $OS
