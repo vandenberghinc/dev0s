@@ -194,9 +194,9 @@ function replace-str() {
         error "Error: Specify the from (#2) parameter: $ replace-str 'hello wold' 'worl' 'world' " $@ ; return
     fi
     to=$3
-    if [[ "$to" == "" ]] && [[ $(argument-present --except $@) == "false" ]] ; then
-        error "Error: Specify the to (#3) parameter: $ replace-str 'hello wold' 'worl' 'world' " $@ ; return
-    fi
+    #if [[ "$to" == "" ]] && [[ $(argument-present --except $@) == "false" ]] ; then
+    #    error "Error: Specify the to (#3) parameter: $ replace-str 'hello wold' 'worl' 'world' " $@ ; return
+    #fi
     new=${string/$from/$to}
     echo $new
 }
@@ -344,6 +344,21 @@ function set-hostname() {
         error "Error: unsupported operating system $OS." $@ ; return
     fi
 }
+
+# get timestamp.
+function timestamp() {
+  date +"%T" # current time
+}
+
+# get memory usage in percentage.
+function memory-usage() {
+    if [[ "$OS" == "linux" ]] ; then 
+        free | grep Mem | awk '{print $3/$2 * 100.0}'
+    else
+    fi
+}
+
+
 
 # find str.
 #function find-str() {

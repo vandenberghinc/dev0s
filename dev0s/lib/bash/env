@@ -25,6 +25,12 @@ if [[ "$OS" == "macos" ]] ; then
         export LSCOLORS=ExGxBxDxCxegedabagaced
     fi
 
+    # os info.
+    IFS=":" read name value <<< $(sw_vers) 
+    NAME=$(replace-str $(replace-str $value " " "" --except) "   " "" --except)
+    IFS=":" read name value <<< $(sw_vers | tail -2) 
+    VERSION=$(replace-str $(replace-str $value " " "" --except) "   " "" --except)
+
     # prevent duplicate commands in arrow up history.
     setopt HIST_IGNORE_DUPS
 
@@ -42,8 +48,68 @@ elif [[ "$OS" == "linux" ]] ;  then
 
     fi
 
+    # os info.
+    . /etc/os-release
+
     # zombie processes.
     alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" "$(history|tail -n1|sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'\'')"'
     alert
 
 fi
+
+
+
+
+## METRICS.
+
+# get memory usage in percentage.
+function memory-usage() {
+    if [[ "$OS" == "linux" ]] ; then 
+        free | grep Mem | awk '{print $3/$2 * 100.0}'
+    else
+        top -l 1 -s 0 | awk ' /Processes/ || /CPU usage/ '
+    fi
+}
+
+# get cpu usage in percentage.
+function cpu-usage() {
+    if [[ "$OS" == "linux" ]] ; then 
+        free | grep Mem | awk '{print $3/$2 * 100.0}'
+    else
+        top -l 1 -s 0 | awk ' /Processes/ || /CPU usage/ '
+    fi
+}
+
+# get cpu usage in percentage.
+function processes() {
+    if [[ "$OS" == "linux" ]] ; then 
+        free | grep Mem | awk '{print $3/$2 * 100.0}'
+    else
+        top -l 1 -s 0 | awk ' /Processes/ || /CPU usage/ '
+    fi
+}
+
+
+ips=$(ifconfig | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '([0-9]*\.){3}[0-9]*' | grep -v '127.0.0.1')
+IFS=" " read before after <<< $ips 
+PRIVATE_IP=$before
+PUBLIC_IP="$(dig +short myip.opendns.com @resolver1.opendns.com)"
+
+# welcome message.
+echo """
+Welcome to $NAME $VERSION ($(timestamp)):
+
+  * Host: $hs
+  * User: $user
+  * Operating System: $OS  
+  * Private IP: $PRIVATE_IP  
+  * Public IP: $PUBLIC_IP """
+
+if [[ "$OS" == "macos" ]] ; then
+    output=$(top -l 1 -s 0)
+    echo "  * "$(echo $output | awk ' /Processes/ ')
+    echo "  * "$(echo $output | awk ' /CPU usage/ ')
+elif [[ "$OS" == "linux" ]] ; then
+
+fi
+echo ""
