@@ -28,4 +28,10 @@ if [[ "$OS" == "macos" ]] ; then
     # prevent duplicate commands in arrow up history.
     setopt HIST_IGNORE_DUPS
 
+elif [[ "$OS" == "linux" ]] ;  then
+
+    # replace hostname.
+    hs=$(replace-str `hostname` "_" ".")
+    export PS1='%F{green}%}%n%{%f%}%{%F{green}%}@'$hs' %{%F{blue}%}%1~ %{%f%}%$$ '
+
 fi
