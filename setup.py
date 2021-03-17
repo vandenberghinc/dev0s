@@ -7,7 +7,7 @@
 from setuptools import setup, find_packages
 setup(
 	name='dev0s',
-	version='3.20.9',
+	version='3.21.0',
 	description='Some description.',
 	url='http://github.com/vandenberghinc/dev0s',
 	author='Daan van den Bergh',
