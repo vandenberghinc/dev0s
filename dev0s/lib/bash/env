@@ -57,16 +57,13 @@ elif [[ "$OS" == "linux" ]] ;  then
 
 fi
 
-
-
-
-# welcome message.
+# vars.
 ips=$(ifconfig | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '([0-9]*\.){3}[0-9]*' | grep -v '127.0.0.1')
 IFS=" " read before after <<< $ips 
 PRIVATE_IP=$before
 PUBLIC_IP="$(dig +short myip.opendns.com @resolver1.opendns.com)"
 
-
+# welcome message.
 welcome="""
 Welcome to $NAME $VERSION ($(timestamp)):
   * Host: $hs 
