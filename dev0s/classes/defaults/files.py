@@ -2788,7 +2788,7 @@ class Files():
 			if path == None: path = self.file_path.path
 			utils.__check_memory_only__(path)
 			self.array = array
-			return Files.save(path, array, format="json", indent=indent, ensure_ascii=ensure_ascii, sudo=sudo)
+			return Files.save(path, Formats.denitialize(array), format="json", indent=indent, ensure_ascii=ensure_ascii, sudo=sudo)
 		def load(self, default=None, sudo=False):
 			utils.__check_memory_only__(self.file_path.path)
 			if not os.path.exists(self.file_path.path) and default != None: 
@@ -3198,7 +3198,7 @@ class Files():
 			if dictionary == None: dictionary = self.dictionary
 			if path == None: path = self.file_path.path
 			self.dictionary = dictionary
-			return Files.save(path, dictionary, format="json", indent=indent, ensure_ascii=ensure_ascii, sudo=sudo)
+			return Files.save(path, Formats.denitialize(dictionary), format="json", indent=indent, ensure_ascii=ensure_ascii, sudo=sudo)
 		def load(self, default=None, sudo=False):
 			utils.__check_memory_only__(self.file_path.path)
 			if not os.path.exists(self.file_path.path) and default != None: 
