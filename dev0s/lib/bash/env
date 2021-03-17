@@ -60,42 +60,13 @@ fi
 
 
 
-## METRICS.
-
-# get memory usage in percentage.
-function memory-usage() {
-    if [[ "$OS" == "linux" ]] ; then 
-        free | grep Mem | awk '{print $3/$2 * 100.0}'
-    else
-        top -l 1 -s 0 | awk ' /Processes/ || /CPU usage/ '
-    fi
-}
-
-# get cpu usage in percentage.
-function cpu-usage() {
-    if [[ "$OS" == "linux" ]] ; then 
-        free | grep Mem | awk '{print $3/$2 * 100.0}'
-    else
-        top -l 1 -s 0 | awk ' /Processes/ || /CPU usage/ '
-    fi
-}
-
-# get cpu usage in percentage.
-function processes() {
-    if [[ "$OS" == "linux" ]] ; then 
-        free | grep Mem | awk '{print $3/$2 * 100.0}'
-    else
-        top -l 1 -s 0 | awk ' /Processes/ || /CPU usage/ '
-    fi
-}
-
-
+# welcome message.
 ips=$(ifconfig | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '([0-9]*\.){3}[0-9]*' | grep -v '127.0.0.1')
 IFS=" " read before after <<< $ips 
 PRIVATE_IP=$before
 PUBLIC_IP="$(dig +short myip.opendns.com @resolver1.opendns.com)"
 
-# welcome message.
+
 welcome="""
 Welcome to $NAME $VERSION ($(timestamp)):
   * Host: $hs 
@@ -108,6 +79,8 @@ if [[ "$OS" == "macos" ]] ; then
     output=$(top -l 1 -s 0)
     welcome=$welcome"  * "$(echo $output | awk ' /Processes/ ')"\n"
     welcome=$welcome"  * "$(echo $output | awk ' /CPU usage/ ')"\n"
-elif [[ "$OS" == "linux" ]] ; then
+#elif [[ "$OS" == "linux" ]] ; then
 fi
-if [[ "$HIDE_WELCOME_MESSAGE" != "true" ]] ; then  echo $welcome ; fi
+if [[ "$HIDE_WELCOME_MESSAGE" != "true" ]] ; then
+    echo $welcome
+fi
