@@ -97,7 +97,7 @@ PUBLIC_IP="$(dig +short myip.opendns.com @resolver1.opendns.com)"
 
 # welcome message.
 if [[ "$HIDE_WELCOME_MESSAGE" != "true" ]] ; then
-echo """
+welcome="""
 Welcome to $NAME $VERSION ($(timestamp)):
 
   * Host: $hs
