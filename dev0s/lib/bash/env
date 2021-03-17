@@ -76,8 +76,9 @@ if [[ "$OS" == "macos" ]] ; then
     output=$(top -l 1 -s 0)
     welcome=$welcome"  * "$(echo $output | awk ' /Processes/ ')"\n"
     welcome=$welcome"  * "$(echo $output | awk ' /CPU usage/ ')"\n"
-#elif [[ "$OS" == "linux" ]] ; then
 fi
 if [[ "$HIDE_WELCOME_MESSAGE" != "true" ]] ; then
     echo $welcome
 fi
+
+#
