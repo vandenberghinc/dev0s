@@ -13,7 +13,7 @@ else
     . $lib/bash/import --lib $lib
 fi
 
-# colors.
+# macos.
 if [[ "$OS" == "macos" ]] ; then
 
     # colors (http://www.marinamele.com/2014/05/customize-colors-of-your-terminal-in-mac-os-x.html).
@@ -28,12 +28,18 @@ if [[ "$OS" == "macos" ]] ; then
     # prevent duplicate commands in arrow up history.
     setopt HIST_IGNORE_DUPS
 
+# linux.
 elif [[ "$OS" == "linux" ]] ;  then
 
-    # replace hostname.
-    if [[ "OSTYPE" =~ "linux-gnu" ]] ; then
-        hs=$(replace-str `hostname` "_" ".")
-        export PS1='\[\e]0;\u@'$hs': \w\a\]${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\] \$ '
+    # colors.
+    if [[ "$user" != "root" ]] ; then
+
+        # replace hostname.
+        if [[ "OSTYPE" == "linux-gnu" ]] ; then
+            hs=$(replace-str `hostname` "_" ".")
+            export PS1='\[\e]0;\u@'$hs': \w\a\]${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\] \$ '
+        fi
+
     fi
 
 fi
