@@ -2298,7 +2298,6 @@ class Files():
 			if "No such file or directory" in data: raise FileNotFoundError(f"File [{path}] does not exist.")
 
 		# proceed.
-		print(format)
 		if format == "str":
 			if not sudo:
 				file = open(path,mode='rb')
