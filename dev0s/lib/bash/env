@@ -31,7 +31,7 @@ if [[ "$OS" == "macos" ]] ; then
 elif [[ "$OS" == "linux" ]] ;  then
 
     # replace hostname.
-    hs=$(replace-str `hostname` "_" ".")
-    export PS1='%F{green}%}%n%{%f%}%{%F{green}%}@'$hs'%F{white}%}:%{%F{blue}%}%0~ %{%f%}%$$ '
+    #hs=$(replace-str `hostname` "_" ".")
+    #export PS1='%F{green}%}%n%{%f%}%{%F{green}%}@'$hs'%F{white}%}:%{%F{blue}%}%0~ %{%f%}%$$ '
 
 fi
