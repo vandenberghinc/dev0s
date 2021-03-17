@@ -96,6 +96,7 @@ PRIVATE_IP=$before
 PUBLIC_IP="$(dig +short myip.opendns.com @resolver1.opendns.com)"
 
 # welcome message.
+if [[ "$HIDE_WELCOME_MESSAGE" != "true" ]] ; then
 echo """
 Welcome to $NAME $VERSION ($(timestamp)):
 
@@ -104,7 +105,6 @@ Welcome to $NAME $VERSION ($(timestamp)):
   * Operating System: $OS  
   * Private IP: $PRIVATE_IP  
   * Public IP: $PUBLIC_IP """
-
 if [[ "$OS" == "macos" ]] ; then
     output=$(top -l 1 -s 0)
     echo "  * "$(echo $output | awk ' /Processes/ ')
@@ -113,3 +113,4 @@ elif [[ "$OS" == "linux" ]] ; then
 
 fi
 echo ""
+fi
