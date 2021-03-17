@@ -19,9 +19,8 @@ if [[ "$OS" == "macos" ]] ; then
     # colors (http://www.marinamele.com/2014/05/customize-colors-of-your-terminal-in-mac-os-x.html).
     if [[ "$user" != "root" ]] ; then
         #export PS1='%{%F{green}%}%n%{%f%}%{%F{green}%}@%{%f%}%{%F{green}%}%m %{%F{blue}%}%1~ %{%f%}%$$ '
-        lhostname="%{%f%}%{%F{green}%}%m"
-        rhostname=$(replace-str $lhostname "_" ".")
-        export PS1='%{%F{green}%}%n%{%f%}%{%F{green}%}@'$(replace-str $rhostname "_" ".")' %{%F{blue}%}%1~ %{%f%}%$$ '
+        hs=$(replace-str `hostname` "_" ".")
+        export PS1='%F{green}%}%n%{%f%}%{%F{green}%}@'$hs' %{%F{blue}%}%1~ %{%f%}%$$ '
         export CLICOLOR=1
         export LSCOLORS=ExGxBxDxCxegedabagaced
     fi
