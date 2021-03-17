@@ -2342,10 +2342,10 @@ class Files():
 		path = str(path)
 		if os.path.exists(path) and os.path.isdir(path) and path[len(path)-1] != "/": path += '/'
 		return gfp.clean("{}{}{}".format(path, name, type), remove_double_slash=True, remove_last_slash=False)
-	def load(path, data="not to be used", format="str", raw=True, sudo=False): # keep data as second param to prevent save load errors.
+	def load(path, data="not to be used", format="str", raw=False, sudo=False): # keep data as second param to prevent save load errors.
 		# correct format.
 		if format in [str, String, "String", "string", "file"]: format = "str"
-		if format in [dict, Dictionary, "Dictionary", "dict", "array"]: format = "json"
+		if format in [dict, Dictionary, "Dictionary", "dict", "array", "Array"]: format = "json"
 		if format in [bytes, Bytes, "Bytes"]: format = "bytes"
 		#format = str(format)
 		# match format.
@@ -2358,6 +2358,7 @@ class Files():
 			if "No such file or directory" in data: raise FileNotFoundError(f"File [{path}] does not exist.")
 
 		# proceed.
+		print(format)
 		if format == "str":
 			if not sudo:
 				file = open(path,mode='rb')
@@ -3212,7 +3213,6 @@ class Files():
 			if not os.path.exists(self.file_path.path) and default != None: 
 				self.save(default, sudo=sudo)
 			self.dictionary = Files.load(self.file_path.path, format="json", sudo=sudo)
-			print(self.dictionary, self.dictionary.__class__.__name__)
 			return self.dictionary
 		def load_line(self, line_number, sudo=False):
 			utils.__check_memory_only__(self.file_path.path)
