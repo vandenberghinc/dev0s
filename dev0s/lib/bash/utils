@@ -350,6 +350,16 @@ function timestamp() {
   date +"%T" # current time
 }
 
+# check connected to internet.
+function connected() {
+    ping -c1 "8.8.8.8" &> "/dev/null"
+    if [[ "${?}" -ne 0 ]]; then
+        echo "true"
+    elif [[ "${#args[@]}" -eq 0 ]]; then
+        echo "false"
+    fi
+}
+
 
 # find str.
 #function find-str() {

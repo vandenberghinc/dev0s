@@ -3,59 +3,59 @@
 # library variable.
 lib=$(clean-path $(get-argument --lib $@))
 if [[ "$lib" == "none" ]] || [[ "$lib" == "" ]] ; then
-    lib="/usr/local/lib/dev0s/lib/"
+	lib="/usr/local/lib/dev0s/lib/"
 fi
 
 # import.
 if [[ "$OSTYPE" == "darwin"* ]] ; then
-    source $lib/bash/import --lib $lib --no-error-exit
+	source $lib/bash/import --lib $lib --no-error-exit
 else
-    . $lib/bash/import --lib $lib --no-error-exit
+	. $lib/bash/import --lib $lib --no-error-exit
 fi
 
 # macos.
 if [[ "$OS" == "macos" ]] ; then
 
-    # colors (http://www.marinamele.com/2014/05/customize-colors-of-your-terminal-in-mac-os-x.html).
-    if [[ "$user" != "root" ]] ; then
-        #export PS1='%{%F{green}%}%n%{%f%}%{%F{green}%}@%{%f%}%{%F{green}%}%m %{%F{blue}%}%1~ %{%f%}%$$ '
-        hs=$(replace-str `hostname` "_" ".")
-        export PS1='%F{green}%}%n%{%f%}%{%F{green}%}@'$hs'%F{white}%}:%{%F{blue}%}%0~ %{%f%}%$$ '
-        export CLICOLOR=1
-        export LSCOLORS=ExGxBxDxCxegedabagaced
-    fi
+	# colors (http://www.marinamele.com/2014/05/customize-colors-of-your-terminal-in-mac-os-x.html).
+	if [[ "$user" != "root" ]] ; then
+		#export PS1='%{%F{green}%}%n%{%f%}%{%F{green}%}@%{%f%}%{%F{green}%}%m %{%F{blue}%}%1~ %{%f%}%$$ '
+		hs=$(replace-str `hostname` "_" ".")
+		export PS1='%F{green}%}%n%{%f%}%{%F{green}%}@'$hs'%F{white}%}:%{%F{blue}%}%0~ %{%f%}%$$ '
+		export CLICOLOR=1
+		export LSCOLORS=ExGxBxDxCxegedabagaced
+	fi
 
-    # os info.
-    IFS=":" read name value <<< $(sw_vers) 
-    NAME=$(replace-str $(replace-str $value " " "" --except) "   " "" --except)
-    IFS=":" read name value <<< $(sw_vers | tail -2) 
-    VERSION=$(replace-str $(replace-str $value " " "" --except) "   " "" --except)
+	# os info.
+	IFS=":" read name value <<< $(sw_vers) 
+	NAME=$(replace-str $(replace-str $value " " "" --except) "   " "" --except)
+	IFS=":" read name value <<< $(sw_vers | tail -2) 
+	VERSION=$(replace-str $(replace-str $value " " "" --except) "   " "" --except)
 
-    # prevent duplicate commands in arrow up history.
-    setopt HIST_IGNORE_DUPS
+	# prevent duplicate commands in arrow up history.
+	setopt HIST_IGNORE_DUPS
 
 # linux.
 elif [[ "$OS" == "linux" ]] ;  then
 
-    # colors.
-    if [[ "$user" != "root" ]] ; then
+	# colors.
+	if [[ "$user" != "root" ]] ; then
 
-        # replace hostname.
-        if [[ "$OSTYPE" =~ "linux-gnu" ]] ; then
-            hs=$(replace-str `hostname` "_" ".")
-            export PS1='\[\e]0;\u@'$hs': \w\a\]${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@'$hs'\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\] \$ '
-        fi
+		# replace hostname.
+		if [[ "$OSTYPE" =~ "linux-gnu" ]] ; then
+			hs=$(replace-str `hostname` "_" ".")
+			export PS1='\[\e]0;\u@'$hs': \w\a\]${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@'$hs'\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\] \$ '
+		fi
 
-    fi
+	fi
 
-    # os info.
-    . /etc/os-release # to get $NAME &VERSION
+	# os info.
+	. /etc/os-release # to get $NAME &VERSION
 
-    # zombie processes.
-    #if [[ "$(command-exists notify-send)" == "false" ]] ; then
-    #    sudo apt-get -y install libnotify-bin
-    #fi
-    #alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" "$(history|tail -n1|sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'\'')"'
+	# zombie processes.
+	#if [[ "$(command-exists notify-send)" == "false" ]] ; then
+	#    sudo apt-get -y install libnotify-bin
+	#fi
+	#alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" "$(history|tail -n1|sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'\'')"'
 
 fi
 
@@ -64,20 +64,20 @@ SIGNED_USERS=$(replace-str $(replace-str $(users | wc -w) " " "") "    " "")
 ACTIVE_TTY_SESSIONS=$(replace-str $(replace-str $(who | wc -l) " " "") "    " "")
 LAST_IP=$(last -1 $USER | awk '{print $3}')
 if [[ "0123456789" =~ "${LAST_IP:0:1}" ]] ; then
-    IFS="\n" read LAST_IP after <<< $LAST_IP 
-    value=$(last -1 $USER | awk '{print $1""$2""$3" "$4" "$5" "$6" "$7}' | awk '{$1="" ; print$0}')
+	IFS="\n" read LAST_IP after <<< $LAST_IP 
+	value=$(last -1 $USER | awk '{print $1""$2""$3" "$4" "$5" "$6" "$7}' | awk '{$1="" ; print$0}')
 else
-    LAST_IP=""
-    value=$(last -1 $USER | awk '{print $1""$2" "$3" "$4" "$5" "$6}' | awk '{$1="" ; print$0}')
+	LAST_IP=""
+	value=$(last -1 $USER | awk '{print $1""$2" "$3" "$4" "$5" "$6}' | awk '{$1="" ; print$0}')
 fi
 LAST_DATE=${value:1}
 IFS="\n" read LAST_DATE after <<< $LAST_DATE 
 LAST_TTY=$(last -1 $USER | awk '{print $2}')
 IFS="\n" read LAST_TTY after <<< $LAST_TTY 
 if [[ "$LAST_IP" == "" ]] ; then
-    LAST_LOGIN="$LAST_DATE on $LAST_TTY"
+	LAST_LOGIN="$LAST_DATE on $LAST_TTY"
 else
-    LAST_LOGIN="$LAST_DATE on $LAST_TTY from $LAST_IP"
+	LAST_LOGIN="$LAST_DATE on $LAST_TTY from $LAST_IP"
 fi
 DISK_USAGE=$(df -k / | awk '{print $5}' | tail -1)
 if [[ "$OS" != "macos" ]] ; then
@@ -87,29 +87,37 @@ ips=$(ifconfig | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '([0-9]*
 IFS=" " read before after <<< $ips 
 PRIVATE_IP=$before
 if [[ "$OS" == "macos" ]] ; then
-    PUBLIC_IP="$(dig +short myip.opendns.com @resolver1.opendns.com)"
-    output=$(top -l 1 -s 0)
-    PROCESSES="$(replace-str "$(echo $output | awk ' /Processes/ ')" "Processes: " "" )"
-    CPU_USAGE="$(replace-str "$(echo $output | awk ' /CPU usage/ ')" "CPU usage: " "" )"
+	if [[ "$(connected)" == "true" ]] ; then
+		PUBLIC_IP="$(dig +short myip.opendns.com @resolver1.opendns.com)"
+	else
+		PUBLIC_IP=""
+	fi
+	output=$(top -l 1 -s 0)
+	PROCESSES="$(replace-str "$(echo $output | awk ' /Processes/ ')" "Processes: " "" )"
+	CPU_USAGE="$(replace-str "$(echo $output | awk ' /CPU usage/ ')" "CPU usage: " "" )"
 elif [[ "$OS" == "linux" ]] ; then
-    PUBLIC_IP="$(curl -s https://ipinfo.io/ip)"
-    ACTIVE_SSH_SESSIONS=$(replace-str $(replace-str $(ss | grep ssh | awk '{print $1","$2","$3","$4","$5","$6}' | wc -l) " " "") "    " "")
-    PROCESSES=$(replace-str "$(replace-str "$(top -bn1 | grep zombie )" ' ' '')" "Tasks:" "")
-    MEMORY_USAGE=$(printf "%0.2f\n" $(free | grep Mem | awk '{print $3/$2 * 100.0}'))
-    CPU_USAGE=$(printf "%0.2f\n" $(grep 'cpu ' /proc/stat | awk '{usage=($2+$4)*100/($2+$4+$5)} END {print usage }'))
+	if [[ "$(connected)" == "true" ]] ; then
+		PUBLIC_IP="$(curl -s https://ipinfo.io/ip)"
+	else
+		PUBLIC_IP=""
+	fi
+	ACTIVE_SSH_SESSIONS=$(replace-str $(replace-str $(ss | grep ssh | awk '{print $1","$2","$3","$4","$5","$6}' | wc -l) " " "") "    " "")
+	PROCESSES=$(replace-str "$(replace-str "$(top -bn1 | grep zombie )" ' ' '')" "Tasks:" "")
+	MEMORY_USAGE=$(printf "%0.2f\n" $(free | grep Mem | awk '{print $3/$2 * 100.0}'))
+	CPU_USAGE=$(printf "%0.2f\n" $(grep 'cpu ' /proc/stat | awk '{usage=($2+$4)*100/($2+$4+$5)} END {print usage }'))
 fi
 
 # welcome message.
 if [[ "$HIDE_WELCOME_MESSAGE" != "true" ]] ; then
 
-    # hide default last login.
-    if [[ ! -f "$HOME/.hushlogin" ]] ; then
-        touch ~/.hushlogin
-    fi
+	# hide default last login.
+	if [[ ! -f "$HOME/.hushlogin" ]] ; then
+		touch ~/.hushlogin
+	fi
 
-    # welcome message macos.
-    if [[ "$OS" == "macos" ]] ; then
-        welcome="""
+	# welcome message macos.
+	if [[ "$OS" == "macos" ]] ; then
+		welcome="""
 Welcome to $NAME $VERSION $(date +"%B %dth %T"):
   * Host: $hs
   * User: $user
@@ -124,9 +132,9 @@ Welcome to $NAME $VERSION $(date +"%B %dth %T"):
   * Last Login: $LAST_LOGIN
 """
 
-    # welcome message linux.
-    elif [[ "$OS" == "linux" ]] ; then
-        welcome="""
+	# welcome message linux.
+	elif [[ "$OS" == "linux" ]] ; then
+		welcome="""
 Welcome to $NAME $VERSION $(date +"%B %dth %T"):
   * Host: $hs
   * User: $user
@@ -141,8 +149,8 @@ Welcome to $NAME $VERSION $(date +"%B %dth %T"):
   * Processes: $PROCESSES
   * Last Login: $LAST_LOGIN
 """ 
-    fi
-    echo "$welcome"
+	fi
+	echo "$welcome"
 fi
 
 #
