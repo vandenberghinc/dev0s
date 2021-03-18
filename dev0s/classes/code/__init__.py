@@ -788,7 +788,7 @@ class Python(Files.File):
 								full_inside_class = f"{i['init_line'].split('(')[0]}{i['parameters']}:\n{i['raw_code']}"
 								class_code = class_code.replace("):  \n","):\n").replace("):   \n","):\n").replace("):    \n","):\n").replace("):     \n","):\n").replace("):	\n","):\n").replace(full_inside_class, "")
 						return_ = None
-						if " return Response" in str(raw_class_code) or "\nreturn Response" in str(raw_class_code):
+						if (" return response" in str(raw_class_code) or "\nreturn response" in str(raw_class_code)) or (" return dev0s.response." in str(raw_class_code) or "\nreturn dev0s.response." in str(raw_class_code)) or (" return _response_." in str(raw_class_code) or "\nreturn _response_." in str(raw_class_code)):
 							return_ = "response"
 						elif " return " not in str(raw_class_code) or "\nreturn " not in str(raw_class_code):
 							return_ = "_"
