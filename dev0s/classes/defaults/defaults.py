@@ -100,12 +100,11 @@ class Defaults(object):
 		if not Files.exists(base):
 			base = f"/usr/bin/"
 		path = f"{base}/{alias}"
-		if ((cli.argument_present("--force") or cli.argument_present("--forced") or overwrite) and present) or (present or not Files.exists(path)):
+		sudo = Boolean("--sudo" in sys.argv).string(true="sudo ",false="")
+		if venv != None: venv = f'"{venv}"'
+		file = f"""#!/usr/bin/env python3\nimport os, sys, platform\npackage="{executable}"\nvenv={venv}\nsys.argv.pop(0)\narguments = sys.argv\ns = ""\nfor i in arguments:\n	if s == "": \n		if " " in i: s = "'"+i+"'"\n		else: s = i\n	else: \n		if " " in i: s += " '"+i+"'"\n		else: s += " "+i\n"""+"""if venv != None: os.system(f"{venv}/bin/python3 "+package+" "+s)\nelif str(platform.system()).lower() in ["darwin"] and os.path.exists("/usr/bin/python3"): os.system("/usr/bin/python3 "+package+" "+s)\nelse:  os.system("python3 "+package+" "+s)\n#os.system("python3 "+package+" "+s)"""
+		if ((cli.argument_present("--force") or cli.argument_present("--forced") or overwrite) and present) or (present or not Files.exists(path)) or (present and Files.exists(path) and Files.load(path) != file):
 			if l_alias != None: alias = l_alias
-			#file = f"""package={executable}/\nargs=""\nfor var in "$@" ; do\n   	if [ "$args" == "" ] ; then\n   		args=$var\n   	else\n   		args=$args" "$var\n   	fi\ndone\npython3 $package $args\n"""
-			sudo = Boolean("--sudo" in sys.argv).string(true="sudo ",false="")
-			if venv != None: venv = f'"{venv}"'
-			file = f"""#!/usr/bin/env python3\nimport os, sys, platform\npackage="{executable}"\nvenv={venv}\nsys.argv.pop(0)\narguments = sys.argv\ns = ""\nfor i in arguments:\n	if s == "": \n		if " " in i: s = "'"+i+"'"\n		else: s = i\n	else: \n		if " " in i: s += " '"+i+"'"\n		else: s += " "+i\n"""+"""if venv != None: os.system(f"{venv}/bin/python3 "+package+" "+s)\nelif str(platform.system()).lower() in ["darwin"] and os.path.exists("/usr/bin/python3"): os.system("/usr/bin/python3 "+package+" "+s)\nelse:  os.system("python3 "+package+" "+s)\n#os.system("python3 "+package+" "+s)"""
 			os.system(f"{sudo}touch {path}")
 			os.system(f"{sudo}chmod +x {path}")
 			os.system(f"{sudo}chown {self.vars.user}:{self.vars.group} {path}")

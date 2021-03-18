@@ -90,13 +90,13 @@ class Env(object):
 						raise Exceptions.InvalidUsage(f"<dev0s.system.env>: Parameter format [list] does not contain index [{c}] for export [{export}].")
 				else:
 					l_format = format
-				if (l_format == "json") or ".json" in export or gfp.name(export) == "json":
+				if l_format == "json" or ".json" in export or gfp.name(export) == "json":
 					format = "json"
 					try:
 						exported = Files.load(export, format="json")
 					except FileNotFoundError:
 						exported = {}
-				elif (l_format == "bash") or ".sh" in export or gfp.name(export) == "bash":
+				elif l_format == "bash" or ".sh" in export or gfp.name(export) == "bash":
 					format = "bash"
 					try:
 						exported = Files.load(export, format="str")

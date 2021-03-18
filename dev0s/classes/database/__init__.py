@@ -6,6 +6,7 @@ from dev0s.classes.defaults.objects import *
 from dev0s.classes.defaults.defaults import defaults
 from dev0s.classes.defaults.exceptions import Exceptions
 from dev0s.classes.response import response as _response_
+from dev0s.classes.requests import requests as _requests_
 from dev0s.classes import code
 import requests as __requests__
 
@@ -35,6 +36,9 @@ class Database(Traceback):
 		self.path = gfp.clean(path)
 		self.sudo = sudo
 
+		# sys args.
+		self.__cache__ = {}
+
 		# attributes.
 		self.dir = self.directory = Directory(self.path)
 
@@ -55,12 +59,13 @@ class Database(Traceback):
 
 		#
 
-	# functions.
+	# load an object.
 	def load(self, 
-		# the sub path (str, FilePath).
+		# the sub path (str, FilePath) (#1).
 		path=None, 
-		# the data format [str, json] (str).
-		format="json", 
+		# the data format [bool, str, int, float, dict, list] (str) (#2).
+		format="dict", 
+		# the default data (bool, str, int, float, dict, list).
 		default=None,
 	):
 		if path == None: return _response_.error(self.__traceback__(function="load")+" Define parameter: [path].")
@@ -72,19 +77,32 @@ class Database(Traceback):
 			response = self.save(path=subpath, data=default, format=format)
 			if not response.success: return response
 		try:
-			data = Files.load(path=path, format=format)
+			if format in ["bytes"]:
+				obj = Bytes(path=path, load=True)
+			elif format in ["bool"]:
+				obj = Boolean(path=path, load=True)
+			elif format in ["str"]:
+				obj = String(path=path, load=True)
+			elif format in ["int", "float"]:
+				obj = Integer(path=path, load=True)
+			elif format in ["list"]:
+				obj = Array(path=path, load=True)
+			elif format in ["dict"]:
+				obj = Dictionary(path=path, load=True)
 		except Exception as e: return _response_.error(str(e))
 		return _response_.success(f"Successfully loaded [{path}].", {
-			"data":data,
+			"data":obj,
 		})
+
+	# save an object.
 	def save(self, 
-		# the sub path (str, FilePath).
+		# the sub path (str, FilePath) (#1).
 		path=None, 
-		# the data to save (str, integer, boolean, dict, list)
+		# the data to save (bool, str, int, float, dict, list) (#2)
 		data=None, 
-		# the data format [str, json] (str).
-		format="json",
-		# with overwrite disabled the json format data is appended to the existing data.
+		# the data format [bool, str, int, float, dict, list] (str) (#3).
+		format="dict",
+		# with overwrite disabled the dict format data is inserted into the existing data (bool).
 		overwrite=False, 
 	):
 		if path == None: return _response_.error(self.__traceback__(function="save")+" Define parameter: [path].")
@@ -92,38 +110,40 @@ class Database(Traceback):
 		path = str(path)
 		path = gfp.clean(f"{self.path}/{path}")
 		format = self.__serialize_format__(format)
-		if format == "str": data = str(data)
 		try:
 			if not Files.exists(path=gfp.base(path)): Files.create(path=gfp.base(path), directory=True)
 		except ValueError: a=1
-		if not overwrite:
-			if format == "json":
-				def insert(old, new):
-					for key,value in new.items():
-						if isinstance(value, (dict, Dictionary)):
-							if key in old:
-								old[key] = insert(old[key], value)
-							else:
-								old[key] = value
-						elif isinstance(value, (list, Array)):
-							if key in old:
-								for i in value:
-									if i not in old[key]: old[key].append(i)
-							else:
-								old[key] = value
-						else:
-							old[key] = value
-					return old
-				try: old_data = Files.load(path=path, format="json")
-				except: old_data = {}
-				data = insert(old_data, data)
 		try:
-			Files.save(path=path, data=data, format=format)
+			if format in ["bytes"]:
+				obj = Bytes(data, path=path)
+			elif format in ["bool"]:
+				obj = Boolean(data, path=path)
+			elif format in ["str"]:
+				obj = String(data, path=path)
+			elif format in ["int", "float"]:
+				obj = Integer(data, path=path)
+			elif format in ["list"]:
+				obj = Array(data, path=path)
+			elif format in ["dict"]:
+				obj = Dictionary({}, path=path)
+			if format in ["dict"]:
+				if overwrite:
+					obj.save(dictionary=data)
+				else:
+					obj.load()
+					obj.insert(data)
+					obj.save()
+			else:
+				obj.save()
 		except Exception as e: return _response_.error(str(e))
 		return _response_.success(f"Successfully saved [{path}].")
-	def delete(self, path=None):
+
+	# delete an object.
+	def delete(self, 
+		# the sub path (str, FilePath) (#1).
+		path=None,
+	):
 		if path == None: return _response_.error(self.__traceback__(function="delete")+" Define parameter: [path].")
-		path = str(path)
 		path = gfp.clean(f"{self.path}/{path}")
 		try:
 			Files.delete(path=path)
@@ -131,24 +151,116 @@ class Database(Traceback):
 		if Files.exists(path): return _response_.error(f"Failed to delete [{path}].")
 		return _response_.success(f"Successfully deleted [{path}].")
 	
-	# get names.
-	def names(self,
-		# the sub path (leave None to use the root path)
+	# get the paths of a directory.
+	def paths(self,
+		# the sub path (leave None to use the root path) (str FilePath)
 		path=None,
+		# get recursively (bool).
+		recursive=False, 
+		# get files only (bool).
+		files_only=False,
+		# get firs only (bool). 
+		dirs_only=False, 
+		# also get empty dirs (bool).
+		empty_dirs=True, 
+		# get the full path (bool).
+		full_path=False,
+		# the banned full paths (list).
+		banned=[], 
+		# the banned names (list).
+		banned_names=[".DS_Store"], 
+		# the banend base names (list).
+		banned_basenames=["__pycache__"], 
+		# the allowed extensions (list).
+		extensions=["*"],
 	):
 
 		# checks.
 		#if path == None: return _response_.error(self.__traceback__(function="names")+" Define parameter: [path].")
 		if path == None: path = self.path
 		else: path = self.join(path)
-		
-		# names.
-		names = []
-		for i in Directory(path=path).paths(): names.append(gfp.name(i))
+		path = str(path)
+		if not Files.directory(path):
+			raise dev0s.exceptions.InvalidUsage(f"Defined path [{path}] is not a directory.")
 
 		# handler.
-		return names
+		paths = Directory(path).paths(
+			# get recursively (bool).
+			recursive=recursive,
+			# get files only (bool).
+			files_only=files_only,
+			# get firs only (bool). 
+			dirs_only=dirs_only,
+			# also get empty dirs (bool).
+			empty_dirs=empty_dirs,
+			# the banned full paths (list).
+			banned=banned,
+			# the banned names (list).
+			banned_names=banned_names,
+			# the banend base names (list).
+			banned_basenames=banned_basenames,
+			# the allowed extensions (list).
+			extensions=extensions, )
+		if full_path:
+			return paths
+		else:
+			_paths_ = []
+			for i in paths: _paths_.append(self.subpath(i))
+			return _paths_
+		#
 
+	# get the paths of a directory.
+	def names(self,
+		# the sub path (leave None to use the root path)
+		path=None,
+		# get recursively (bool).
+		recursive=False, 
+		# get files only (bool).
+		files_only=False,
+		# get firs only (bool). 
+		dirs_only=False, 
+		# also get empty dirs (bool).
+		empty_dirs=True, 
+		# remove the extension names (bool).
+		remove_extensions=True,
+		# the banned full paths (list).
+		banned=[], 
+		# the banned names (list).
+		banned_names=[".DS_Store"], 
+		# the banend base names (list).
+		banned_basenames=["__pycache__"], 
+		# the allowed extensions (list).
+		extensions=["*"],
+	):
+
+		# checks.
+		#if path == None: return _response_.error(self.__traceback__(function="names")+" Define parameter: [path].")
+		if path == None: path = self.path
+		else: path = self.join(path)
+		if not Files.directory(path):
+			raise dev0s.exceptions.InvalidUsage(f"Defined path [{path}] is not a directory.")
+
+		# handler.
+		return Directory(path).names(
+			# get recursively (bool).
+			recursive=recursive,
+			# get files only (bool).
+			files_only=files_only,
+			# get firs only (bool). 
+			dirs_only=dirs_only,
+			# also get empty dirs (bool).
+			empty_dirs=empty_dirs,
+			# remove the extension names (bool).
+			remove_extensions=remove_extensions,
+			# the banned full paths (list).
+			banned=banned,
+			# the banned names (list).
+			banned_names=banned_names,
+			# the banend base names (list).
+			banned_basenames=banned_basenames,
+			# the allowed extensions (list).
+			extensions=extensions,
+		)
 		#
 
 	# representation.
@@ -160,12 +272,18 @@ class Database(Traceback):
 	# sys functions.
 	def __serialize_format__(self, format):
 		format = str(format).lower()
-		if format in ["json", "dict", "array", "dictionary"]: format = "json"
-		elif format in ["string", "str", "String"]: format = "str"
-		if format not in ["str", "json"]: raise Exceptions.InvalidUsage(f"{self.__traceback__()}: Format [{format}] is not a valid option, options: [str, json].")
+		if format in ["bytes", "Bytes", bytes, Bytes]: format = "bytes"
+		elif format in ["bool", "Boolean", bool, Boolean]: format = "bool"
+		elif format in ["string", "str", "String", str, String]: format = "str"
+		elif format in ["int", "integer", int]: format = "int"
+		elif format in ["float", float, Integer]: format = "float"
+		elif format in ["list", "array", "Array", list, Array]: format = "list"
+		elif format in ["dict", "dictionary", "Dictionary", dict, Dictionary]: format = "dict"
+		if format not in ["bytes", "bool", "str", "int", "float", "dict", "list"]: raise Exceptions.InvalidUsage(f"{self.__traceback__()}: Format [{format}] is not a valid option, options: [bool, str, int, float, dict, list].")
 		return format
 
 	#
+
 # the webserver database object class.
 # keeps all info in python memory only.
 class WebServer(Thread):
@@ -235,9 +353,10 @@ class WebServer(Thread):
 		self.tag = self.id.replace(" ","_")
 
 		#
+	
 	# cache functions.
 	def set(self, group=None, id=None, data=None, timeout=3):
-		encoded = urllib.parse.urlencode({
+		encoded = _requests_.encode({
 			"group":group.replace(" ","_"),
 			"id":id.replace(" ","_"),
 			"data":data,
@@ -255,7 +374,7 @@ class WebServer(Thread):
 			return _response_.error(f"Failed to serialize {response}: {response.text}")
 		return _response_.response(response)
 	def get(self, group=None, id=None, timeout=3):
-		encoded = urllib.parse.urlencode({
+		encoded = _requests_.encode({
 			"group":group.replace(" ","_"),
 			"id":id.replace(" ","_"),
 			"token":self.token,
@@ -271,6 +390,8 @@ class WebServer(Thread):
 		except:
 			return _response_.error(f"Failed to serialize {response}: {response.text}")
 		return _response_.response(response,)
+		#
+
 	# flask app.
 	def app(self):
 		app = flask.Flask(__name__)
@@ -327,6 +448,8 @@ class WebServer(Thread):
 		#self.process = multiprocessing.Process(target=app.run, args=(self, app, self.host,self.port,))
 		#self.process.start()
 		app.run(host=self.host, port=self.port)
+		#
+
 	# control functions.
 	def run(self):
 		self.system_cache.save(path=f"{self.id}/daemon", data="*running*", format="str")
@@ -375,6 +498,8 @@ class WebServer(Thread):
 				response = code.kill(pid=pid)
 				if not response.success: return response
 		return _response_.error(f"Successfully stopped the {self.id}.")
+		#
+
 	# threading functions.
 	def start_thread(self, thread, group="daemons", id=None):
 		response = self.set(group=group, id=id, data=thread)
@@ -399,6 +524,8 @@ class WebServer(Thread):
 		return _response_.success(f"Successfully retrieved thread [{thread}].", {
 			"thread":thread,
 		})
+		#
+
 	# properties.
 	@property
 	def token(self):
@@ -406,20 +533,23 @@ class WebServer(Thread):
 			response = self.system_cache.save(path=f"{self.id}/token", data=String().generate(length=64, digits=True, capitalize=True), format="str")
 			if not response.success: response.crash()
 		response = self.system_cache.load(path=f"{self.id}/token", format="str")
-		if response.success and response.data not in [None, "None", ""]:
+		if response.success and "None" not in str(response.data):
 			return response.data
 		else:
 			response = self.system_cache.save(path=f"{self.id}/token", data=String().generate(length=64, digits=True, capitalize=True), format="str")
 			if not response.success: response.crash()
 		response = self.system_cache.load(path=f"{self.id}/token", format="str")
-		if response.success and response.data not in [None, "None", ""]:
+		if response.success and "None" not in str(response.data):
 			return response.data
-		else: response.crash()
+		else: 
+			if response.error == None:
+				response.error = f"Failed to create a token for webserver [{self.id}] ({self.system_cache.join(self.id+'/token')})."
+			response.crash()
 	@property
 	def running(self):
 		return self.__running__()
 	def __running__(self, timeout=3):
-		encoded = urllib.parse.urlencode({
+		encoded = _requests_.encode({
 			"token":self.token,
 			"cache":self.system_cache.path,
 			"cache_id":self.id,
@@ -429,6 +559,8 @@ class WebServer(Thread):
 			return True
 		except __requests__.exceptions.ConnectionError:
 			return False
+		#
+
 	# system functions.
 	def __serialize__(self, dictionary, safe=False):
 		if isinstance(dictionary, (Dictionary, dict)):
@@ -468,9 +600,8 @@ class WebServer(Thread):
 						new.append(value)
 			return new
 		else: raise ValueError(f"Parameter [dictionary] requires to be a [dict, Dictionary, list, Array], not [{dictionary.__class__.__name__}].")
-	#def stop(self):
-	#	self.process.terminate()
-	#	self.process.join()
 
-	
+	#
+
+#
 			

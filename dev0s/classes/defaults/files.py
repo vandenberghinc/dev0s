@@ -122,7 +122,7 @@ class Formats():
 			else:               return "object"
 		else: raise ValueError(f"Unknown format [{value}].")
 		#
-		#
+
 	# try to parse variable to format, when failed it returns None.
 	def parse(
 		# the variable to parse (required) (#1).
@@ -202,6 +202,8 @@ class Formats():
 		else:
 			raise Exceptions.InvalidUsage(f"Specified format [{format}] is not a valid format option.")
 
+		#
+
 	# initialize from default format to dev0s format.
 	def initialize(variable, file_paths=True):
 		if variable.__class__.__name__ in ["str","String"]:
@@ -250,20 +252,8 @@ class Formats():
 	class FilePath(object):
 		def __init__(self, path, default=False, check=False, load=False):
 
-			# defaults.
-			#self.__class__.__name__ = "FilePath"
-
-			# check self instance.
-			#str.__init__(self)
-			if isinstance(path, Formats.FilePath):
-				path = path.path
-			elif isinstance(path, Formats.String):
-				path = path.string
-			else:
-				path = str(path)
-
 			# init.
-			self.path = self.clean(path=path)
+			self.path = str(self.clean(path=str(path)))
 			if check == False and default == False and path != False:
 				if os.path.isdir(self.path) and self.path[len(self.path)-1] != '/': self.path += '/'
 			if check and os.path.exists(self.path) == False: raise FileNotFoundError(f"Path [{self.path}] does not exist.")
@@ -750,7 +740,7 @@ class Formats():
 			return str(self)
 		# str representation.
 		def __str__(self):
-			return self.path
+			return str(self.path)
 		# int representation.
 		def __int__(self):
 			return int(self.path)
@@ -916,27 +906,42 @@ class Formats():
 							file_path = Formats.FilePath(dirpath+"/"+path)
 							file_path.permission.check(permission=permission, sudo=sudo, silent=silent)
 		#
-	#   
+ 
 	# the string object class.
 	class String(object):
-		def __init__(self, string=""):
-
-			# defaults.
-			#self.__class__.__name__ = "String"
-
-			# check self instance.
-			#str.__init__(self)
-			if isinstance(string, Formats.String):
-				string = string.string
-			elif isinstance(string, Formats.FilePath):
-				string = string.path
-			else:
-				string = str(string)
+		def __init__(self, 
+			# the string's value (str) (#1).
+			string="",
+			# the path (str, FilePath) (param #2).
+			path=False, 
+			# load the data on initialization.
+			load=False, 
+			# the default array (will be created if file path does not exist).
+			default=None,
+		):
 			
-
 		   # init.
-			self.string = string
-			# can be filled with executing [self.x = x()]:
+			self.string = str(string)
+			
+			# path.
+			if path == False: self.file_path = self.fp = None # used in local memory (not fysical)
+			else: self.file_path = self.fp = Formats.FilePath(path)
+			if default != None and not Files.exists(self.file_path.path): self.save(array=default)
+			if load: self.load()
+
+			#
+		def save(self, string=None, path=None, sudo=False):
+			if string == None: string = self.string
+			if path == None: path = self.file_path.path
+			utils.__check_memory_only__(path)
+			self.string = str(string)
+			return Files.save(path, str(string), format="str", sudo=sudo)
+		def load(self, default=None, sudo=False):
+			utils.__check_memory_only__(self.file_path.path)
+			if not os.path.exists(self.file_path.path) and default != None: 
+				self.save(default, sudo=sudo)
+			self.string =  Files.load(self.file_path.path, format="str", sudo=sudo)
+			return self.string
 		def is_numerical(self):
 			for i in ["q", "w", "e", "r", "t", "y", "u", "i", "o", "p", "a", "s", "d", "f", "g", "h", "j", "k", "l", "z", "x", "c", "v", "b", "n", "m"]:
 				if i in self.string.lower(): return False
@@ -1497,7 +1502,7 @@ class Formats():
 			return str(self)
 		# str representation.
 		def __str__(self):
-			return self.string
+			return str(self.string)
 		# int representation.
 		def __int__(self):
 			return int(self.string)
@@ -1534,29 +1539,54 @@ class Formats():
 				string = string.string
 			elif not isinstance(string, self.__class__):
 				raise Exceptions.FormatError(f"Can not assign object {self.__class__} & {string.__class__}.")
-			self.string = string
+			self.string = str(string)
 			return self
 		# return raw data.
 		def raw(self):
 			return self.str
 		#
-	#
+
 	# the boolean object class.
 	class Boolean(object):
-		def __init__(self, boolean=False):
-
-			# defaults.
-			#self.__class__.__name__ = "Boolean"
+		def __init__(self, 
+			# the boolean's value (bool) (#1).
+			boolean=False,
+			# the path (str, FilePath) (param #2).
+			path=False, 
+			# load the data on initialization.
+			load=False, 
+			# the default array (will be created if file path does not exist).
+			default=None,
+		):
 
 			# check self instance.
 			if isinstance(boolean, Formats.Boolean):
 				boolean = boolean.bool
 
-		   # init.
+		    # init.
 			self.bool = boolean
 			if self.bool in ["true", "True", "TRUE", True]: self.bool = True
 			else: self.bool = False
-			# can be filled with executing [self.x = x()]:
+
+			# path.
+			if path == False: self.file_path = self.fp = None # used in local memory (not fysical)
+			else: self.file_path = self.fp = Formats.FilePath(path)
+			if default != None and not Files.exists(self.file_path.path): self.save(array=default)
+			if load: self.load()
+
+			#
+		def save(self, bool=None, path=None, sudo=False):
+			if bool != None: bool = self.bool
+			if path == None: path = self.file_path.path
+			utils.__check_memory_only__(path)
+			self.bool = bool
+			return Files.save(path, str(bool), format="str", sudo=sudo)
+		def load(self, default=None, sudo=False):
+			utils.__check_memory_only__(self.file_path.path)
+			if not os.path.exists(self.file_path.path) and default != None: 
+				self.save(default, sudo=sudo)
+			self.bool =  Files.load(self.file_path.path, format="str", sudo=sudo)
+			return self.bool
 		def string(self, true="True", false="False"):
 			if self.bool:
 				return true
@@ -1631,14 +1661,22 @@ class Formats():
 		def raw(self):
 			return self.bool
 		#
-	#
+
 	# the integer object class.
 	class Integer(object):
-		def __init__(self, value=0, format="auto"):
-
-			# defaults.
-			#self.__class__.__name__ = "Integer"
-
+		def __init__(self, 
+			# the integers value (int, float) (param #1).
+			value=0, 
+			# the path (str, FilePath) (param #2).
+			path=False, 
+			# the integer format (str) (param #3).
+			format="auto",
+			# load the data on initialization.
+			load=False, 
+			# the default array (will be created if file path does not exist).
+			default=None,
+		):
+			
 			# check self instance.
 			if isinstance(value, Formats.Integer):
 				if "." in str(value):
@@ -1655,9 +1693,28 @@ class Formats():
 				self.value = int(value)
 			self.int = int(value)
 			self.float = float(value)
-			# self.int = double(value)
 
-			# can be filled with executing [self.x = x()]:
+			# path.
+			if path == False: self.file_path = self.fp = None # used in local memory (not fysical)
+			else: self.file_path = self.fp = Formats.FilePath(path)
+			if default != None and not Files.exists(self.file_path.path): self.save(array=default)
+			if load: self.load()
+
+			#
+		def save(self, data=None, path=None, sudo=False):
+			if data != None: data = self.raw()
+			if path == None: path = self.file_path.path
+			utils.__check_memory_only__(path)
+			if data != self.raw():
+				self.assign(data)
+			return Files.save(path, str(data), format="str", sudo=sudo)
+		def load(self, default=None, sudo=False):
+			utils.__check_memory_only__(self.file_path.path)
+			if not os.path.exists(self.file_path.path) and default != None: 
+				self.save(default, sudo=sudo)
+			data =  Files.load(self.file_path.path, format="str", sudo=sudo)
+			self.assign(data)
+			return data
 		def increase_version(self):
 
 			# version 1.
@@ -2214,7 +2271,7 @@ class Formats():
 			return float(self.to_seconds(self.seconds_timestamp, format=self.seconds_timestamp_format))
 		# str representation.
 		def __str__(self):
-			return self.timestamp
+			return str(self.timestamp)
 		# content count.
 		def __len__(self):
 			return len(self.timestamp)
@@ -2270,6 +2327,7 @@ class Formats():
 		#for interval in Interval(sleeptime=60, timeout=3600):
 		#	...
 		#	interval.sleep()
+	
 	#
 
 # the files class.
@@ -3390,6 +3448,23 @@ class Files():
 						if x == y: c += 1
 				return Formats.Integer(c)
 			else: raise Exceptions.InstanceError(f"Parameter [item] must either be [None], [String] or [Array], not [{item.__class__}].")
+		# insert new keys & values.
+		def insert(self, dictionary={}):
+			for key,value in dictionary.items():
+				if isinstance(value, (dict, Dictionary)):
+					if key in self.dictionary:
+						self.dictionary[key] = insert(self.dictionary[key], value)
+					else:
+						self.dictionary[key] = value
+				elif isinstance(value, (list, Array)):
+					if key in self.dictionary:
+						for i in value:
+							if i not in self.dictionary[key]: self.dictionary[key].append(i)
+					else:
+						self.dictionary[key] = value
+				else:
+					self.dictionary[key] = value
+			return self.dictionary
 		# iterations.
 		def iterate(self, sorted=False, reversed=False, dictionary=None):
 			if dictionary == None: dictionary = self.dictionary
@@ -3908,9 +3983,29 @@ class Files():
 		def save(self, path=None, data=None, format=str, sudo=False):
 			return Files.save(path=self.fullpath(path), data=data, format=format, sudo=sudo)
 		# returnable functions.
-		def paths(self, dirs_only=False, files_only=False, empty_dirs=True, recursive=False, path=None, banned=[], banned_names=[".DS_Store"], banned_basenames=["__pycache__"], extensions=["*"]):
+		def paths(self, 
+			# get recursively (bool).
+			recursive=False, 
+			# get files only (bool).
+			files_only=False,
+			# get firs only (bool). 
+			dirs_only=False, 
+			# also get empty dirs (bool).
+			empty_dirs=True, 
+			# the banned full paths (list).
+			banned=[], 
+			# the banned names (list).
+			banned_names=[".DS_Store"], 
+			# the banend base names (list).
+			banned_basenames=["__pycache__"], 
+			# the allowed extensions (list).
+			extensions=["*"],
+			# the path (leave None to use self.path) (str, FilePath).
+			path=None, 
+		):
 			if dirs_only and files_only: raise ValueError("Both parameters dirs_only & piles_only are True.")
 			if path == None: path = self.file_path.path
+			path = str(path)
 			if not Files.exists(path): return []
 			if isinstance(extensions, str): extensions = [extensions]
 			if len(banned) > 0:
@@ -3961,7 +4056,28 @@ class Files():
 							if l_path not in banned and not l_banned and l_path+"/" not in banned:
 								paths.append(l_path)
 			return paths
-		def names(self, dirs_only=False, files_only=False, empty_dirs=True, recursive=False, path=None, banned=[], banned_names=[".DS_Store"], extensions=["*"], remove_extensions=False):
+		def names(self, 
+			# get recursively (bool).
+			recursive=False, 
+			# get files only (bool).
+			files_only=False,
+			# get firs only (bool). 
+			dirs_only=False, 
+			# also get empty dirs (bool).
+			empty_dirs=True, 
+			# remove the extension names (bool).
+			remove_extensions=False,
+			# the banned full paths (list).
+			banned=[], 
+			# the banned names (list).
+			banned_names=[".DS_Store"], 
+			# the banend base names (list).
+			banned_basenames=["__pycache__"], 
+			# the allowed extensions (list).
+			extensions=["*"],
+			# the path (leave None to use self.path) (str, FilePath).
+			path=None, 
+		):
 			names = []
 			for _path_ in self.paths(dirs_only=dirs_only, files_only=files_only, empty_dirs=empty_dirs, recursive=recursive, path=path, banned=banned, banned_names=banned_names, extensions=extensions):
 				if remove_extensions:
@@ -4427,24 +4543,27 @@ class Files():
 		def __init__(self, 
 			# the bytes (param #1).
 			data=b"",
-			# the file path.
-			path=None,
+			# the path (str, FilePath) (param #2).
+			path=False, 
+			# load the data on initialization.
+			load=False, 
+			# the default array (will be created if file path does not exist).
+			default=None,
 		):
-
-			# defaults.
-			#self.__class__.__name__ = "Bytes"
 		   
-		   # check self instance.
+		    # check self instance.
 			if isinstance(data, Files.Bytes):
 				data = data.bytes
-
-		   # init.
-			if path in [None, False]:
-				self.file_path = self.fp = None
-			else:
-				self.file_path = self.fp = Formats.FilePath(path)
-			self.bytes = bytes  
 			
+			# bytes.
+			self.bytes = bytes 
+		    
+		    # path.
+			if path == False: self.file_path = self.fp = None # used in local memory (not fysical)
+			else: self.file_path = self.fp = Formats.FilePath(path)
+			if default != None and not Files.exists(self.file_path.path): self.save(array=default)
+			if load: self.load()
+
 			#
 		def load(self, sudo=False):
 			bytes = Files.load(self.file_path.path, format="bytes", sudo=sudo)
@@ -4510,7 +4629,8 @@ class Files():
 		# return raw data.
 		def raw(self):
 			return self.bytes
-		#
+			#
+
 		#
 	#
 	#

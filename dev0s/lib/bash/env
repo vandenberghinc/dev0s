@@ -80,7 +80,9 @@ else
     LAST_LOGIN="$LAST_DATE on $LAST_TTY from $LAST_IP"
 fi
 DISK_USAGE=$(df -k / | awk '{print $5}' | tail -1)
-DISK_USAGE="${DISK_USAGE::-1}.00%"
+if [[ "$OS" != "macos" ]] ; then
+  DISK_USAGE="${DISK_USAGE::-1}.00%"
+fi
 ips=$(ifconfig | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '([0-9]*\.){3}[0-9]*' | grep -v '127.0.0.1')
 IFS=" " read before after <<< $ips 
 PRIVATE_IP=$before

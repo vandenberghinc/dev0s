@@ -43,6 +43,8 @@ class Requests(object):
 				value = str(_response_.serialize(value.raw(), safe=True))
 			elif isinstance(value, (list,Array,dict,Dictionary)):
 				value = str(value)
+			else:
+				value = Formats.denitialize(value)
 			_data_[key] = value
 		return _data_
 
@@ -133,7 +135,5 @@ class Requests(object):
 
 # initialized classes.
 requests = Requests()
-
-#
 
 #
