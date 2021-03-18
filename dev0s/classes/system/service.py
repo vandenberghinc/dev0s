@@ -105,7 +105,8 @@ class Service(Object):
 		self.service.save(data=self.__create__(), sudo=True)
 		self.service.fp.ownership.set("root", sudo=True)
 		self.service.fp.permission.set(700, sudo=True)
-		os.system("sudo systemctl daemon-reload")
+		if dev0s.defaults.vars.os in ["macos"]:
+			os.system("sudo systemctl daemon-reload")
 
 		# handler.
 		if self.service.fp.exists(): 
