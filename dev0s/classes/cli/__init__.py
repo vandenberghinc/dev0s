@@ -255,7 +255,7 @@ class CLI(object):
 					value = ""
 				
 				# set iterating mode.
-				if mode != None and (mode in key or (previous_mode_indent != None and len(key) >= len(f"{utils.create_indent(previous_mode_indent)}-") and key[:len(f"{utils.create_indent(previous_mode_indent)}-")] == f"{utils.create_indent(previous_mode_indent)}-") ):
+				if mode != None and (mode in key or (previous_mode_indent != None and len(key) >= len(f"{String().indent(indent=previous_mode_indent)}-") and key[:len(f"{String().indent(indent=previous_mode_indent)}-")] == f"{String().indent(indent=previous_mode_indent)}-") ):
 					mode_indent = 0
 					for i in key:
 						if i != " ": break
