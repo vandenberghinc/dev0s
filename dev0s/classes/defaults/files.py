@@ -3540,22 +3540,28 @@ class Files():
 				return Formats.Integer(c)
 			else: raise Exceptions.InstanceError(f"Parameter [item] must either be [None], [String] or [Array], not [{item.__class__}].")
 		# insert new keys & values.
-		def insert(self, dictionary={}):
+		def insert(self, dictionary={}, __dictionary__=None):
+			update = False
+			if __dictionary__ == None: 
+				__dictionary__ = self.dictionary
+				update = True
 			for key,value in dictionary.items():
 				if isinstance(value, (dict, Dictionary)):
-					if key in self.dictionary:
-						self.dictionary[key] = self.insert(self.dictionary[key], value)
+					if key in __dictionary__:
+						__dictionary__[key] = self.insert(value, __dictionary__=__dictionary__[key])
 					else:
-						self.dictionary[key] = value
+						__dictionary__[key] = value
 				elif isinstance(value, (list, Array)):
-					if key in self.dictionary:
+					if key in __dictionary__:
 						for i in value:
-							if i not in self.dictionary[key]: self.dictionary[key].append(i)
+							if i not in __dictionary__[key]: __dictionary__[key].append(i)
 					else:
-						self.dictionary[key] = value
+						__dictionary__[key] = value
 				else:
-					self.dictionary[key] = value
-			return self.dictionary
+					__dictionary__[key] = value
+			if update:
+				self.dictionary = __dictionary__
+			return __dictionary__
 		# iterations.
 		def iterate(self, sorted=False, reversed=False, dictionary=None):
 			if dictionary == None: dictionary = self.dictionary
