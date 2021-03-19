@@ -3544,7 +3544,7 @@ class Files():
 			for key,value in dictionary.items():
 				if isinstance(value, (dict, Dictionary)):
 					if key in self.dictionary:
-						self.dictionary[key] = insert(self.dictionary[key], value)
+						self.dictionary[key] = self.insert(self.dictionary[key], value)
 					else:
 						self.dictionary[key] = value
 				elif isinstance(value, (list, Array)):
