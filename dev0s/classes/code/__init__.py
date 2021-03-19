@@ -26,6 +26,13 @@ class Version(object):
 		value="1.0.00",
 	):
 
+		# docs.
+		DOCS = {
+			"module":"Version", 
+			"initialized":False,
+			"description":[], 
+			"chapter": "Code", }
+
 		# defaults.
 		#self.__class__.__name__ = "Version"
 
@@ -236,6 +243,13 @@ class Script(Files.File):
 		default=None,
 	):
 		
+		# docs.
+		DOCS = {
+			"module":"Script", 
+			"initialized":False,
+			"description":[], 
+			"chapter": "Code", }
+
 		# check self instance.
 		if isinstance(data, (Files.File, Script)):
 			data = data.data
@@ -298,6 +312,14 @@ class Python(Files.File):
 		# the default data (create if path does not exist).
 		default=None,
 	):
+
+		# docs.
+		DOCS = {
+			"module":"Python", 
+			"initialized":False,
+			"description":[], 
+			"chapter": "Code", }
+
 		# check self instance.
 		if isinstance(data, (Files.File, Script, Python)):
 			data = data.data
@@ -315,7 +337,7 @@ class Python(Files.File):
 		self.executable = executable
 		
 		#
-
+		#
 	# execute.
 	def execute(self, 
 		# the script executable (leave None to use defult self.executable) (#1).
@@ -328,7 +350,7 @@ class Python(Files.File):
 		return execute(path=data, executable=executable)
 
 		#
-		
+		#
 	# slice classes.
 	def slice_classes(self,
 		# the data (str).
@@ -541,18 +563,25 @@ class Python(Files.File):
 						if test in func["code"]:
 							customization = ast.literal_eval(str(String(func["code"].split(test[:-1])[1]).slice_dict(depth=1)))
 							if "initialized" in customization:
-								initialized = customization["initialized"]
+								info["initialized"] = customization["initialized"]
 							if "module" in customization:
-								module = customization["module"]
+								info["module"] = customization["module"]
 							if "notes" in customization:
-								description = customization["description"]
+								info["description"] = customization["description"]
 							if "chapter" in customization:
-								chapter = customization["chapter"]
+								info["chapter"] = customization["chapter"]
+							#if "return" in customization:
+							#	info["return"] = customization["return"]
 							break
-			info["initialized"] = initialized
-			info["module"] = module
-			info["description"] = description
-			info["chapter"] = chapter
+			for key,value in {
+				"initialized":False,
+				"module":None,
+				"description":[],
+				"chapter":None,
+				#"return":"_",
+			}.items():
+				try:info[key]
+				except: info[key] = value
 			_classes_.append(info)
 		classes = _classes_
 
@@ -560,6 +589,7 @@ class Python(Files.File):
 		return classes
 
 		#
+
 	# slice functions.
 	def slice_functions(self,
 		# the data (str).
@@ -674,6 +704,7 @@ class Python(Files.File):
 			if name in banned_functions: return False
 			if not system_functions and "__init__" not in name and len(name) >= 4 and name[:2] == "__" and name[-2:] == "__": return False
 			return True
+			#
 
 		# vars.
 		functions = []
@@ -841,18 +872,25 @@ class Python(Files.File):
 				if test in info["code"]:
 					customization = ast.literal_eval(str(String(info["code"].split(test[:-1])[1]).slice_dict(depth=1)))
 					if "initialized" in customization:
-						initialized = customization["initialized"]
+						info["initialized"] = customization["initialized"]
 					if "module" in customization:
-						module = customization["module"]
+						info["module"] = customization["module"]
 					if "description" in customization:
-						description = customization["description"]
+						info["description"] = customization["description"]
 					if "chapter" in customization:
-						chapter = customization["chapter"]
+						info["chapter"] = customization["chapter"]
+					if "return" in customization:
+						info["return"] = customization["return"]
 					break
-			info["initialized"] = initialized
-			info["module"] = module
-			info["description"] = description
-			info["chapter"] = chapter
+			for key,value in {
+				"initialized":False,
+				"module":None,
+				"description":[],
+				"chapter":None,
+				"return":"_",
+			}.items():
+				try:info[key]
+				except: info[key] = value
 			_functions_.append(info)
 		functions = _functions_
 
@@ -860,6 +898,7 @@ class Python(Files.File):
 		return functions
 
 		#
+
 	# build code examples.
 	def build_code_examples(self,
 		# the path (leave None to use self.fp.path).
@@ -926,21 +965,23 @@ class Python(Files.File):
 			# docs.
 			parameters = clean_params(info["parameters"]).replace("self.", initialized_name+".")
 			if initialized == True:
-				doc = (
-					"\n\n# import the " + str(module) + " object class." + "\n" +
-					"")
+				doc = "\n"
 				if description != None:
-					for i in description: doc += f"{i}\n"
+					for i in description: doc += f"{i}\n".replace("</attribute>", "").replace("<attribute>", "").replace("</parameter>", "").replace("<parameter>", "")
+				doc += (
+					"\n# import the " + str(module) + " object class." + "\n" +
+					"")
 				doc += (
 					#f"from {package} import " + module.split('.')[0] + "\n" +
 					f"import {package}" + "\n" +
 					"")
 			else:
-				doc = (
-					"\n\n# initialize the " + str(module) + " object class." + "\n" +
-					"")
+				doc = "\n"
 				if description != None:
-					for i in description: doc += f"{i}\n"
+					for i in description: doc += f"{i}\n".replace("</attribute>", "").replace("<attribute>", "").replace("</parameter>", "").replace("<parameter>", "")
+				doc += (
+					"\n# initialize the " + str(module) + " object class." + "\n" +
+					"")
 				doc += (
 					str(initialized_name)+" = " + module + str(parameters) + "\n" +
 					"")
@@ -1019,9 +1060,12 @@ class Python(Files.File):
 				"```" + "\n"
 				"")
 			return doc
+			#
 
 		# slice.
 		if path == None: path = self.fp.path
+		if path == None:
+			raise dev0s.exceptions.InvalidUsage(f"Define parameter [path] (str).")
 		if gfp.exists(path=path) and gfp.directory(path=path):
 			path = Directory(path).paths(extensions=["py"], banned=banned, banned_names=banned_names, banned_basenames=banned_basenames, recursive=True)
 		if isinstance(path, (str, String)): path = [path]
@@ -1044,30 +1088,29 @@ class Python(Files.File):
 			# iterate.
 			for info in first_indent_functions:
 				if "__init__" not in info["name"]:
-					try:
-						chapter = info["chapter"]
-					except KeyError:
-						chapter = "Functions"
-						if chapter == None: chapter = "Functions"
-					if info["raw_name"] in list(docs_dict.keys()):
+					try: info["chapter"]
+					except KeyError: info["chapter"] = "Functions"
+					if info["chapter"] == None: info["chapter"] = "Functions"
+					try: docs_dict[info["chapter"]]
+					except KeyError: docs_dict[info["chapter"]] = {}
+					if info["raw_name"] in list(docs_dict[info["chapter"]].keys()):
 						try:info["raw_name"] = info["raw_name"].split("-")[0]+"-"+str(int(info["raw_name"].split("-")[1])+1)
 						except: info["raw_name"] = info["raw_name"]+"-1"
-					else:
-						try: docs_dict[chapter]
-						except KeyError: docs_dict[chapter] = {}
-						docs_dict[chapter][info["raw_name"]] = {
-							"docs":build_func_doc(info),
-							"name":info["name"],
-							"raw_name":info["raw_name"].split("-")[0],
-							"unique_name":info["raw_name"],
-							"type":info["type"],
-							#
-							"parameters":info["parameters"],
-							"initialized":info["initialized"],
-							"module":info["module"],
-							"description":info["description"],
-							"chapter":info["chapter"],
-						}
+					docs_dict[info["chapter"]][info["raw_name"]] = {
+						"docs":build_func_doc(info),
+						"name":info["name"],
+						"raw_name":info["raw_name"].split("-")[0],
+						"unique_name":info["raw_name"],
+						"type":info["type"],
+						#
+						"parameters":info["parameters"],
+						"initialized":info["initialized"],
+						"module":info["module"],
+						"description":info["description"],
+						"chapter":info["chapter"],
+						"return":info["return"],
+						"path":_path_,
+					}
 			for info in classes:
 				l_banned = False
 				for i in banned_class_types:
@@ -1075,31 +1118,34 @@ class Python(Files.File):
 						l_banned = True
 						break
 				if not l_banned:
-					try:
-						chapter = info["chapter"]
-					except KeyError:
-						chapter = "Classes"
-					if chapter == None: chapter = "Classes"
-					if info["raw_name"] in list(docs_dict.keys()):
+					try: info["chapter"]
+					except KeyError: info["chapter"] = "Classes"
+					if info["chapter"] == None: info["chapter"] = "Classes"
+					try: docs_dict[info["chapter"]]
+					except KeyError: docs_dict[info["chapter"]] = {}
+					if info["raw_name"] in list(docs_dict[info["chapter"]].keys()):
 						try:info["raw_name"] = info["raw_name"].split("-")[0]+"-"+str(int(info["raw_name"].split("-")[1])+1)
 						except: info["raw_name"] = info["raw_name"]+"-1"
-					else:
-						try: docs_dict[chapter]
-						except KeyError: docs_dict[chapter] = {}
-						docs_dict[chapter][info["raw_name"]] = {
-							"docs":build_class_doc(info),
-							"name":info["name"],
-							"raw_name":info["raw_name"].split("-")[0],
-							"unique_name":info["raw_name"],
-							"type":info["type"],
-							"functions":info["functions"],
-							#
-							"parameters":info["parameters"],
-							"initialized":info["initialized"],
-							"module":info["module"],
-							"description":info["description"],
-							"chapter":info["chapter"],
-						}
+					functions = []
+					for func in info["functions"]:
+						func["path"] = _path_
+						functions.append(func)
+					info["functions"] = functions
+					docs_dict[info["chapter"]][info["raw_name"]] = {
+						"docs":build_class_doc(info),
+						"name":info["name"],
+						"raw_name":info["raw_name"].split("-")[0],
+						"unique_name":info["raw_name"],
+						"type":info["type"],
+						"functions":info["functions"],
+						#
+						"parameters":info["parameters"],
+						"initialized":info["initialized"],
+						"module":info["module"],
+						"description":info["description"],
+						"chapter":info["chapter"],
+						"path":_path_,
+					}
 			if log_level >= 0: loader.stop()
 		
 		# sort alphabetically.
@@ -1147,6 +1193,9 @@ class Python(Files.File):
 				return docs_dict, all_ids
 			else:
 				return docs_dict
+
+		#
+
 	# build readme code examples.
 	def build_readme(self,
 		# the package name.
@@ -1325,9 +1374,82 @@ class Python(Files.File):
 
 		# handler.
 		return code_examples, _readme_
+		
 		#
 
-	#
+	# clean python code.
+	def clean(self,
+		# forced enabled ignored the warning prompt (bool).
+		forced=False,
+		# the self path (str) (leave None to use self.path).
+		path=None,
+	):
+
+		raise ValueError("Coming soon.")
+
+		# prompt warning.
+		if not forced and not console.input(f"&RED&Warning&END&: You are cleaning python code [{path}], do you wish to proceed?", yes_no=True):
+			raise Exceptions.AbortError("User aborted.")
+
+		# vars.
+		if path == None: path = self.fp.path
+		if path == None: raise Exceptions.InvalidUsage("<Python.clean> define parameter: [path].")
+
+		""" load data """
+		data = Files.load(path=path, format="str")
+
+		""" normalize data """
+		while True:
+			if "	" in data: data = data.replace("	", "    ")
+			else: break
+
+		"""
+		add # to the the end of each indentation.
+		"""
+		def check_indentation_end(data):
+			new_data, string = "", String()
+			items = String(data).iterate_lines()
+			max = len(items)-1
+			last_indent = None
+			last_chars = {
+				"1":"",
+				"blank":False,
+			}
+			for linecount, line in items:
+				indent = string.line_indent(line=line)
+				print(f"{indent}:[{line}]")
+				if last_indent != None and last_chars["1"] != "#" and indent < last_indent:
+					print("Found lower indent difference")
+					difference = indent - last_indent
+					new_data += string.indent(indent=last_indent)+"#\n"
+				if linecount == max: new_data += line
+				else: new_data += line+"\n"
+				last_indent = indent
+				if len(line) > 0: l = line[len(line)-1]
+				else: l = ""
+
+				# add last chars.
+				last_chars["blank"] = line in [""]
+				for key, _ in last_chars.items():
+					if key not in ["blank"]:
+						last_chars[key] += l
+						while True:
+							if len(last_chars[key]) >= int(key): last_chars[key] = last_chars[key][:-1]
+							else: break
+
+				#
+
+			return new_data
+
+		# call cleanings.
+		old = str(data)
+		data = check_indentation_end(data)
+
+		# results.
+		print("\n=====================================\nFrom:\n"+old)
+		print("\n=====================================\nTo:\n"+data)
+
+
 	# object instance.
 	def instance(self):
 		return "Python"
@@ -1337,7 +1459,6 @@ class Python(Files.File):
 		
 		#
 
-	#
 	# support self assignment.
 	def assign(self, string):
 		if isinstance(data, (int, float)):

@@ -17,9 +17,10 @@ class Browser(object):
 
 		# docs.
 		DOCS = {
-			"module":"dev0s.system.Brwoser", 
+			"module":"dev0s.system.Browser", 
 			"initialized":False,
-			"description":[], }
+			"description":[], 
+			"chapter": "System", }
 		
 		# objects.
 		#options = Options()

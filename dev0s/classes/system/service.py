@@ -45,7 +45,8 @@ class Service(Object):
 		DOCS = {
 			"module":"dev0s.system.Service", 
 			"initialized":False,
-			"description":[], }
+			"description":[], 
+			"chapter": "System", }
 
 		# defaults.
 		Object.__init__(self, traceback=traceback)

@@ -41,7 +41,8 @@ class Agent(Traceback):
 		DOCS = {
 			"module":"dev0s.encryption.Agent", 
 			"initialized":False,
-			"description":[], }
+			"description":[], 
+			"chapter": "Encryption", }
 
 		# traceback.
 		Traceback.__init__(self, traceback=traceback)

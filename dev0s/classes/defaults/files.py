@@ -252,6 +252,13 @@ class Formats():
 	class FilePath(object):
 		def __init__(self, path, default=False, check=False, load=False):
 
+			# docs.
+			DOCS = {
+				"module":"FilePath", 
+				"initialized":False,
+				"description":[], 
+				"chapter": "Defaults", }
+				
 			# init.
 			self.path = str(self.clean(path=str(path)))
 			if check == False and default == False and path != False:
@@ -783,8 +790,12 @@ class Formats():
 		class Ownership(object):
 			def __init__(self, path=None, load=False):
 
-				# defaults.
-				#self.__class__.__name__ = "Ownership"
+				# docs.
+				DOCS = {
+					"module":"FilePath.Ownership", 
+					"initialized":False,
+					"description":[], 
+					"chapter": "Defaults", }
 
 				# init.
 				self.path = path
@@ -853,6 +864,13 @@ class Formats():
 		class Permission(object):
 			def __init__(self, path=None, load=False):
 
+				# docs.
+				DOCS = {
+					"module":"FilePath.Permission", 
+					"initialized":False,
+					"description":[], 
+					"chapter": "Defaults", }
+
 				# defaults.
 				#self.__class__.__name__ = "Permission"
 
@@ -920,7 +938,14 @@ class Formats():
 			default=None,
 		):
 			
-		   # init.
+			# docs.
+			DOCS = {
+				"module":"String", 
+				"initialized":False,
+				"description":[], 
+				"chapter": "Defaults", }
+				
+		    # init.
 			self.string = str(string)
 			
 			# path.
@@ -1263,6 +1288,24 @@ class Formats():
 		# get the first () from the string by depth.
 		def slice_tuple(self, depth=1):
 			return self.between(["(", ")"], depth=depth)
+		# iterate chars.
+		# > for charcount, char in String.iterate_chars()
+		def iterate_chars(self):
+			charcount, items = 0, []
+			for char in self.string:
+				items.append([charcount, char])
+				charcount += 1
+			return items
+		def iterate_characters(self):
+			return self.iterate_chars()
+		# iterate lines.
+		# > for linecount, line in String.iterate_lines()
+		def iterate_lines(self):
+			linecount, items = 0, []
+			for line in self.string.split("\n"):
+				items.append([linecount, line])
+				linecount += 1
+			return items
 		# slice indent from string.
 		# get the content bewteen the \n{indent}
 		def indent(self, indent=4):
@@ -1559,6 +1602,13 @@ class Formats():
 			default=None,
 		):
 
+			# docs.
+			DOCS = {
+				"module":"Boolean", 
+				"initialized":False,
+				"description":[], 
+				"chapter": "Defaults", }
+				
 			# check self instance.
 			if isinstance(boolean, Formats.Boolean):
 				boolean = boolean.bool
@@ -1677,6 +1727,13 @@ class Formats():
 			default=None,
 		):
 			
+			# docs.
+			DOCS = {
+				"module":"Integer", 
+				"initialized":False,
+				"description":[], 
+				"chapter": "Defaults", }
+				
 			# check self instance.
 			if isinstance(value, Formats.Integer):
 				if "." in str(value):
@@ -2006,6 +2063,13 @@ class Formats():
 			date=None,
 		):
 
+			# docs.
+			DOCS = {
+				"module":"Date", 
+				"initialized":False,
+				"description":[], 
+				"chapter": "Defaults", }
+				
 			# formats.
 			self.default_format = "%d-%m-%y %H:%M" # is Date() str repr
 			self.seconds_format = '%S'
@@ -2287,7 +2351,15 @@ class Formats():
 	# the generate object class.
 	class Generate(object):
 		def __init__(self):
-			a=1
+			
+			# docs.
+			DOCS = {
+				"module":"Generate", 
+				"initialized":False,
+				"description":[], 
+				"chapter": "Defaults", }
+			
+			#
 		def int(self, length=6):
 			charset = Formats.digits
 			return ''.join(random.choice(charset) for x in range(length))
@@ -2308,6 +2380,13 @@ class Formats():
 			timeout=60,
 		):
 
+			# docs.
+			DOCS = {
+				"module":"Interval", 
+				"initialized":False,
+				"description":[], 
+				"chapter": "Defaults", }
+				
 			# attributes.
 			self.sleeptime = sleeptime
 			self.timeout = timeout
@@ -2547,7 +2626,7 @@ class Files():
 		return os.path.ismount(path)
 		#
 	def create(
-		# the path to the file (str) (REQUIRED) (#1).
+		# the path to the file (str) (required) (#1).
 		path=None,
 		# the data (str) (optional).
 		data=None,
@@ -2623,8 +2702,12 @@ class Files():
 	class File(object):
 		def __init__(self, path=None, data=None, load=False, default=None):
 
-			# defaults.
-			#self.__class__.__name__ = "File"
+			# docs.
+			DOCS = {
+				"module":"File", 
+				"initialized":False,
+				"description":[], 
+				"chapter": "Defaults", }
 
 			# check self instance.
 			if isinstance(data, Files.File):
@@ -2758,8 +2841,12 @@ class Files():
 			default=None,
 		):
 
-			# defaults.
-			#self.__class__.__name__ = "Array"
+			# docs.
+			DOCS = {
+				"module":"Array", 
+				"initialized":False,
+				"description":[], 
+				"chapter": "Defaults", }
 
 			# check self instance.
 			if isinstance(array, Files.Array):
@@ -3141,9 +3228,13 @@ class Files():
 			default=None, 
 		):
 
-			# defaults.
-			#self.__class__.__name__ = "Dictionary"
-
+			# docs.
+			DOCS = {
+				"module":"Dictionary", 
+				"initialized":False,
+				"description":[], 
+				"chapter": "Defaults", }
+				
 			# check self instance.
 			if isinstance(dictionary, Files.Dictionary):
 				dictionary = dictionary.dictionary
@@ -3507,7 +3598,7 @@ class Files():
 			if dictionary == None: dictionary = self.dictionary
 			new = {}
 			if alphabetical or ascending:
-				_sorted_ = Array(path=False, array=list(dictionary.keys())).sort(alphabetical=alphabetical, ascending=ascending, reversed=reversed)
+				_sorted_ = Array().sort(alphabetical=alphabetical, ascending=ascending, reversed=reversed, array=list(dictionary.keys()))
 			else: raise ValueError("Unknown behaviour, alphabetical=False.")
 			for key in _sorted_:
 				new[Formats.denitialize(key)] = dictionary[Formats.denitialize(key)]
@@ -3770,9 +3861,13 @@ class Files():
 			#recursive=False,
 		):
 			
-			# defaults.
-			#self.__class__.__name__ = "Directory"
-
+			# docs.
+			DOCS = {
+				"module":"Directory", 
+				"initialized":False,
+				"description":[], 
+				"chapter": "Defaults", }
+				
 			# check self instance.
 			if isinstance(path, Files.Directory):
 				path = path.fp.path
@@ -4390,9 +4485,13 @@ class Files():
 	class Image(object):
 		def __init__(self, path=None, image=None, load=False):
 
-			# defaults.
-			#self.__class__.__name__ = "Image"
-
+			# docs.
+			DOCS = {
+				"module":"Image", 
+				"initialized":False,
+				"description":[], 
+				"chapter": "Defaults", }
+				
 			# init.
 			if path == False: self.file_path = self.fp = None # used in local memory (not fysical)
 			else: self.file_path = self.fp = Formats.FilePath(path)
@@ -4454,9 +4553,13 @@ class Files():
 	class Zip(object):
 		def __init__(self, path=None, check=False):
 			
-			# defaults.
-			#self.__class__.__name__ = "Zip"	
-
+			# docs.
+			DOCS = {
+				"module":"Zip", 
+				"initialized":False,
+				"description":[], 
+				"chapter": "Defaults", }
+				
 			# init.
 			self.file_path = self.fp = Formats.FilePath(path, check=check)
 
@@ -4550,7 +4653,14 @@ class Files():
 			# the default array (will be created if file path does not exist).
 			default=None,
 		):
-		   
+		   	
+			# docs.
+			DOCS = {
+				"module":"Bytes", 
+				"initialized":False,
+				"description":[], 
+				"chapter": "Defaults", }
+				
 		    # check self instance.
 			if isinstance(data, Files.Bytes):
 				data = data.bytes

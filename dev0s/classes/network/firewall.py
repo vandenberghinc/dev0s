@@ -14,7 +14,8 @@ class FireWall(object):
 		DOCS = {
 			"module":"dev0s.network.firewall", 
 			"initialized":True,
-			"description":[], }
+			"description":[], 
+			"chapter": "Network", }
 
 		#
 	def enable(self):

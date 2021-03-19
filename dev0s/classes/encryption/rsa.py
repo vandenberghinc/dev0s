@@ -34,7 +34,8 @@ class RSA(object):
 		DOCS = {
 			"module":"dev0s.encryption.RSA", 
 			"initialized":False,
-			"description":[], }
+			"description":[], 
+			"chapter": "Encryption", }
 
 		# defaults.
 		self.passphrase = passphrase
@@ -544,7 +545,8 @@ class EncryptedDictionary(Dictionary):
 		DOCS = {
 			"module":"dev0s.encryption.EncryptedDictionary", 
 			"initialized":False,
-			"description":[], }
+			"description":[], 
+			"chapter": "Encryption", }
 
 		# the dictionary object.
 		self.default = default

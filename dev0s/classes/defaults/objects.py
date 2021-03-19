@@ -19,6 +19,13 @@ class Traceback(object):
 		raw_traceback="Object",
 	):
 
+		# docs.
+		DOCS = {
+			"module":"Traceback", 
+			"initialized":False,
+			"description":[], 
+			"chapter": "Defaults", }
+
 		# defaults.
 		self._traceback_ = traceback
 		self._raw_traceback_ = traceback
@@ -63,6 +70,13 @@ class Object(Traceback):
 		# the raw traceback.
 		raw_traceback="Object",
 	):
+
+		# docs.
+		DOCS = {
+			"module":"Object", 
+			"initialized":False,
+			"description":[], 
+			"chapter": "Defaults", }
 
 		# defaults.
 		Traceback.__init__(self, traceback=traceback, raw_traceback=raw_traceback)
@@ -312,6 +326,13 @@ class Thread(Object, threading.Thread):
 		log_level=-1,
 	):
 
+		# docs.
+		DOCS = {
+			"module":"Thread", 
+			"initialized":False,
+			"description":[], 
+			"chapter": "Defaults", }
+			
 		# defaults.
 		Object.__init__(self, traceback=traceback, raw_traceback=raw_traceback)
 		threading.Thread.__init__(self)

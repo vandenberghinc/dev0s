@@ -301,7 +301,8 @@ class WebServer(Thread):
 		DOCS = {
 			"module":"dev0s.database.WebServer", 
 			"initialized":False,
-			"description":[], }
+			"description":[], 
+			"chapter": "Database", }
 
 		# defaults.
 		Thread.__init__(self)

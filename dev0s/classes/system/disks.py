@@ -24,7 +24,8 @@ class Disks(Object):
 		DOCS = {
 			"module":"dev0s.system.disks", 
 			"initialized":True,
-			"description":[], }
+			"description":[], 
+			"chapter": "System", }
 
 		# defaults.
 		Object.__init__(self, traceback="dev0s.system.disks")

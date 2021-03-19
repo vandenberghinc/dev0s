@@ -80,7 +80,27 @@ def __str_representable__(dict):
 
 # a default cli object
 class CLI(object):
-	def __init__(self, alias=None, modes={}, options={}, notes={}, executable=__file__, author="Daan van den Bergh"):
+	def __init__(self, 
+		# the alias (str).
+		alias=None, 
+		# the modes (dict).
+		modes={}, 
+		# the options (dict).
+		options={}, 
+		# the documentation notes (dict).
+		notes={}, 
+		# the path to the executable (str, FilePath).
+		executable=__file__, 
+		# the author's name (str).
+		author="Daan van den Bergh",
+	):
+
+		# docs.
+		DOCS = {
+			"module":"dev0s.cli.CLI", 
+			"initialized":False,
+			"description":[], 
+			"chapter": "CLI", }
 
 		# arguments.
 		self.alias = alias
@@ -88,7 +108,7 @@ class CLI(object):
 		self.options = options
 		self.notes = notes
 		self.author = author
-		self.executable = executable
+		self.executable = str(executable)
 		self.arguments = self.Arguments(attributes={
 			"executable":self.executable, 
 			"docs":self.docs, 
@@ -103,15 +123,15 @@ class CLI(object):
 
 	# stop.
 	def stop(self,
-		# success exit.
+		# success exit (bool).
 		success=True,
-		# optional order 1 success message (overwrites success to response.success).
+		# optional order 1 success message (overwrites success to response.success) (ResponseObject, OutputObject, dict).
 		response={},
-		# optional order 2 success message (overwrites success to True).
+		# optional order 2 success message (overwrites success to True) (str).
 		message=None,
-		# optional order 3 message.
+		# optional order 3 message (str).
 		error=None,
-		# json format.
+		# json format (bool).
 		json=False,
 	):
 		if response != {}:
@@ -132,23 +152,23 @@ class CLI(object):
 
 	# show docs.
 	def docs(self, 
-		# the chapter (optional).
+		# the chapter (optional) (str).
 		chapter=None,
-		# the mode (optional).
+		# the mode (optional) (str).
 		mode=None,
 		# success exit.
 		success=True,
-		# optional order 1 success message (overwrites success to response.success).
+		# optional order 1 success message (overwrites success to response.success) (ResponseObject, OutputObject).
 		response={},
-		# optional order 2 success message (overwrites success to True).
+		# optional order 2 success message (overwrites success to True) (str).
 		message=None,
-		# optional order 3 message.
+		# optional order 3 message (str).
 		error=None,
-		# json format.
+		# dump response as json format (bool).
 		json=False,
-		# stop after show.
+		# stop after show  (bool).
 		stop=True,
-		# overwrite default notes (dict) (specify to use).
+		# overwrite default notes (optional)  (dict).
 		notes=None,
 	):
 		"""
@@ -306,7 +326,16 @@ class CLI(object):
 				json=json)
 
 	# selected an invalid mode.
-	def invalid(self, error="Selected an invalid mode.", chapter=None, mode=None, json=False):
+	def invalid(self, 
+		# the selected error (str).
+		error="Selected an invalid mode.", 
+		# the selected chapter (str).
+		chapter=None, 
+		# the active mode (str).
+		mode=None, 
+		# dump response as json format (bool).
+		json=False,
+	):
 		if not json:
 			self.docs(
 				chapter=chapter,
@@ -377,25 +406,25 @@ class CLI(object):
 		def get(self, 
 			# the argument id (str) (example: --path).
 			argument, 
-			# whether the argument is required or not.
+			# whether the argument is required or not (bool).
 			required=True, 
-			# the plus index.
+			# the plus index (int).
 			index=1, 
-			# the argument id count index.
+			# the argument id count index (int).
 			count=1, 
 			# the value format (str, list) (example: formats=[str].
 			format="*",
-			# pack multiple into tuple.
+			# pack multiple into tuple (bool).
 			pack=True, 
-			# default value when empty.
+			# default value when empty (bool, int, float, str, dict, list).
 			default=None, 
-			# docs chapter.
+			# docs chapter (str).
 			chapter=None, 
-			# docs mode.
+			# docs mode (str).
 			mode=None, 
-			# json mode.
+			# json mode (bool).
 			json=False,
-			# overwrite default notes (dict) (specify to use).
+			# overwrite default notes (dict).
 			notes=None,
 		):
 
@@ -571,7 +600,12 @@ class CLI(object):
 						a = self.get(i, required=required, index=index,default=default, mode=mode, chapter=chapter, notes=notes, json=json, count=count)
 						if a != default: return a
 					return default
-		def check(self, exceptions=[], json=False):
+		def check(self, 
+			# the passed args to except (list).
+			exceptions=[], 
+			# json mode (bool).
+			json=False,
+		):
 			exceptions += ["--log-level", "--create-alias", "-v", "--version", "-j", "--json", "--non-interactive"]
 			lexecutable = self.executable
 			while True:
@@ -601,7 +635,10 @@ class CLI(object):
 			return list(vars(self).keys())
 		def values(self):
 			return list(vars(self).values())
-		def dict(self, serializable=False):
+		def dict(self, 
+			# serialize to json (bool).
+			serializable=False,
+		):
 			dictionary = {}
 			for key, value in self.items():
 				if serializable:
@@ -631,7 +668,7 @@ class CLI(object):
 				self[key] = value
 		# unpack keys as tuple.
 		def unpack(self, 
-			# the variable keys (#1 parameter).
+			# the variable keys (#1 parameter) (list).
 			keys=[],
 		):
 			list = []
@@ -668,7 +705,10 @@ class CLI(object):
 			return list(vars(self).keys())
 		def values(self):
 			return list(vars(self).values())
-		def dict(self, serializable=False):
+		def dict(self, 
+			# serialize to json (bool).
+			serializable=False,
+		):
 			dictionary = {}
 			for key, value in self.items():
 				if serializable:
@@ -698,7 +738,7 @@ class CLI(object):
 				self[key] = value
 		# unpack keys as tuple.
 		def unpack(self, 
-			# the variable keys (#1 parameter).
+			# the variable keys (#1 parameter) (list).
 			keys=[],
 		):
 			list = []

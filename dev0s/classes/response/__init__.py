@@ -19,7 +19,7 @@ class Response(object):
 			"module":"dev0s.response", 
 			"initialized":True,
 			"description":[], 
-			"chapter":"response", }
+			"chapter":"Response", }
 
 		# set log file.
 		#	assign new values with self.log_file.assign(...) to keep it shared across other objects.
@@ -362,7 +362,7 @@ class Parameters(object):
 			"module":"dev0s.response.parameters", 
 			"initialized":True,
 			"description":[], 
-			"chapter":"response", }
+			"chapter":"Response", }
 
 		#
 	
@@ -560,6 +560,12 @@ class ResponseObject(object):
 			"error":None,
 		},
 	):
+		# docs.
+		DOCS = {
+			"module":"ResponseObject", 
+			"initialized":False,
+			"description":[], 
+			"chapter": "Response", }
 
 		# serialize attributes to dict.
 		serialized = _response_.serialize(attributes)

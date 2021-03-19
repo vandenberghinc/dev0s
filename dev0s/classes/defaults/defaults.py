@@ -17,7 +17,8 @@ class Defaults(object):
 		DOCS = {
 			"module":"dev0s.defaults", 
 			"initialized":True,
-			"description":[], }
+			"description":[], 
+			"chapter": "Defaults", }
 
 		# vars.
 		self.vars = objects.Object({

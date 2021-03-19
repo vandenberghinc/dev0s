@@ -20,7 +20,8 @@ class Network(object):
 		DOCS = {
 			"module":"dev0s.network", 
 			"initialized":True,
-			"description":[], }
+			"description":[], 
+			"chapter": "Network", }
 
 		# variables.
 		self._info_ = None

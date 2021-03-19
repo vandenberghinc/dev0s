@@ -20,7 +20,7 @@ class Requests(object):
 			"module":"dev0s.requests", 
 			"initialized":True,
 			"description":[], 
-			"chapter":"requests",
+			"chapter":"Requests",
 		}
 
 		# attributes.
@@ -103,7 +103,7 @@ class Requests(object):
 				"module":"dev0s.requests.RestAPI", 
 				"initialized":False,
 				"description":[], 
-				"chapter":"requests",
+				"chapter":"Requests",
 			}
 
 			# defaults.

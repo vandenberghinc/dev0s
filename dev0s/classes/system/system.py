@@ -47,7 +47,8 @@ class User(object):
 		DOCS = {
 			"module":"dev0s.system.User", 
 			"initialized":False,
-			"description":[], }
+			"description":[], 
+			"chapter": "System", }
 
 		# arguments.
 		self.username = username
@@ -224,7 +225,8 @@ class Group(object):
 		DOCS = {
 			"module":"dev0s.system.Group", 
 			"initialized":False,
-			"description":[], }
+			"description":[], 
+			"chapter": "System", }
 
 		# arguments.
 		self.name = name

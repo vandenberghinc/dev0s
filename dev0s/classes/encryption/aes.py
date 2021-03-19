@@ -35,7 +35,8 @@ class AES(object):
 		DOCS = {
 			"module":"dev0s.encryption.AES", 
 			"initialized":False,
-			"description":[], }
+			"description":[], 
+			"chapter": "Encryption", }
 
 		# check params.
 		response = _response_.parameters.check({
@@ -115,7 +116,7 @@ class AsymmetricAES(object):
 		public_key=None,
 		# the private key (str).
 		private_key=None,
-		# the key passphrase (str / null).
+		# the key passphrase (str, null).
 		passphrase=None,
 		# enable memory when the keys are not saved.
 		memory=False,
@@ -125,7 +126,8 @@ class AsymmetricAES(object):
 		DOCS = {
 			"module":"dev0s.encryption.AsymmetricAES", 
 			"initialized":False,
-			"description":[], }
+			"description":[], 
+			"chapter": "Encryption", }
 
 		# attributes.
 		self.rsa = rsa.RSA(public_key=public_key, private_key=private_key, passphrase=passphrase, memory=memory)
@@ -394,7 +396,8 @@ class Database(object):
 		DOCS = {
 			"module":"dev0s.encryption.Database", 
 			"initialized":False,
-			"description":[], }
+			"description":[], 
+			"chapter": "Encryption", }
 
 		# defaults.
 		#self.__class__.__name__ = "Database"
@@ -547,9 +550,14 @@ class Database(object):
 			# the aes object.
 			aes=None,
 		):
-			# defaults.
-			#self.__class__.__name__ = "File"
-			# attributesl
+			# docs.
+			DOCS = {
+				"module":"dev0s.encryption.Database.File", 
+				"initialized":False,
+				"description":[], 
+				"chapter": "Encryption", }
+				
+			# attributes
 			self.path = f"{gfp.clean(path, remove_first_slash=False, remove_last_slash=True, remove_double_slash=True)}"
 			self.base = FilePath(self.path).base()
 			self.aes = aes
@@ -588,8 +596,13 @@ class Database(object):
 			# the aes object.
 			aes=None,
 		):
-			# defaults.
-			#self.__class__.__name__ = "Array"
+			# docs.
+			DOCS = {
+				"module":"dev0s.encryption.Database.Array", 
+				"initialized":False,
+				"description":[], 
+				"chapter": "Encryption", }
+
 			# attributes.
 			self.path = f"{gfp.clean(path, remove_first_slash=False, remove_last_slash=True, remove_double_slash=True)}"
 			self.base = FilePath(self.path).base()
@@ -634,9 +647,14 @@ class Database(object):
 			# the aes object.
 			aes=None,
 		):
-			# defaults.
-			#self.__class__.__name__ = "Dictionary"
-			# attributesl
+			# docs.
+			DOCS = {
+				"module":"dev0s.encryption.Database.Dictionary", 
+				"initialized":False,
+				"description":[], 
+				"chapter": "Encryption", }
+
+			# attributes.
 			self.path = f"{gfp.clean(path, remove_first_slash=False, remove_last_slash=True, remove_double_slash=True)}"
 			self.base = FilePath(self.path).base()
 			self.aes = aes

@@ -17,6 +17,15 @@ def log(msg, back=0):
 
 # input.
 def input(message, yes_no=False, check=False, password=False, default=None):
+
+
+	# docs.
+	DOCS = {
+		"module":"dev0s.console.input", 
+		"description":[], 
+		"chapter": "Console", }
+		
+	# attributes.
 	message = color.fill(message)
 	if len(message) > 0 and message[0].upper() != message[0]: message = String(message).capitalized_word()
 	if yes_no:
@@ -57,6 +66,15 @@ def input(message, yes_no=False, check=False, password=False, default=None):
 # the loader object class.
 class Loader(threading.Thread):
 	def __init__(self, message, autostart=True, log_level=0, interactive=True):
+
+		# docs.
+		DOCS = {
+			"module":"Loader", 
+			"initialized":False,
+			"description":[], 
+			"chapter": "Console", }
+			
+		# attributes.
 		threading.Thread.__init__(self)
 		self.message = self.__clean_message__(message)
 		self.last_message = str(self.message)
@@ -163,6 +181,15 @@ class Loader(threading.Thread):
 # the loader object class.
 class ProgressLoader(threading.Thread):
 	def __init__(self, message, index=0, max=10, log_level=0):
+
+		# docs.
+		DOCS = {
+			"module":"ProgressLoader", 
+			"initialized":False,
+			"description":[], 
+			"chapter": "Console", }
+			
+		# attributes.
 		threading.Thread.__init__(self)
 		self.message = message
 		if self.message[-len(" ..."):] == " ...": self.message = self.message[:-4]

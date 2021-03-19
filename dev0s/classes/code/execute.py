@@ -25,6 +25,14 @@ def kill(
 	# loader.
 	log_level=0,
 ):
+
+	# docs.
+	DOCS = {
+		"module":"dev0s.code.kill", 
+		"initialized":False,
+		"description":[], 
+		"chapter": "Code", }
+
 	# kill includes.
 	loader = None
 	if includes != None:
@@ -72,6 +80,14 @@ def processes(
 	# banned process names.
 	banned=["grep"],
 ):
+
+	# docs.
+	DOCS = {
+		"module":"dev0s.code.processes", 
+		"initialized":False,
+		"description":[], 
+		"chapter": "Code", }
+
 	_sudo_ = Boolean(sudo).string(true="sudo ", false="")
 	if isinstance(includes, str):
 		command = f"""{_sudo_}ps -ax | grep "{includes}" | """
@@ -160,6 +176,12 @@ def execute(
 	__spawn_attributes__={},
 	#
 ):	
+	# docs.
+	DOCS = {
+		"module":"dev0s.code.execute", 
+		"initialized":False,
+		"description":[], 
+		"chapter": "Code", }
 
 	# checks,
 	if input != None and not isinstance(input, (dict, Dictionary, list, Array)): 
@@ -495,6 +517,12 @@ class Spawn(objects.Object):
 		# system options.
 		response_str=None,
 	):
+		# docs.
+		DOCS = {
+			"module":"dev0s.code.Spawn", 
+			"initialized":False,
+			"description":[], 
+			"chapter": "Code", }
 
 		# defaults.
 		objects.Object.__init__(self, traceback="dev0s.code.execute.spawn")
@@ -915,6 +943,14 @@ class OutputObject(ResponseObject):
 		# the log level.
 		log_level=defaults.options.log_level,
 	):
+		# docs.
+		DOCS = {
+			"module":"dev0s.code.OutputObject", 
+			"initialized":False,
+			"description":[], 
+			"chapter": "Code", }
+
+		# attributes.
 		dictionary = {
 			"success":error == None,
 			"message":message,

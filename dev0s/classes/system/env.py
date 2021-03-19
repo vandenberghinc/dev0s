@@ -15,7 +15,8 @@ class Env(object):
 		DOCS = {
 			"module":"dev0s.system.env", 
 			"initialized":True,
-			"description":[], }
+			"description":[], 
+			"chapter": "System", }
 
 		#
 	

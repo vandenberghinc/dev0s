@@ -12,7 +12,8 @@ class Color(object):
 		DOCS = {
 			"module":"color", 
 			"initialized":True,
-			"description":[], }
+			"description":[], 
+			"chapter": "Defaults", }
 
 		# attributes.
 		self.purple = "\033[95m"
@@ -71,7 +72,8 @@ class Symbol(object):
 		DOCS = {
 			"module":"symbol", 
 			"initialized":True,
-			"description":[], }
+			"description":[], 
+			"chapter": "Defaults", }
 
 		# attributes.
 		self.cornered_arrow = color.grey+'↳'+color.end

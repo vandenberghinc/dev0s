@@ -31,3 +31,5 @@ class Exceptions():
 		pass
 	class InvalidOperatingSystem(Exception):
 		pass
+	class AbortError(Exception):
+		pass
