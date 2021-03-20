@@ -8,7 +8,7 @@ pexpect
 certifi
 chardet
 pycryptodome
-urllib3
+urllib3>=1.26.4
 flask
 selenium
 jinja2
