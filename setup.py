@@ -7,7 +7,7 @@
 from setuptools import setup, find_packages
 setup(
 	name='dev0s',
-	version='3.26.7',
+	version='3.26.8',
 	description='Some description.',
 	url='http://github.com/vandenberghinc/dev0s',
 	author='Daan van den Bergh',
@@ -32,4 +32,5 @@ setup(
             'werkzeug',
             'click',
             'beautifulsoup4',
+            'pillow',
         ])

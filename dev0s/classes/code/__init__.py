@@ -3,6 +3,7 @@
 
 # imports.
 from dev0s.classes.defaults.exceptions import Exceptions
+from dev0s.classes import utils
 from dev0s.classes import console
 from dev0s.classes.defaults.files import *
 from dev0s.classes.defaults.defaults import defaults
@@ -24,6 +25,12 @@ class Version(object):
 	def __init__(self, 
 		# the version value (#1).
 		value="1.0.00",
+		# the file path (optional) (str, FilePath).
+		path=None,
+		# the default value (opional) (str)
+		default=None,
+		# load the specified path data on initialization (bool).
+		load=False,
 	):
 
 		# docs.
@@ -44,7 +51,25 @@ class Version(object):
 		self.value = str(value).replace(" ","").replace("\n","").replace("\r","")
 		self.int = int(str(self.value).replace(".",""))
 
+		# path.
+		if path == False: self.file_path = self.fp = None # used in local memory (not fysical)
+		else: self.file_path = self.fp = Formats.FilePath(path)
+		if default != None and not Files.exists(self.file_path.path): self.save(array=default)
+		if load: self.load()
+
 		#
+	def save(self, value=None, path=None, sudo=False):
+		if value == None: value = self.value
+		if path == None: path = self.file_path.path
+		utils.__check_memory_only__(path)
+		self.assign(string)
+		return Files.save(path, str(string), format="str", sudo=sudo)
+	def load(self, default=None, sudo=False):
+		utils.__check_memory_only__(self.file_path.path)
+		if not os.path.exists(self.file_path.path) and default != None: 
+			self.save(default, sudo=sudo)
+		self.assign(Files.load(self.file_path.path, format="str", sudo=sudo))
+		return self.value
 	def increase(self, value=None, count=1):
 		if value == None: value = self.value
 
@@ -169,21 +194,23 @@ class Version(object):
 	def __eq__(self, version):
 		if isinstance(version, None.__class__):
 			return False
-		elif not isinstance(version, self.__class__):
-			raise Exceptions.FormatError(f"Can not compare object {self.__class__} & {version.__class__}.")
-		return self.int == version.int
+		elif isinstance(version, self.__class__):
+			return self.int == version.int
+		else:
+			return str(self.int) == str(version)
 	def __ne__(self, version):
 		if isinstance(version, None.__class__):
-			return False
-		elif not isinstance(version, self.__class__):
-			raise Exceptions.FormatError(f"Can not compare object {self.__class__} & {version.__class__}.")
-		return self.int != version.int
+			return True
+		elif isinstance(version, self.__class__):
+			return self.int != version.int
+		else:
+			return str(self.int) != str(version)
 	
 	# support 'in' operator.
 	def __contains__(self, string):
 		if isinstance(string, (list, Files.Array)):
 			for i in string:
-				if i in str(self.value):
+				if str(i) in str(self.value):
 					return True
 			return False
 		else:
@@ -220,7 +247,7 @@ class Version(object):
 			value = value.value
 		elif not isinstance(value, self.__class__):
 			raise Exceptions.FormatError(f"Can not assign object {self.__class__} & {value.__class__}.")
-		self.value = value
+		self.value = str(value)
 		self.int = int(str(self.value).replace(".",""))
 		return self
 	# return raw data.

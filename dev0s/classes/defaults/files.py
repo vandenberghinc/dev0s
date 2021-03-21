@@ -7,7 +7,11 @@ from dev0s.classes import utils
 from dev0s.classes.defaults.color import color, symbol
 from dev0s.classes import console
 from dev0s.classes.defaults.exceptions import Exceptions
+
+# pip.
 import shutil, math
+from PIL import Image as _Image_
+
 """
 Notes.
 All default files & formats must exact the same as the default dict, bool, list etc in the native sense.
@@ -561,23 +565,46 @@ class Formats():
 				if os.path.isdir(path): options = " -fr "
 			elif os.path.isdir(path): options = " -r "
 			os.system(f"{sudo}rm{options}{path}{silent}")
-		def move(self, path=None, sudo=False, silent=False):
-			if path == None: raise Exceptions.InvalidUsage("Define parameter: [path].")
-			if silent: silent = ' 2> /dev/null'
-			else: silent = ""
-			if sudo: sudo = "sudo "
-			else: sudo = ""
-			os.system(f"{sudo}mv {self.path} {path}{silent}")
+		def move(self, 
+			# the to path (#1).
+			path=None,
+			# root permission required.
+			sudo=False,
+			# root permission required.
+			log_level=0,
+		):
+			return Files.move(
+				# the from & to path (#1 & #2).
+				self.path, path,
+				# root permission required.
+				sudo=sudo,
+				# root permission required.
+				log_level=log_level,
+			)
 			self.path = gfp.clean(path=path)
-		def copy(self, path=None, sudo=False, silent=False):
-			if path == None: raise Exceptions.InvalidUsage("Define parameter: [path].")
-			if silent: silent = ' 2> /dev/null'
-			else: silent = ""
-			if sudo: sudo = "sudo "
-			else: sudo = ""
-			if self.directory(): dir = "-r "
-			else: dir = ""
-			os.system(f"{sudo}cp {dir}{self.path} {path}{silent}")
+		def copy(self, 
+			# the to path (#1).
+			path=None, 
+			# root permission required.
+			sudo=False,
+			# the active log level.
+			log_level=0,
+			# the exclude patterns.
+			exclude=[],
+			# update deleted files.
+			delete=True,
+		):
+			return Files.copy(
+				# the from & to path (#1 & #2).
+				self.path, path,
+				# root permission required.
+				sudo=sudo,
+				# the active log level.
+				log_level=log_level,
+				# the exclude patterns.
+				exclude=exclude,
+				# update deleted files.
+				delete=delete,)
 		def open(self, sudo=False):
 			if sudo: sudo = "sudo "
 			else: sudo = ""
@@ -2664,8 +2691,12 @@ class Files():
 		from_, to_,
 		# root permission required.
 		sudo=False,
-		# root permission required.
+		# the active log level.
 		log_level=0,
+		# the exclude patterns.
+		exclude=[],
+		# update deleted files.
+		delete=True,
 	):
 		if not Files.exists(from_, sudo=sudo):
 			raise FileNotFoundError(f"Specified copy path [{from_}] does not exist.")
@@ -2677,7 +2708,9 @@ class Files():
 		from_ = gfp.clean(from_)
 		to_ = gfp.clean(to_)
 		if not Files.exists(gfp.base(to_), sudo=sudo): Files.create(gfp.base(to), sudo=sudo, directory=directory)
-		os.system(f"{Boolean(sudo).string(true='sudo ', false='')}rsync -azt{Boolean(log_level >= 1).string(true='P',false='')} {from_} {to_} --delete")
+		exclude_str = ""
+		for i in exclude: exclude_str += f" --exclude '{i}'"
+		os.system(f"{Boolean(sudo).string(true='sudo ', false='')}rsync -azt{Boolean(log_level >= 1).string(true='P',false='')} {from_} {to_} {Boolean(delete).string(true='--delete', false='')}{exclude_str}")
 	def move(
 		# the from & to path (#1 & #2).
 		from_, to_,
@@ -4512,10 +4545,17 @@ class Files():
 			pixel = self.image.load()
 			pix[15, 15] = value
 			self.image.save(self.file_path.path)
-		def convert(self, input='logo.png', output='logo.ico'):
-			filename = input
-			img = _Image_.open(filename)
-			img.save(output)
+		def convert(self, 
+			# the input path (str, FilePath) (#1).
+			output=None,
+			# the input path (str, FilePath) (leave None to use self.fp.path)
+			input=None,
+		):
+			if input == None: input = self.fp.path
+			if output == None:
+				raise Exceptions.InvalidUsage("Define parameter: [output].")
+			img = _Image_.open(str(input))
+			img.save(str(output))
 			print(f"Successfully converted image {input} to {output}.")
 		def replace_pixels(self, input_path=None, output_path=None, input_hex=None, output_hex=None):
 			img = _Image_.open(input_path)
@@ -4553,6 +4593,22 @@ class Files():
 		# return raw data.
 		def raw(self):
 			return self.fp.path
+		# suport eq.
+		def __eq__(self, var):
+			if var.__class__.__name__ in ["NoneType"]:
+				return False
+			else:
+				return str(var) == str(self)
+		def __ne__(self, var):
+			if var.__class__.__name__ in ["NoneType"]:
+				return True
+			else:
+				return str(var) != str(self)
+		# repr.
+		def __str__(self):
+			return str(self.fp)
+		def __repr__(self):
+			return str(self)
 		#
 	#
 	# the zip object class.

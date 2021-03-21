@@ -15,6 +15,7 @@ jinja2
 werkzeug
 click
 beautifulsoup4
+pillow
 
 # inc requirements.
 
