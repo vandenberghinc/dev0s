@@ -140,11 +140,11 @@ class User(object):
 	def set_password(self, password=None):
 		
 		# check params.
-		success, response = _response_.parameters.check(
+		response = _response_.parameters.check(
 			parameters={
 				"password":password,
 			})
-		if not success: return response
+		if not response.success: return response
 
 		# handle linux.
 		if OS in ["linux"]:
@@ -354,7 +354,7 @@ class Group(object):
 		if OS in ["linux"]:
 			for user in users:
 				output = code.execute(f"sudo deluser {user} {self.name}")
-				if output != "":
+				if output != "" and "Removing user " not in output:
 					return _response_.error(String(output.output.replace("deluser: ", "").replace("\n", ". ")).capitalized_word())
 
 		# handle macos.

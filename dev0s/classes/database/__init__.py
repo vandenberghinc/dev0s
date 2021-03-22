@@ -130,7 +130,10 @@ class Database(Traceback):
 				if overwrite:
 					obj.save(dictionary=data)
 				else:
-					obj.load()
+					if obj.fp.exists():
+						obj.load()
+					else:
+						obj.dictionary = {}
 					obj.insert(data)
 					obj.save()
 			else:
