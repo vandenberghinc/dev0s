@@ -2707,7 +2707,7 @@ class Files():
 			to_ += "/"
 		from_ = gfp.clean(from_)
 		to_ = gfp.clean(to_)
-		if not Files.exists(gfp.base(to_), sudo=sudo): Files.create(gfp.base(to), sudo=sudo, directory=directory)
+		if not Files.exists(gfp.base(to_), sudo=sudo): Files.create(gfp.base(to_), sudo=sudo, directory=directory)
 		exclude_str = ""
 		for i in exclude: exclude_str += f" --exclude '{i}'"
 		os.system(f"{Boolean(sudo).string(true='sudo ', false='')}rsync -azt{Boolean(log_level >= 1).string(true='P',false='')} {from_} {to_} {Boolean(delete).string(true='--delete', false='')}{exclude_str}")
@@ -2728,7 +2728,7 @@ class Files():
 			to_ += "/"
 		from_ = gfp.clean(from_)
 		to_ = gfp.clean(to_)
-		if not Files.exists(gfp.base(to_), sudo=sudo): Files.create(gfp.base(to), sudo=sudo, directory=directory)
+		if not Files.exists(gfp.base(to_), sudo=sudo): Files.create(gfp.base(to_), sudo=sudo, directory=directory)
 		os.system(f"{Boolean(sudo).string(true='sudo ', false='')}mv {from_} {to_}")
 	#
 	# the file object class.

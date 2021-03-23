@@ -171,19 +171,19 @@ String.prototype.format = function () {
 };
 
 // capitalize the first word (in the scentence).
-String.prototype.capitalize_word = function() {
+String.prototype.capitalized_word = function() {
 	return this.charAt(0).toUpperCase() + this.slice(1)
 }
 
 // capitalize each word in the scentence.
-String.prototype.capitalize_scentence = function() {
+String.prototype.capitalized_scentence = function() {
 	var items = this.split(" ")
 	scentence = ""
 	items.forEach(function(item) {
 		if (scentence == ""){
-			scentence = String(item).capitalize_word()
+			scentence = String(item).capitalized_word()
 		} else {
-			scentence += " "+String(item).capitalize_word()
+			scentence += " "+String(item).capitalized_word()
 		}
 	})
 	return scentence
