@@ -94,6 +94,8 @@ class Defaults(object):
 		overwrite=False,
 		# the venv path (leave None to ignore).
 		venv=None,
+		# the path to the requirements file (leave None to ignore).
+		requirements=None,
 	):
 		l_alias = cli.get_argument("--create-alias", required=False)
 		present = "--create-alias" in sys.argv and l_alias == alias
@@ -102,6 +104,12 @@ class Defaults(object):
 			base = f"/usr/bin/"
 		path = f"{base}/{alias}"
 		sudo = Boolean("--sudo" in sys.argv).string(true="sudo ",false="")
+		if venv != None and not Files.exists(venv):
+			print(f"Creating virtual environment {venv}.")
+			os.system(f"{self.vars.executable} -m venv {venv}")
+			if requirements != None and Files.exists(requirements):
+				print(f"Installing requirements {requirements}.")
+				os.system(f"{venv}/bin/pip3 install -r {requirements} --user {self.vars.user}")
 		if venv != None: venv = f'"{venv}"'
 		file = f"""#!/usr/bin/env python3\nimport os, sys, platform\npackage="{executable}"\nvenv={venv}\nsys.argv.pop(0)\narguments = sys.argv\ns = ""\nfor i in arguments:\n	if s == "": \n		if " " in i: s = "'"+i+"'"\n		else: s = i\n	else: \n		if " " in i: s += " '"+i+"'"\n		else: s += " "+i\n"""+"""if venv != None: os.system(f"{venv}/bin/python3 "+package+" "+s)\nelif str(platform.system()).lower() in ["darwin"] and os.path.exists("/usr/bin/python3"): os.system("/usr/bin/python3 "+package+" "+s)\nelse:  os.system("python3 "+package+" "+s)\n#os.system("python3 "+package+" "+s)"""
 		if ((cli.argument_present("--force") or cli.argument_present("--forced") or overwrite) and present) or (present or not Files.exists(path)) or (present and Files.exists(path) and Files.load(path) != file):
