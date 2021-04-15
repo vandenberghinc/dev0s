@@ -222,6 +222,7 @@ class Env(object):
 	def set_string(self, id, value):
 		os.environ[id] = value
 	def set_boolean(self, id, value):
+		e = os.environ.get(id)
 		if e in [True, "True", "true", "TRUE"]:
 			os.environ[id] = "true"
 		else: 

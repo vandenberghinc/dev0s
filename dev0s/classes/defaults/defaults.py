@@ -54,7 +54,7 @@ class Defaults(object):
 		})
 
 		# logging.
-		if self.options.log_level >= 1:
+		if self.options.log_level >= 2:
 			print(f"{ALIAS}:")
 			print(f"  * vars: ")
 			print(f"    - os: {self.vars.os}")

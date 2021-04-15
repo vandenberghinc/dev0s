@@ -52,7 +52,7 @@ def kill(
 
 	# kill pid.
 	else:
-		if log_level >= 1:
+		if log_level >= 3:
 			loader = console.Loader(f"Killing process {pid}.")
 		_sudo_ = Boolean(sudo).string(true="sudo ", false="")
 		output = utils.__execute_script__(f"{_sudo_}kill {pid}")
@@ -62,13 +62,13 @@ def kill(
 				if not response.success: response
 				try: 
 					response.processes[pid]
-					if log_level >= 1: loader.stop(success=False)
+					if log_level >= 3: loader.stop(success=False)
 					return _response_.error(f"Failed to stop process {pid}.", log_level=log_level)
 				except KeyError: a=1
-			if log_level >= 1: loader.stop()
+			if log_level >= 3: loader.stop()
 			return _response_.success(f"Successfully killed process {pid}.")
 		else:
-			if log_level >= 1: loader.stop(success=False)
+			if log_level >= 3: loader.stop(success=False)
 			return _response_.error(f"Failed to stop process {pid}, error: {output}", log_level=log_level)
 
 # list all processes.
@@ -308,7 +308,7 @@ def execute(
 				expecting = False
 				if not optional:
 					if stop_loader and isinstance(loader, console.Loader): loader.stop(success=False)
-					if log_level >= 1:
+					if log_level >= 3:
 						return OutputObject(error=f"Failed to send expected input {str_input} to {response_str}, child is not expecting any input [{spawn.child}].", log_level=log_level)
 					else:
 						return OutputObject(error=f"Failed to send expected input {str_input} to {response_str}, child is not expecting any input.", log_level=log_level)
@@ -374,7 +374,7 @@ def execute(
 			output = response.output
 			if error_end_of_file != None and error_end_of_file: 
 				if stop_loader and isinstance(loader, console.Loader): loader.stop(success=False)
-				if log_level >= 1:
+				if log_level >= 3:
 					return OutputObject(error=f"Failed to send expected input {str_input} to {response_str} (#234343) (output: {output}) (child: {spawn.child}).", log_level=log_level)
 				else:
 					return OutputObject(error=f"Failed to send expected input {str_input} to {response_str} (#234343) (output: {output}).", log_level=log_level)
@@ -659,7 +659,7 @@ class Spawn(objects.Object):
 		wait=False, 
 		# the timeout, leave None for no timeout.
 		timeout=None,
-		# the live boolean (bool) (prints live logs to console when enabled) (leave None to use self.log_level >= 1).
+		# the live boolean (bool) (prints live logs to console when enabled) (leave None to use self.log_level >= 3).
 		live=None, 
 		# system variables.
 		#   safe True always a response.output variable upon error the response.output is "".
@@ -692,7 +692,7 @@ class Spawn(objects.Object):
 			print(output)
 
 		# checks.
-		if live == None: live = self.log_level >= 1
+		if live == None: live = self.log_level >= 3
 
 		# old timeout.
 		old = self.child.timeout
@@ -816,7 +816,7 @@ class Spawn(objects.Object):
 
 	# wait for the process to finish.
 	def wait(self, 
-		# the live boolean (bool) (prints live logs to console when enabled) (leave None to use self.log_level >= 1).
+		# the live boolean (bool) (prints live logs to console when enabled) (leave None to use self.log_level >= 3).
 		live=None, 
 		sleeptime=1,
 		# the timeout (leave None to ignore).
@@ -824,7 +824,7 @@ class Spawn(objects.Object):
 	):
 		
 		# checks.
-		if live == None: live = self.log_level >= 1
+		if live == None: live = self.log_level >= 3
 
 		# live
 		if live:

@@ -4270,9 +4270,9 @@ class Files():
 			return self.join(name, type) in self.paths(recursive=recursive)
 			#
 		def subpath(self, fullpath):
-			return self.file_path.clean(path=fullpath.replace(self.path, ""), remove_double_slash=True)
+			return self.fp.clean(path=fullpath.replace(self.fp.path, ""), remove_double_slash=True)
 		def fullpath(self, subpath):
-			return self.file_path.clean(path=f"{self.path}/{subpath}", remove_double_slash=True)
+			return self.fp.clean(path=f"{self.fp.path}/{subpath}", remove_double_slash=True)
 		# set the icon.
 		def set_icon(self, 
 			# the path to the .png / .jpg icon.

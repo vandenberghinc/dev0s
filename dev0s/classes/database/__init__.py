@@ -311,8 +311,12 @@ class WebServer(Thread):
 		Thread.__init__(self)
 
 		# check home dir.
-		if not Files.exists(f"{defaults.vars.home}/.{ALIAS}"):
-			Files.create(f"{defaults.vars.home}/.{ALIAS}", directory=True, owner=defaults.vars.user, permission=700)
+		for dir in [
+			f"{defaults.vars.home}/.{ALIAS}",
+			f"{defaults.vars.home}/.{ALIAS}/.cache",
+		]:
+			if not Files.exists(dir):
+				Files.create(dir, directory=True, owner=defaults.vars.user, permission=700)
 
 		# by serialization.
 		if serialized != {}:
@@ -347,7 +351,7 @@ class WebServer(Thread):
 
 		# attribibutes.
 		self.cache = {}
-		self.system_cache = Database(path=Files.join(defaults.vars.home, f"{ALIAS}/{self.id}/")) # only used for tokens, rest is stored in python memory only.
+		self.system_cache = Database(path=Files.join(defaults.vars.home, f"/.{ALIAS}/.cache/{self.id}/")) # only used for tokens, rest is stored in python memory only.
 
 		# checks.
 		self.log_level = int(self.log_level)
