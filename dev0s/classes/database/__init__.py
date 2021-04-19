@@ -225,7 +225,7 @@ class Database(Traceback):
 		# also get empty dirs (bool).
 		empty_dirs=True, 
 		# remove the extension names (bool).
-		remove_extensions=True,
+		remove_extensions=False,
 		# the banned full paths (list).
 		banned=[], 
 		# the banned names (list).
