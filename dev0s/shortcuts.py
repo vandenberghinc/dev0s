@@ -35,22 +35,26 @@ Files = dev0s.files.Files
 Formats = dev0s.files.Formats
 gfp = dev0s.files.gfp
 gdate = dev0s.files.gdate
-Files = dev0s.files.Files
-Formats = dev0s.files.Formats
-FilePath = Formats.FilePath 
-String = Formats.String 
-Boolean = Formats.Boolean 
-Integer = Formats.Integer 
-Date = Formats.Date
-Generate = Formats.Generate
-Interval = Formats.Interval
-File = Files.File
-Directory = Files.Directory
-Zip = Files.Zip
-Image = Files.Image
-Bytes = Files.Bytes
-Dictionary = Files.Dictionary
-Array = Files.Array
+
+FilePath = dev0s.files.FilePath 
+String = dev0s.files.String 
+Boolean = dev0s.files.Boolean 
+Integer = dev0s.files.Integer 
+Date = dev0s.files.Date
+
+File = dev0s.files.File
+Directory = dev0s.files.Directory
+Zip = dev0s.files.Zip
+Image = dev0s.files.Image
+Bytes = dev0s.files.Bytes
+Dictionary = dev0s.files.Dictionary
+Array = dev0s.files.Array
+
+Generate = dev0s.files.Generate
+Interval = dev0s.files.Interval
+Speed = dev0s.files.Speed
+speed = dev0s.files.Speed()
+
 
 # response.
 ResponseObject = dev0s.response.ResponseObject
@@ -59,6 +63,7 @@ ResponseObject = dev0s.response.ResponseObject
 Traceback = dev0s.objects.Traceback
 Object = dev0s.objects.Object
 Thread = dev0s.objects.Thread
+ThreadManager = dev0s.objects.ThreadManager
 
 # class database.
 Database = dev0s.database.Database

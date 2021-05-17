@@ -218,10 +218,10 @@ class Agent(Traceback):
 
 	# copy functions (only these!).
 	def encrypt(self, string, decode=False):
-		self.encryption.encrypt(string, decode=decode)
+		return self.encryption.encrypt(string, decode=decode)
 		#
 	def decrypt(self, string, decode=False):
-		self.encryption.decrypt(string, decode=decode)
+		return self.encryption.decrypt(string, decode=decode)
 		#
 
 	# properties.

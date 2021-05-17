@@ -1,6 +1,7 @@
 
 # imports
 from dev0s.classes.config import *
+from dev0s.classes.defaults.files import Date
 from dev0s.classes.defaults.color import color, symbol
 import getpass
 _input_ = input
@@ -180,7 +181,20 @@ class Loader(threading.Thread):
 
 # the loader object class.
 class ProgressLoader(threading.Thread):
-	def __init__(self, message, index=0, max=10, log_level=0):
+	def __init__(self, 
+		# the message (str).
+		message, 
+		# the start index (int).
+		index=0, 
+		# the max index (int).
+		max=10, 
+		# calculate estimated finish time.
+		calc_finish=False,
+		# auto start.
+		autostart=True,
+		# the active log level (int).
+		log_level=0,
+	):
 
 		# docs.
 		DOCS = {
@@ -198,17 +212,43 @@ class ProgressLoader(threading.Thread):
 		self.message = color.fill(self.message)
 		self.index = index
 		self.max = max
+		self.calc_finish = calc_finish
+		self.start_stamp = None
 		self.progress = None
 		self.last_message = None
 		self.log_level = log_level
-	def next(self, count=1, decimals=2):
-		self.index += count
+		if autostart: self.next(increment=0)
+
+	# next index.
+	def next(self, increment=1, decimals=2):
+		if self.calc_finish and self.start_stamp == None:
+			self.start_stamp = Date()
+		self.index += increment
 		p = round((self.index / self.max) * 100, decimals)
 		if p != self.progress:
 			self.progress = p
 			self.last_message = f"{self.message} ... {self.progress}%"
+			if self.calc_finish and self.progress > 0:
+				diff = (Date() - self.start_stamp).to_seconds()
+				duration = (diff / (self.progress/100)) * (1.0 - (self.progress/100))
+				if duration <= 60:
+					duration = f'{int(duration)}s'
+				elif duration <= 60*60:
+					duration = f'{round(duration/60,1)}m'
+				elif duration <= 60*60*24:
+					duration = f'{round(duration/(60*60),1)}h'
+				elif duration <= 60*60*24*30:
+					duration = f'{round(duration/(60*60*24),1)}d'
+				elif duration <= 60*60*24*30*12:
+					duration = f'{round(duration/(60*60*24*30),1)}m'
+				else:
+					duration = f'{round(duration/(60*60*24*30*12),1)}y'
+				self.last_message += f" ({duration})"
 			if self.log_level >= 0:
 				log(self.last_message, back=1)
+		#
+
+	# stop the loader.
 	def stop(self, message=None, success=True, response=None):
 		if self.log_level >= 0:
 			if response == None:
@@ -225,10 +265,16 @@ class ProgressLoader(threading.Thread):
 				log(f"{message} ... done")
 			else:
 				log(f"{message} ... {color.red}failed{color.end}")
+		#
+
+	# create empty message.
 	def __empty_message__(self, length=len("hello world")):
 		s = ""
 		for i in range(length): s += " "
 		return s
+		#
+
+	#
 
 #
 

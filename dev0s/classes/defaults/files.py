@@ -2088,6 +2088,8 @@ class Formats():
 			#
 			# the date parameter (str, int, Date) (optional) (#1).
 			date=None,
+			# the format for the date (leave None to parse the date format automatically) (str).
+			format=None,
 		):
 
 			# docs.
@@ -2098,7 +2100,7 @@ class Formats():
 				"chapter": "Defaults", }
 				
 			# formats.
-			self.default_format = "%d-%m-%y %H:%M" # is Date() str repr
+			self.default_format = "%d-%m-%y %H:%M:%S" # is Date() str repr
 			self.seconds_format = '%S'
 			self.minute_format = '%M'
 			self.hour_format = '%H'
@@ -2111,8 +2113,8 @@ class Formats():
 			self.date_format = '%d-%m-%y'
 			self.timestamp_format = '%d-%m-%y %H:%M'
 			self.shell_timestamp_format = '%d_%m_%y-%H_%M'
-			self.seconds_timestamp_format = '%d-%m-%y %H:%M.%S'
-			self.shell_seconds_timestamp_format = '%d_%m_%y-%H_%M.%S'
+			self.seconds_timestamp_format = '%d-%m-%y %H:%M:%S'
+			self.shell_seconds_timestamp_format = '%d_%m_%y-%H_%M_%S'
 			self.formats = [
 				self.shell_seconds_timestamp_format,
 				self.seconds_timestamp_format,
@@ -2134,7 +2136,7 @@ class Formats():
 			if date == None:
 				self.initialize()
 			else:
-				self.assign(date)
+				self.assign(date, format=format)
 
 			#
 		def initialize(self, 
@@ -2188,7 +2190,9 @@ class Formats():
 			self.seconds_timestamp =  str(today.strftime(self.seconds_timestamp_format))
 			self.shell_seconds_timestamp =  str(today.strftime(self.shell_seconds_timestamp_format))
 			self.time = self.hour + ":" + self.minute
+			return self
 		def compare(self, comparison=None, current=None, format=None):
+			if current == None: current = str(self)
 			if isinstance(comparison, Formats.Date):
 				comparison = str(comparison)
 			if isinstance(current, Formats.Date):
@@ -2215,7 +2219,8 @@ class Formats():
 				return "present"
 			else:
 				raise ValueError(f"Unexpected error, comparison seconds: {comparison} current seconds: {current}.")
-		def increase(self, string, weeks=0, days=0, hours=0, minutes=0, seconds=0, format=None):
+		def increase(self, string=None, weeks=0, days=0, hours=0, minutes=0, seconds=0, format=None):
+			if string == None: string = str(self)
 			if isinstance(string, Formats.Date):
 				string = str(string)
 			if format == None: 
@@ -2229,7 +2234,8 @@ class Formats():
 			s = self.to_seconds(string, format=format)
 			s += seconds
 			return self.from_seconds(s, format=format)
-		def decrease(self, string, weeks=0, days=0, hours=0, minutes=0, seconds=0, format=None):
+		def decrease(self, string=None, weeks=0, days=0, hours=0, minutes=0, seconds=0, format=None):
+			if string == None: string = str(self)
 			if isinstance(string, Formats.Date):
 				string = str(string)
 			if format == None: 
@@ -2243,7 +2249,8 @@ class Formats():
 			s = self.to_seconds(string, format=format)
 			s -= seconds
 			return self.from_seconds(s, format=format)
-		def to_seconds(self, string, format=None):
+		def to_seconds(self, string=None, format=None):
+			if string == None: string = str(self)
 			if isinstance(string, Formats.Date):
 				string = str(string)
 			if format == None:
@@ -2255,13 +2262,14 @@ class Formats():
 				seconds = int(seconds)
 			if format == None:
 				format = self.default_format
-			return datetime.fromtimestamp(int(seconds)).strftime(format)
+			return Date().initialize(timestamp=datetime.fromtimestamp(int(seconds)).strftime(format))
 			#
-		def convert(self, string, input="%d-%m-%y %H:%M", output="%Y%m%d"):
+		def convert(self, string=None, input="%d-%m-%y %H:%M", output="%Y%m%d"):
+			if string == None: string = str(self)
 			if isinstance(string, Formats.Date):
 				string = str(string)
 			string = datetime.strptime(str(string), str(input))
-			return string.strftime(str(ouput))
+			return string.strftime(str(output))
 		def parse_format(self, string):
 			if isinstance(string, Formats.Date):
 				return self.default_format
@@ -2288,6 +2296,11 @@ class Formats():
 					#self.month_format,
 					#self.month_name_format,
 				]
+			# plus some custom formats.
+			formats += [
+				"%d-%m-%y %H:%M.%S", # old default.
+				"%Y-%m-%d %H:%M:%S", # stock market
+			]
 			for format in formats:
 				try:
 					datetime.strptime(str(string), str(format))
@@ -2345,11 +2358,55 @@ class Formats():
 		def __contains__(self, string):
 			if isinstance(string, (list, Files.Array)):
 				for i in string:
-					if i in self.timestamp:
+					if i in str(self):
 						return True
 				return False
 			else:
-				return string in self.timestamp
+				return string in str(self)
+		# support "+", -, =-, =+" .
+		def __add__(self, add):
+			if isinstance(add, (int,float)):
+				add = int(add)
+			elif isinstance(add, self.__class__):
+				add = add.to_seconds()
+			elif not isinstance(array, self.__class__):
+				raise Exceptions.FormatError(f"Can not add object {self.__class__} & {add.__class__}.")
+			return Date().initialize(seconds=self.to_seconds() + add)
+		def __iadd__(self, add):
+			if isinstance(add, (int,float)):
+				add = int(add)
+			elif isinstance(add, self.__class__):
+				add = add.to_seconds()
+			elif not isinstance(add, self.__class__):
+				raise Exceptions.FormatError(f"Can not iadd object {self.__class__} & {add.__class__}.")
+			self = Date().initialize(seconds=self.to_seconds() + add)
+			return self
+		def __sub__(self, add):
+			if isinstance(add, (int,float)):
+				add = int(add)
+			elif isinstance(add, self.__class__):
+				add = add.to_seconds()
+			elif not isinstance(add, self.__class__):
+				raise Exceptions.FormatError(f"Can not sub object {self.__class__} & {add.__class__}.")
+			return Date().initialize(seconds=self.to_seconds() - add)
+		def __isub__(self, add):
+			if isinstance(add, (int,float)):
+				add = int(add)
+			elif isinstance(add, self.__class__):
+				add = add.to_seconds()
+			elif not isinstance(add, self.__class__):
+				raise Exceptions.FormatError(f"Can not isub object {self.__class__} & {add.__class__}.")
+			self = Date().initialize(seconds=self.to_seconds() - add)
+			return self
+		# support +.
+		def __concat__(self, add):
+			if isinstance(add, (int,float)):
+				add = int(add)
+			elif isinstance(add, self.__class__):
+				add = add.to_seconds()
+			elif not isinstance(add, self.__class__):
+				raise Exceptions.FormatError(f"Can not sub object {self.__class__} & {add.__class__}.")
+			return Date().initialize(seconds=self.to_seconds() - add)
 		# representation.
 		def __repr__(self):
 			return str(self)
@@ -2362,10 +2419,10 @@ class Formats():
 			return float(self.to_seconds(self.seconds_timestamp, format=self.seconds_timestamp_format))
 		# str representation.
 		def __str__(self):
-			return str(self.timestamp)
+			return str(self.seconds_timestamp)
 		# content count.
 		def __len__(self):
-			return len(self.timestamp)
+			return len(self.seconds_timestamp)
 		# object id.
 		def __id__(self):
 			return f"({self.instance()}:{str(self)})"
@@ -2374,67 +2431,6 @@ class Formats():
 			return "Date"
 			#
 		#
-
-	# the generate object class.
-	class Generate(object):
-		def __init__(self):
-			
-			# docs.
-			DOCS = {
-				"module":"Generate", 
-				"initialized":False,
-				"description":[], 
-				"chapter": "Defaults", }
-			
-			#
-		def int(self, length=6):
-			charset = Formats.digits
-			return ''.join(random.choice(charset) for x in range(length))
-			#
-		def string(self, length=6, capitalize=True, digits=True):
-			charset = Formats.alphabet
-			if capitalize: charset += Formats.capitalized_alphabet
-			if digits: charset += Formats.digits
-			return ''.join(random.choice(charset) for x in range(length))
-			#
-
-	# the interval object class.
-	class Interval(object):
-		def __init__(self,
-			# the sleep time.
-			sleeptime=1,
-			# the timeout.
-			timeout=60,
-		):
-
-			# docs.
-			DOCS = {
-				"module":"Interval", 
-				"initialized":False,
-				"description":[], 
-				"chapter": "Defaults", }
-				
-			# attributes.
-			self.sleeptime = sleeptime
-			self.timeout = timeout
-
-			#
-		def __int__(self):
-			return int(self.sleeptime)
-		def __iter__(self):
-			l = []
-			for _ in range(int(self.timeout/self.sleeptime)):
-				l.append(self)
-			return iter(l)
-		def sleep(self, chapters=1):
-			for _ in range(chapters):
-				time.sleep(int(self)/chapters)
-
-		#for interval in Interval(sleeptime=60, timeout=3600):
-		#	...
-		#	interval.sleep()
-	
-	#
 
 # the files class.
 class Files():
@@ -3102,6 +3098,10 @@ class Files():
 							value = None
 				new.append(value)
 			return new
+		# copy.
+		def copy(self):
+			return Files.Array(self.array, path=path)
+			#
 		# support "+", -, =-, =+" .
 		def __add__(self, array):
 			if isinstance(array, list):
@@ -3683,6 +3683,10 @@ class Files():
 							value = None
 				dictionary[key] = value
 			return dictionary
+		# copy.
+		def copy(self):
+			return Files.Dictionary(self.dictionary, path=path)
+			#
 		# system functions.
 		def __serialize_string__(self, string, banned_characters=["@"]):
 			c, s, l = 0, "", False
@@ -4807,14 +4811,98 @@ class Files():
 	#
 	#
 
+# some default objects.
+class Objects():
+
+	# the speed object class.
+	class Speed(object):
+		def __init__(self):
+			a=1
+			#
+
+		# the mark function, returns a timestamp used for calculation.
+		def mark(self):
+			return Date().seconds_timestamp
+			#
+
+		# calculate the difference between the marked timestamp & the current.
+		def calculate(self, 
+			# the marked timestamp from self.mark().
+			stamp, 
+			# the current timestamp (leave None to use Date().seconds_timestamp)
+			current=None,
+		):
+			if current == None: current = Date().seconds_timestamp
+			return (Date(current) - Date(stamp)).to_seconds()
+
+	# the generate object class.
+	class Generate(object):
+		def __init__(self):
+			
+			# docs.
+			DOCS = {
+				"module":"Generate", 
+				"initialized":False,
+				"description":[], 
+				"chapter": "Defaults", }
+			
+			#
+		def int(self, length=6):
+			charset = Array(Formats.digits).string(joiner="")
+			return ''.join(random.choice(charset) for x in range(length))
+			#
+		def string(self, length=6, capitalize=True, digits=True):
+			charset = Array(Formats.alphabet).string(joiner="")
+			if capitalize: charset += Array(Formats.capitalized_alphabet).string(joiner="")
+			if digits: charset += Array(Formats.digits).string(joiner="")
+			return ''.join(random.choice(charset) for x in range(length))
+			#
+
+	# the interval object class.
+	class Interval(object):
+		def __init__(self,
+			# the sleep time.
+			sleeptime=1,
+			# the timeout.
+			timeout=60,
+		):
+
+			# docs.
+			DOCS = {
+				"module":"Interval", 
+				"initialized":False,
+				"description":[], 
+				"chapter": "Defaults", }
+				
+			# attributes.
+			self.sleeptime = sleeptime
+			self.timeout = timeout
+
+			#
+		def __int__(self):
+			return int(self.sleeptime)
+		def __iter__(self):
+			l = []
+			for _ in range(int(self.timeout/self.sleeptime)):
+				l.append(self)
+			return iter(l)
+		def sleep(self, chapters=1):
+			for _ in range(chapters):
+				time.sleep(int(self)/chapters)
+		#
+		#for interval in Interval(sleeptime=60, timeout=3600):
+		#	...
+		#	interval.sleep()
+	
+	#
+
 # shortcuts.
 FilePath = Formats.FilePath 
 String = Formats.String 
 Boolean = Formats.Boolean 
 Integer = Formats.Integer 
 Date = Formats.Date
-Generate = Formats.Generate
-Interval = Formats.Interval
+
 File = Files.File
 Directory = Files.Directory
 Zip = Files.Zip
@@ -4822,6 +4910,11 @@ Image = Files.Image
 Bytes = Files.Bytes
 Dictionary = Files.Dictionary
 Array = Files.Array
+
+Generate = Objects.Generate
+Interval = Objects.Interval
+Speed = Objects.Speed
+speed = Objects.Speed()
 
 # initialized objects.
 gfp = Formats.FilePath("") # is required (do not remove).

@@ -576,5 +576,71 @@ class Thread(Object, threading.Thread):
 		#
 
 	#
-	
-#
+
+# the thread manager.
+class __ThreadManager__(object):
+
+	# init.
+	def __init__(self):
+		a=1
+
+	# await queue for threads.
+	class Queue(object):
+		def __init__(self, id=None):
+			self.id = id
+			self.queue = []
+
+		# join the queue.
+		# awaits in chronological order.
+		# when no other threads are in the queue or the joined thread is first in index it returns.
+		# returns the id of the queue index (used for releasing).
+		# returns a None when encountered an unkown error or timeout.
+		def join(self,
+			# automatically release the thread is up.
+			auto_release=False,
+		):
+
+			# generate id.
+			id = Generate().string(length=24)
+			self.queue.append(id)
+
+			# await.
+			while True:
+
+				# iterate queue.
+				stop, c = False, 0
+				for i in self.queue:
+					if i == id and c == 0:
+
+						# success.
+						if auto_release:
+							self.queue.pop(0)
+						return id
+
+					# increment.
+					c += 1
+
+			# failed to wait.
+			return None
+
+		# the leave function for when ...
+		# a thread has joined the queue and did not auto_release while joining.
+		# returns True upon an successful leave and False when the id is not found.
+		def leave(self, id):
+
+			# iterate queue & pop id index.
+			stop, c = False, 0
+			for i in self.queue:
+				if i == id:
+					self.queue.pop(c)
+					return True
+				c += 1
+
+			# failed to pop the specified id.
+			return False
+		
+	#
+
+# initialize the thread manager.
+ThreadManager = __ThreadManager__()
+

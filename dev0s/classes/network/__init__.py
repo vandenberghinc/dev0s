@@ -39,6 +39,10 @@ class Network(object):
 		self.__timestamps__ = {}
 
 		#
+
+		#
+
+	# get network info.
 	def info(self):
 		try: self.__cache__["info"]
 		except KeyError: self.__cache__["info"] = {}
@@ -100,6 +104,8 @@ class Network(object):
 		return self.__cache__["info"]
 
 		#
+
+	# convert a dns to ip.
 	def convert_dns(self, dns, timeout=1):
 		response = self.ping(dns, timeout=timeout)
 		if response["error"] != None: return response
@@ -108,6 +114,8 @@ class Network(object):
 		return _response_.success(f"Successfully converted dns [{dns}].", {
 			"ip":response["ip"]
 		})
+
+	# ping an ip.
 	def ping(self, ip, timeout=1):
 
 		# set info.
@@ -142,6 +150,29 @@ class Network(object):
 		return _response_.success(f"Successfully pinged [{ip}].", info)
 
 		#
+	
+	# port in use
+	def port_in_use(self, port, host="127.0.0.1"):
+		a_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+		location = (host, port)
+		result_of_check = a_socket.connect_ex(location)
+		if result_of_check == 0: in_use = True
+		else: in_use = False
+		a_socket.close()
+		return in_use
+		#
+	
+	# find free port.
+	def free_port(self, start=6080):
+		for i in range(10000):
+			port = start + i
+			if not self.port_in_use(port):
+				return _response_.success(f"Successfully found a free port.", {
+					"port":port,
+				})
+		return _response_.error(f"Unable to find a free port.")
+		#
+
 	# system functions.
 	def __get_private_ip__(self):
 		s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -154,26 +185,6 @@ class Network(object):
 		finally:
 			s.close()
 		return ip
-		#
-	# port in use
-	def port_in_use(self, port, host="127.0.0.1"):
-		a_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-		location = (host, port)
-		result_of_check = a_socket.connect_ex(location)
-		if result_of_check == 0: in_use = True
-		else: in_use = False
-		a_socket.close()
-		return in_use
-		#
-	# find free port.
-	def free_port(self, start=6080):
-		for i in range(10000):
-			port = start + i
-			if not self.port_in_use(port):
-				return _response_.success(f"Successfully found a free port.", {
-					"port":port,
-				})
-		return _response_.error(f"Unable to find a free port.")
 		#
 
 # initialized classes.

@@ -54,8 +54,12 @@ class Requests(object):
 		url=None,
 		# the sended post data (dict) (#2).
 		data={},
+		# the headers (dict).
+		headers={},
 		# serialize output to dictionary.
 		serialize=False,
+		# the method.
+		method="get",
 	):
 
 		# clean txt.
@@ -76,7 +80,14 @@ class Requests(object):
 		if data != {}: url += self.encode(data)
 
 		# request.
-		original_request_object = __requests__.get(url, allow_redirects=self.allow_redirects)
+		if method.lower() == "get":
+			original_request_object = __requests__.get(url, allow_redirects=self.allow_redirects, headers=headers)
+		elif method.lower() == "post":
+			original_request_object = __requests__.post(url, allow_redirects=self.allow_redirects, headers=headers)
+		elif method.lower() == "delete":
+			original_request_object = __requests__.delete(url, allow_redirects=self.allow_redirects, headers=headers)
+		else:
+			raise ValueError(f"Unkown method: {method}.")
 		if original_request_object.status_code != 200:
 			return _response_.error(f"Invalid request ({url}) [{original_request_object.status_code}]: {(clean_txt(original_request_object.text))}")
 		if serialize:
