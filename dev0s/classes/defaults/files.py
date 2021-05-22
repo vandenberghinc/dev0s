@@ -837,7 +837,10 @@ class Formats():
 			def get(self, path=None):
 				if path == None: path = self.path
 				owner = pwd.getpwuid(os.stat(path).st_uid).pw_name
-				group = grp.getgrgid(os.stat(path).st_gid).gr_name
+				try:
+					group = grp.getgrgid(os.stat(path).st_gid).gr_name
+				except Exception as e:
+					raise ValueError(f"Unable to retrieve the group of file {path}, error: {e}.")
 				return owner, group
 			def set(self, 
 				# the permission (str) (#1).
@@ -2162,7 +2165,7 @@ class Formats():
 				if format == None: 
 					format = self.parse_format(timestamp)
 					if format == None: 
-						raise Exceptions.ParseError(f"Unable to parse the date format from timestamp [{timestamp}].")
+						raise Exceptions.ParseError(f"Unable to parse the date format from timestamp [{timestamp}]. Find out what the required format is and request a commit that updates the Date().parse_format() function with the required format (https://github.com/vandenberghinc/dev0s/).")
 				seconds = time.mktime(datetime.strptime(str(timestamp), str(format)).timetuple())
 				today = datetime.fromtimestamp(int(seconds))
 
@@ -3627,23 +3630,64 @@ class Files():
 			return values
 		def reversed(self, update=True, dictionary=None):
 			if dictionary == None: dictionary = self.dictionary
-			reversed_dict = []
+			reversed_dict = {}
 			for key in self.keys(reversed=True, dictionary=dictionary):
 				reversed_dict[key] = dictionary[key]
 			if update:
 				self.dictionary = reversed_dict
 			return reversed_dict
-		def sort(self, alphabetical=True, ascending=False, reversed=False, update=True, dictionary=None):
+		def sort(self, 
+			# option 1:
+			# sort alphabetically.
+			alphabetical=True, 
+			# option 2:
+			# sort ascending.
+			ascending=False, 
+			# option 3:
+			# sort descending.
+			descending=False, 
+			# option 4:
+			# sort reversed.
+			reversed=False, 
+			# update the self variable.
+			update=True, 
+			# sort the keys or sort the values.
+			sort="keys",
+			# system parameters.
+			dictionary=None,
+		):
 			if dictionary == None: dictionary = self.dictionary
-			new = {}
-			if alphabetical or ascending:
-				_sorted_ = Array().sort(alphabetical=alphabetical, ascending=ascending, reversed=reversed, array=list(dictionary.keys()))
-			else: raise ValueError("Unknown behaviour, alphabetical=False.")
-			for key in _sorted_:
-				new[Formats.denitialize(key)] = dictionary[Formats.denitialize(key)]
-			if update:
-				self.dictionary = new
-			return new
+			if descending:
+				return self.reversed(
+					update=update,
+					dictionary=self.sort(
+						ascending=True, 
+						dictionary=dictionary, 
+						update=False,
+						sort=sort,
+					),
+				)
+			else:
+				new, reversed_dict = {}, {}
+				if alphabetical or ascending:
+					if sort == "keys":
+						array = list(dictionary.keys())
+					elif sort == "values":
+						array = list(dictionary.values())
+						reversed_dict = self.__reverse_keys_and_values__(dictionary=dictionary)
+					else: raise ValueError("Selected an invalid sort mode [{sort}].")
+					_sorted_ = Array().sort(alphabetical=alphabetical, ascending=ascending, reversed=reversed, array=array)
+				else: raise ValueError("Unknown behaviour, alphabetical=False.")
+				for key in _sorted_:
+					if sort == "keys":
+						new[Formats.denitialize(key)] = dictionary[Formats.denitialize(key)]
+					elif sort == "values":
+						new[Formats.denitialize(key)] = reversed_dict[Formats.denitialize(key)]
+				if sort == "values":
+					new = self.__reverse_keys_and_values__(dictionary=new)
+				if update:
+					self.dictionary = new
+				return new
 		# dump json string.
 		def json(self, sorted=False, reversed=False, indent=4, dictionary=None, ):
 			if dictionary == None: dictionary = self.dictionary
@@ -3688,6 +3732,12 @@ class Files():
 			return Files.Dictionary(self.dictionary, path=path)
 			#
 		# system functions.
+		def __reverse_keys_and_values__(self, dictionary=None):
+			if dictionary == None: dictionary = self.dictionary
+			new = {}
+			for key,value in dictionary.items():
+				new[value] = key
+			return new
 		def __serialize_string__(self, string, banned_characters=["@"]):
 			c, s, l = 0, "", False
 			for char in string:

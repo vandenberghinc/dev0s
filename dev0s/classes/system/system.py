@@ -254,9 +254,8 @@ class Group(object):
 		# handle linux.
 		if OS in ["linux"]:
 			output = code.execute(f"sudo groupadd {self.name}",)
-
 			# success.
-			if output == "":
+			if output.output == "":
 				return _response_.success(f"Successfully created group [{self.name}].")
 
 			else:
