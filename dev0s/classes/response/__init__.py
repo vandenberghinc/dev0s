@@ -35,6 +35,9 @@ class Response(object):
 		# for imports.
 		self.ResponseObject = ResponseObject
 
+		# log the timestamps by default.
+		self.log_timestamps = True
+
 	# response functions.
 	def success(self,
 		# the message (must be param #1).
@@ -172,7 +175,10 @@ class Response(object):
 				else:
 					print(self.success(message))
 			else:
-				print(f"{color.fill(msg)}")
+				if self.log_timestamps:
+					print(f"{Date().seconds_timestamp} - {color.fill(msg)}")
+				else:
+					print(f"{color.fill(msg)}")
 		if save: 
 			self.log_to_file(msg)
 		elif save_errors and _error_:

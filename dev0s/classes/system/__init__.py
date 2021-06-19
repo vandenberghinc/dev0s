@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # imports (over here to prevent circular).
-from dev0s.classes.system import disks, env, service, system, browser
+from dev0s.classes.system import disks, env, service, system, browser, metrics, cleanup
 
 # the system module class.
 class System():
@@ -24,3 +24,9 @@ class System():
 
 	# browser.
 	Browser = browser.Browser
+
+	# metrics.
+	metrics = metrics.Metrics()
+
+	# cleanup.
+	cleanup = cleanup.CleanUp()

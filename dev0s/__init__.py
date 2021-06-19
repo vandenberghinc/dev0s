@@ -22,6 +22,7 @@ from dev0s.classes import code
 from dev0s.classes.network import network
 from dev0s.classes.system import System as system
 from dev0s.classes.encryption import Encryption as encryption
+from dev0s.classes.messaging import Messaging as messaging
 
 # _____________________________________________________________________
 #

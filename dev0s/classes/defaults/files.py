@@ -839,6 +839,8 @@ class Formats():
 				owner = pwd.getpwuid(os.stat(path).st_uid).pw_name
 				try:
 					group = grp.getgrgid(os.stat(path).st_gid).gr_name
+				except KeyError: # unknown group likely from different os / machine.
+					group = os.stat(path).st_gid
 				except Exception as e:
 					raise ValueError(f"Unable to retrieve the group of file {path}, error: {e}.")
 				return owner, group
@@ -2167,11 +2169,11 @@ class Formats():
 					if format == None: 
 						raise Exceptions.ParseError(f"Unable to parse the date format from timestamp [{timestamp}]. Find out what the required format is and request a commit that updates the Date().parse_format() function with the required format (https://github.com/vandenberghinc/dev0s/).")
 				seconds = time.mktime(datetime.strptime(str(timestamp), str(format)).timetuple())
-				today = datetime.fromtimestamp(int(seconds))
+				today = datetime.fromtimestamp(float(seconds))
 
 			# by seconds.
 			elif seconds != None:
-				today = datetime.fromtimestamp(int(seconds))
+				today = datetime.fromtimestamp(float(seconds))
 
 			# by current.
 			else:
@@ -2262,10 +2264,10 @@ class Formats():
 			#
 		def from_seconds(self, seconds, format=None):
 			if isinstance(seconds, (str,String,Integer)):
-				seconds = int(seconds)
+				seconds = float(seconds)
 			if format == None:
 				format = self.default_format
-			return Date().initialize(timestamp=datetime.fromtimestamp(int(seconds)).strftime(format))
+			return Date().initialize(timestamp=datetime.fromtimestamp(float(seconds)).strftime(format))
 			#
 		def convert(self, string=None, input="%d-%m-%y %H:%M", output="%Y%m%d"):
 			if string == None: string = str(self)
@@ -2310,7 +2312,6 @@ class Formats():
 					return format
 				except Exception as e: 
 					a=1
-					#print(f"{format}: {e}.")
 			return None
 		def assign(self, string, format=None):
 			if isinstance(string, Formats.Date):
@@ -2322,10 +2323,29 @@ class Formats():
 				if format == None:
 					raise Exceptions.ParseError(f"Unable to parse a Date() object from string [{string}].")
 				if format == self.seconds_format:
-					self.initialize(seconds=int(string))
+					self.initialize(seconds=float(string))
 				else:
 					self.initialize(timestamp=string, format=format)
 				return self
+
+		# normalize seconds to 10s or 1m etc.
+		def normalize_seconds(self, seconds:(int,float)):
+			if seconds < 0:
+				raise ValueError("Can not normalize negative seconds.")
+			if seconds < 0.01:
+				return f'{int(seconds*1000)}ms'
+			elif seconds <= 60:
+				return f'{int(seconds)}s'
+			elif seconds <= 60*60:
+				return f'{round(seconds/60,1)}m'
+			elif seconds <= 60*60*24:
+				return f'{round(seconds/(60*60),1)}h'
+			elif seconds <= 60*60*24*30:
+				return f'{round(seconds/(60*60*24),1)}d'
+			elif seconds <= 60*60*24*30*12:
+				return f'{round(seconds/(60*60*24*30),1)}m'
+			else:
+				return f'{round(seconds/(60*60*24*30*12),1)}y'
 
 		# support default iteration.
 		def __iter__(self):
@@ -2334,29 +2354,29 @@ class Formats():
 		def __gt__(self, date):
 			if not isinstance(date, self.__class__):
 				raise Exceptions.FormatError(f"Can not compare object {self.__class__} & {date.__class__}.")
-			return int(self) > int(date)
+			return float(self) > float(date)
 		def __ge__(self, date):
 			if not isinstance(date, self.__class__):
 				raise Exceptions.FormatError(f"Can not compare object {self.__class__} & {date.__class__}.")
-			return int(self) >= int(date)
+			return float(self) >= float(date)
 		# support '<=' & '<' operator.
 		def __lt__(self, date):
 			if not isinstance(date, self.__class__):
 				raise Exceptions.FormatError(f"Can not compare object {self.__class__} & {date.__class__}.")
-			return int(self) < int(date)
+			return float(self) < float(date)
 		def __le__(self, date):
 			if not isinstance(date, self.__class__):
 				raise Exceptions.FormatError(f"Can not compare object {self.__class__} & {date.__class__}.")
-			return int(self) <= int(date)
+			return float(self) <= float(date)
 		# support '==' & '!=' operator.
 		def __eq__(self, date):
 			if not isinstance(date, self.__class__):
 				return False
-			return int(self) == int(date)
+			return float(self) == float(date)
 		def __ne__(self, date):
 			if not isinstance(date, self.__class__):
 				return True
-			return int(self) != int(date)
+			return float(self) != float(date)
 		# support 'in' operator.
 		def __contains__(self, string):
 			if isinstance(string, (list, Files.Array)):
@@ -2369,7 +2389,7 @@ class Formats():
 		# support "+", -, =-, =+" .
 		def __add__(self, add):
 			if isinstance(add, (int,float)):
-				add = int(add)
+				add = float(add)
 			elif isinstance(add, self.__class__):
 				add = add.to_seconds()
 			elif not isinstance(array, self.__class__):
@@ -2377,7 +2397,7 @@ class Formats():
 			return Date().initialize(seconds=self.to_seconds() + add)
 		def __iadd__(self, add):
 			if isinstance(add, (int,float)):
-				add = int(add)
+				add = float(add)
 			elif isinstance(add, self.__class__):
 				add = add.to_seconds()
 			elif not isinstance(add, self.__class__):
@@ -2386,7 +2406,7 @@ class Formats():
 			return self
 		def __sub__(self, add):
 			if isinstance(add, (int,float)):
-				add = int(add)
+				add = float(add)
 			elif isinstance(add, self.__class__):
 				add = add.to_seconds()
 			elif not isinstance(add, self.__class__):
@@ -2394,7 +2414,7 @@ class Formats():
 			return Date().initialize(seconds=self.to_seconds() - add)
 		def __isub__(self, add):
 			if isinstance(add, (int,float)):
-				add = int(add)
+				add = float(add)
 			elif isinstance(add, self.__class__):
 				add = add.to_seconds()
 			elif not isinstance(add, self.__class__):
@@ -2404,7 +2424,7 @@ class Formats():
 		# support +.
 		def __concat__(self, add):
 			if isinstance(add, (int,float)):
-				add = int(add)
+				add = float(add)
 			elif isinstance(add, self.__class__):
 				add = add.to_seconds()
 			elif not isinstance(add, self.__class__):
@@ -2925,6 +2945,10 @@ class Files():
 			while last < len(self.array):
 				out.append(self.array[int(last):int(last + avg)])
 				last += avg
+			if len(out) > into:
+				while len(out) > into:
+					last = out.pop(len(out)-1)
+					out[len(out)-1] += last
 			return out
 		def remove(self, indexes=[], values=[], update=True, save=False):
 			array = self.array

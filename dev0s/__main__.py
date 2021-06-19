@@ -86,6 +86,12 @@ class CLI(dev0s.cli.CLI):
 				"        --force-users user1,user2":"Add the specified users to the group and remove all others.",
 				"    --disk-space":"Get the free disk space.",
 				"    --size /path/to/file":"Get the size of a file / directory.",
+				"Metrics":"*chapter*",
+				"    --metrics":"Access the metrics.",
+				"      --ram":"Parse the RAM metrics (linux).",
+				"CleanUp":"*chapter*",
+				"    --cleanup":"Access the cleanup.",
+				"      --ram ":"Clean up the RAM memory (linux).",
 				"Network":"*chapter*",
 				"    --network":"Access the network.",
 				"        --info":"Retrieve the current network information.",
@@ -330,6 +336,42 @@ class CLI(dev0s.cli.CLI):
 				size = fp.size()
 				loader.stop()
 				print(f"{fp.path}\n * size: {size}")
+
+		# ____________________________________________________________________________________________________
+		#
+		# METRICS
+		#
+
+		# network.
+		elif self.arguments.present(['--metrics']):
+
+			# ram.
+			if self.arguments.present(['--ram']):
+				response = dev0s.system.metrics.ram()
+				dev0s.response.log(response=response)
+				if response.success: 
+					del response["message"] ; del response["error"] ; del response["success"]
+					print("RAM metrics:")
+					print(response.json(indent=2).replace("{","").replace("}","").replace('"',"").replace(',',"").replace('\n    \n',"\n")[1:-4])
+
+
+			# invalid.
+			else:  self.invalid()
+
+		# ____________________________________________________________________________________________________
+		#
+		# CLEANUP
+		#
+
+		# cleanup.
+		elif self.arguments.present(['--cleanup', '--clean-up']):
+
+			# ram.
+			if self.arguments.present(['--ram']):
+				self.stop(response=dev0s.system.cleanup.ram())
+
+			# invalid.
+			else:  self.invalid()
 
 		# ____________________________________________________________________________________________________
 		#
