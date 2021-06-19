@@ -3125,6 +3125,37 @@ class Files():
 							value = None
 				new.append(value)
 			return new
+
+		# randomize the content of the array always non recursive.
+		def randomize(self, 
+			# optionally pass the array (leave None to use self.array).
+			array=None,
+		):
+			if array == None: array = list(self.array)
+			randomized = Array([])
+			while len(array) > 0:
+				index = random.randrange(0, len(array))
+				item = array.pop(index)
+				randomized.append(item)
+			return randomized
+			#
+
+		# limit the content of the array.
+		def limit(self,
+			# limit to the number of samples.
+			limit:int,
+			# the index to start from.
+			start=0,
+			# randomize the content before applying the limit.
+			randomize=False,
+			# optionally pass the array (leave None to use self.array).
+			array=None,
+		):
+			if array == None: array = list(self.array)
+			if randomize: array = self.randomize(array=array)
+			return Array(array[start:start+limit])
+
+		
 		# copy.
 		def copy(self):
 			return Files.Array(self.array, path=path)
@@ -3172,6 +3203,7 @@ class Files():
 					new.append(i)
 			self.array = new
 			return self
+		
 		# support +.
 		def __concat__(self, array):
 			if isinstance(array, list):
@@ -3181,9 +3213,11 @@ class Files():
 			elif not isinstance(array, self.__class__):
 				raise Exceptions.FormatError(f"Can not add object {self.__class__} & {array.__class__}.")
 			return self.array + array
+		
 		# support default iteration.
 		def __iter__(self):
 			return iter(self.array)
+		
 		# support '>=' & '>' operator.
 		def __gt__(self, array):
 			if not isinstance(array, list):
@@ -3197,6 +3231,7 @@ class Files():
 			elif not isinstance(array, self.__class__):
 				raise Exceptions.FormatError(f"Can not compare object {self.__class__} & {array.__class__}.")
 			return len(self.array) >= len(array.array)
+		
 		# support '<=' & '<' operator.
 		def __lt__(self, array):
 			if not isinstance(array, list):
@@ -3210,6 +3245,7 @@ class Files():
 			elif not isinstance(array, self.__class__):
 				raise Exceptions.FormatError(f"Can not compare object {self.__class__} & {array.__class__}.")
 			return len(self.array) <= len(array.array)
+		
 		# support '==' & '!=' operator.
 		def __eq__(self, array):
 			if not isinstance(array, list):
@@ -3223,6 +3259,7 @@ class Files():
 			elif not isinstance(array, self.__class__):
 				return True
 			return self.array != array.array
+		
 		# support 'in' operator.
 		def __contains__(self, key):
 			if isinstance(key, (list, Files.Array)):
@@ -3232,6 +3269,23 @@ class Files():
 				return False
 			else:
 				return key in self.array
+
+		# support '*' operator.
+		def __mul__(self, value):
+			if isinstance(value, int):
+				a=1
+			else:
+				raise Exceptions.FormatError(f"Can not mul object {self.__class__.__name__} & {value.__class__.__name__}.")
+			return Array(self.array * value)
+		
+		# support '/' operator.
+		def __div__(self, value):
+			if isinstance(value, int):
+				a=1
+			else:
+				raise Exceptions.FormatError(f"Can not div object {self.__class__.__name__} & {value.__class__.__name__}.")
+			return Array(self.divide(into=value))
+
 		# support item assignment.
 		def __setitem__(self, index, value):
 			#if "/" in item
