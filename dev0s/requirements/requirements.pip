@@ -6,9 +6,8 @@ requests
 pathlib
 pexpect
 certifi
-chardet
 pycryptodome
-urllib3>=1.26.4
+urllib3
 flask
 selenium
 jinja2
