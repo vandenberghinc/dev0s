@@ -21,25 +21,38 @@ class Metrics(object):
 		#
 
 	# get ram metrics.
-	def ram(self):
+	def ram(self, percentages=True):
 
 		# vars.
 		info = {}
 
 		# get memory & swap.
-		response = code.execute("""free -m | awk '{print $2"|"$3"|"$4}' """)
+		response = code.execute("""free -m | awk '{print $2"|"$3"|"$4"|"$5"|"$6}' """)
 		if not response: return response
 		output = response.output.split("\n")[1:]
 		for index, type in [
 			[0, "memory"],
-			[0, "swap"],
+			[1, "swap"],
 		]:
-			total, used, free = output[index].split("|")
-			info[type] = {
-				"free":round( (float(free) / float(total)) * 100, 2),
-				"used":round( (float(used) / float(total)) * 100, 2),
-				"total":f"{total} MB",
-			}
+			if type == "memory":
+				total, used, free, shared, cache = output[index].split("|")
+			else:
+				total, used, free, _, _, = output[index].split("|")
+				cache = 0.0
+			if percentages:
+				info[type] = {
+					"free":round( (float(free) / float(total)) * 100, 2),
+					"used":round( (float(used) / float(total)) * 100, 2),
+					"cache":round( (float(cache) / float(total)) * 100, 2),
+					"total":f"{total} MB",
+				}
+			else:
+				info[type] = {
+					"free":f"{free} MB",
+					"used":f"{used} MB",
+					"cache":f"{cache} MB",
+					"total":f"{total} MB",
+				}
 
 		# handler.
 		return _response_.success("Successfully retrieved the ram metrics.", {

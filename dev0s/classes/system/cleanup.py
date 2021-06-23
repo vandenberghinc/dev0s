@@ -79,6 +79,29 @@ class CleanUp(object):
 
 	#
 
+	# clean the swap memory.
+	def swap(self):
+
+		# linux.
+		if defaults.vars.os in ["linux"]:
+			output = code.execute(f"""
+				sudo swapoff -a
+				sudo swapon -a
+			""")
+			if not output.success: return output
+
+		# macos.
+		#elif defaults.vars.os in ["linux"]:
+
+		# invalid os.
+		else: raise ValueError(f"Unsupported operating system: {defaults.vars.os}.")
+		
+
+		# handler.
+		return _response_.success("Successfully cleared the swap memory.")
+
+	#
+
 
 
 

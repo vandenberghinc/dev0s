@@ -92,6 +92,7 @@ class CLI(dev0s.cli.CLI):
 				"CleanUp":"*chapter*",
 				"    --cleanup":"Access the cleanup.",
 				"      --ram ":"Clean up the RAM memory (linux).",
+				"      --swap ":"Clean up the RAM swap memory (linux).",
 				"Network":"*chapter*",
 				"    --network":"Access the network.",
 				"        --info":"Retrieve the current network information.",
@@ -369,6 +370,10 @@ class CLI(dev0s.cli.CLI):
 			# ram.
 			if self.arguments.present(['--ram']):
 				self.stop(response=dev0s.system.cleanup.ram())
+
+			# swap.
+			elif self.arguments.present(['--swap']):
+				self.stop(response=dev0s.system.cleanup.swap())
 
 			# invalid.
 			else:  self.invalid()
