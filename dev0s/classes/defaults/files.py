@@ -390,6 +390,7 @@ class Formats():
 				return total
 				#
 			if path == None: path = self.path
+			if path != None: path = str(path)
 			return self.convert_bytes(__size__(path), format=format, mode=mode)
 		def space(self, format=str,  mode="auto", path=None, options=["auto", "bytes", "kb", "mb", "gb", "tb"]):
 			if path == None: path = self.path
