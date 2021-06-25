@@ -1503,4 +1503,41 @@ class Python(Files.File):
 
 	#
 
+# the legacy class.
+class legacy:
+	def export(
+		# the absolute source path.
+		source=None,
+		# the source directory / file names that will be included in the export.
+		names = [
+			"apps",
+			"classes",
+			"models",
+			"requirements",
+			"scripts",
+			"NOTES.md",
+			"README.md",
+			"__main__.py",
+			"manage.py",
+			"__defaults__",
+			".version",
+			# can also be like this.
+			#".cache/weights/",
+		],
+	):
+
+		# export.
+		if source == None or not Files.exists(source): raise FileNotFoundError(f"Unable to find source directory {source}.")
+		version = Files.load(Files.join(source, ".version")).replace("\n","").replace(" ","")
+		export = FilePath(Files.join(source, f".legacy/{version}/"))
+		if export.exists(): raise ValueError(f"Legacy export path {export} already exists.")
+		for name in names:
+			from_, to_ = Files.join(source, name), Files.join(export, name) 
+			Files.copy(from_, to_)
+			print(f"Included {from_}")
+		new_version = String(version).increase_version()
+		Files.save(Files.join(source, ".version"), new_version)
+		print(f"Successfully legacy exported version {version}.")
+		print(f"Incremented source version to {new_version}.")
+
 #

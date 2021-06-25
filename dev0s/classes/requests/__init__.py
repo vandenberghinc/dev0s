@@ -76,7 +76,7 @@ class Requests(object):
 		
 		# url.
 		url = url.replace("http://", "").replace("https://", "")
-		url = f"{Boolean(self.https).string(true='https', false='http')}://"+gfp.clean(f"{url}/", remove_double_slash=True, remove_last_slash=False, remove_first_slash=True)
+		url = f"{Boolean(self.https).string(true='https', false='http')}://"+str(gfp.clean(f"{url}/", remove_double_slash=True, remove_last_slash=False, remove_first_slash=True))
 		if data != {}: url += self.encode(data)
 
 		# request.

@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+"""
+Must still be recoded with some cleaner code.
+"""
 
 # imports.
 from dev0s.classes.config import *
@@ -103,24 +106,27 @@ class Formats():
 		elif isinstance(value, dict): 
 			if not serialize:   return dict
 			else:               return "dict"
-		elif isinstance(value, Boolean): 
+		elif isinstance(value, Boolean) or value.__class__.__name__ == "Boolean": 
 			if not serialize:   return Boolean
 			else:               return "Boolean"
-		elif isinstance(value, String): 
+		elif isinstance(value, String) or value.__class__.__name__ == "String": 
 			if not serialize:   return String
 			else:               return "String"
-		elif isinstance(value, Integer): 
+		elif isinstance(value, Integer) or value.__class__.__name__ == "Integer": 
 			if not serialize:   return Integer
 			else:               return "Integer"
-		elif isinstance(value, Bytes): 
+		elif isinstance(value, Bytes) or value.__class__.__name__ == "Bytes": 
 			if not serialize:   return Bytes
 			else:               return "Bytes"
-		elif isinstance(value, Array): 
+		elif isinstance(value, Array) or value.__class__.__name__ == "Array": 
 			if not serialize:   return Array
 			else:               return "Array"
-		elif isinstance(value, Dictionary): 
+		elif isinstance(value, Dictionary) or value.__class__.__name__ == "Dictionary": 
 			if not serialize:   return Dictionary
 			else:               return "Dictionary"
+		elif isinstance(value, FilePath) or value.__class__.__name__ == "FilePath": 
+			if not serialize:   return FilePath
+			else:               return "FilePath"
 		elif isinstance(value, object): 
 			if not serialize:   return object
 			else:               return "object"
@@ -264,9 +270,9 @@ class Formats():
 				"chapter": "Defaults", }
 				
 			# init.
-			self.path = str(self.clean(path=str(path)))
+			self.path = str(self.clean(path=str(path), raw=True))
 			if check == False and default == False and path != False:
-				if os.path.isdir(self.path) and self.path[len(self.path)-1] != '/': self.path += '/'
+				if Files.directory(self.path) and self.path[len(self.path)-1] != '/': self.path += '/'
 			if check and os.path.exists(self.path) == False: raise FileNotFoundError(f"Path [{self.path}] does not exist.")
 			self.ownership = self.Ownership(path=self.path, load=load)
 			self.permission = self.Permission(path=self.path, load=load)
@@ -278,7 +284,7 @@ class Formats():
 				type = "." + type
 			path = self.path
 			if path[len(path)-1] != "/": path += '/'
-			return "{}{}{}".format(path, name, type)
+			return FilePath("{}{}{}".format(path, name, type))
 		def name(self, path=None, remove_extension=False,):
 			if path == None: path = self.path
 			if path in [False, None]: return None
@@ -300,7 +306,7 @@ class Formats():
 			if path == None: path = self.path
 			#   -   check directory:
 			extension = None
-			if name == None and os.path.isdir(path): extension = 'dir'
+			if name == None and Files.directory(path): extension = 'dir'
 			else:
 				#   -   get extension:
 				try:
@@ -352,7 +358,7 @@ class Formats():
 				if '//' in base: base = base.replace('//','/')
 				else: break
 			if base[len(base)-1] != "/": base += '/'
-			return base
+			return FilePath(base)
 			"""splitted, result, count = path.split('/'), "", 0
 			for i in splitted:
 				if count < len(splitted) - 1 - back:
@@ -454,6 +460,7 @@ class Formats():
 		):
 			if path == None: path = self.path
 			path = gfp.clean(path=path, remove_double_slash=True, remove_last_slash=True)
+			path = str(path)
 			if not sudo:
 				return os.path.exists(str(path))
 			else:
@@ -477,8 +484,7 @@ class Formats():
 			path=None,
 		):
 			if path == None: path = self.path
-			path = gfp.clean(path=path, remove_double_slash=True, remove_last_slash=True)
-			return os.path.isdir(path)
+			return Files.directory(path)
 			#
 		def mtime(self, format='%d-%m-%y %H:%M.%S', path=None):
 			if path == None: path = self.path
@@ -498,6 +504,8 @@ class Formats():
 			remove_last_slash=False,
 			ensure_first_slash=False,
 			ensure_last_slash=False,
+			# return the path as a raw string.
+			raw=False,
 		):
 			if path == None: path = self.path
 			if not isinstance(path, (str, String)): 
@@ -510,13 +518,16 @@ class Formats():
 				elif ensure_first_slash and len(path) > 0 and path[0] != "/": path = "/"+path
 				elif ensure_last_slash and len(path) > 0 and path[len(path)-1] != "/": path += "/"
 				else: break
-			return path
+			if raw:
+				return path
+			else:
+				return FilePath(path)
 		def absolute(self, 
 			# the path (leave None to use self.path) (param #1).
 			path=None,
 		):
 			if path == None: path = self.path
-			return os.path.abspath(path)
+			return FilePath(os.path.abspath(path))
 		# path to python module path.
 		def module(self, path=None):
 			if path == None: path = self.path
@@ -562,8 +573,8 @@ class Formats():
 			options = " "
 			if forced: 
 				options = " -f "
-				if os.path.isdir(path): options = " -fr "
-			elif os.path.isdir(path): options = " -r "
+				if Files.directory(path): options = " -fr "
+			elif Files.directory(path): options = " -r "
 			os.system(f"{sudo}rm{options}{path}{silent}")
 		def move(self, 
 			# the to path (#1).
@@ -880,7 +891,7 @@ class Formats():
 				_owner_, _group_ = self.get(path=path)
 				if _owner_ != owner or _group_ != group:
 					self.set(owner=owner, group=group, sudo=sudo, silent=silent, recursive=recursive, path=path)
-				if recursive and iterate and os.path.isdir(self.path):
+				if recursive and iterate and Files.directory(self.path):
 					for dirpath, subdirs, files in os.walk(self.path):
 						for path in subdirs: 
 							#print("DIRECTORY:",path)
@@ -942,7 +953,7 @@ class Formats():
 				if path == None: path = self.path
 				if self.get(path=path) != permission:
 					self.set(permission=permission, sudo=sudo, silent=silent, recursive=recursive, path=path)
-				if recursive and iterate and os.path.isdir(path):
+				if recursive and iterate and Files.directory(path):
 					for dirpath, subdirs, files in os.walk(path):
 						for path in subdirs: 
 							#print("DIR NAME:",path)
@@ -2463,7 +2474,7 @@ class Files():
 		if type not in ["", "/"] and "." not in type:
 			type = "." + type
 		path = str(path)
-		if os.path.exists(path) and os.path.isdir(path) and path[len(path)-1] != "/": path += '/'
+		if os.path.exists(path) and Files.directory(path) and path[len(path)-1] != "/": path += '/'
 		return gfp.clean("{}{}{}".format(path, name, type), remove_double_slash=True, remove_last_slash=False)
 	def load(path, data="not to be used", format="str", raw=False, sudo=False): # keep data as second param to prevent save load errors.
 		# correct format.
@@ -2551,6 +2562,8 @@ class Files():
 				__real_path__ = str(path)
 				tmp_path = path = f"/tmp/{String().generate(length=12)}"
 		data = Formats.denitialize(data)
+		if path == None: raise Exceptions.InvalidUsage("Define parameter: path.")
+		path = str(path)
 		if format == "str":
 			file = open(path, "w+") 
 			file.write(data)
@@ -2591,7 +2604,7 @@ class Files():
 				file.write(data)
 		else: raise ValueError(f"Unknown format {format}.")
 		if sudo:
-			if os.path.isdir(path) and path[len(path)-1] != "/": 
+			if Files.directory(path) and path[len(path)-1] != "/": 
 				path += "/"
 				if __real_path__[len(__real_path__)-1] != "/": __real_path__ += "/"
 			os.system(f"sudo rsync -aq {gfp.clean(path)} {gfp.clean(__real_path__)} && rm -fr {tmp_path}")
@@ -2651,6 +2664,27 @@ class Files():
 		if path == None: raise Exceptions.InvalidUsage("Define parameter: path.")
 		return gfp.exists(path=path, sudo=sudo)
 		#
+	def clean(
+		# the path (leave None to use self.path) (param #1).
+		path=None, 
+		# the clean options.
+		remove_double_slash=True, 
+		remove_first_slash=False, 
+		remove_last_slash=False,
+		ensure_first_slash=False,
+		ensure_last_slash=False,
+	):
+		if path == None: 
+			raise ValueError("Define parameter: path.")
+		path = str(path).replace("~",HOME)
+		while True:
+			if remove_double_slash and "//" in path: path = path.replace("//","/")
+			elif remove_first_slash and len(path) > 0 and path[0] == "/": path = path[1:]
+			elif remove_last_slash and len(path) > 0 and path[len(path)-1] == "/": path = path[:-1]
+			elif ensure_first_slash and len(path) > 0 and path[0] != "/": path = "/"+path
+			elif ensure_last_slash and len(path) > 0 and path[len(path)-1] != "/": path += "/"
+			else: break
+		return path
 	def directory( 
 		# the path (#1).
 		path=None,
@@ -2658,7 +2692,7 @@ class Files():
 		sudo=False,
 	):
 		if path == None: raise Exceptions.InvalidUsage("Define parameter: path.")
-		path = gfp.clean(path=path, remove_double_slash=True, remove_last_slash=True)
+		path = Files.clean(path=path, remove_double_slash=True, remove_last_slash=True)
 		path = str(path)
 		return os.path.isdir(path)
 		#
@@ -4075,12 +4109,12 @@ class Files():
 			for l_path in file_paths: 
 				if sudo:
 					command = None
-					if os.path.isdir(l_path): command = 'sudo cp -r {0} {1} '.format(l_path, path+Formats.FilePath(l_path).name())
+					if Files.directory(l_path): command = 'sudo cp -r {0} {1} '.format(l_path, path+Formats.FilePath(l_path).name())
 					else: command = 'sudo cp {0} {1}'.format(l_path, path+Formats.FilePath(l_path).name())
 					commands.append(command)
 				else:
 					command = None
-					if os.path.isdir(l_path): command = 'cp -r {0} {1} '.format(l_path, path+Formats.FilePath(l_path).name())
+					if Files.directory(l_path): command = 'cp -r {0} {1} '.format(l_path, path+Formats.FilePath(l_path).name())
 					else: command = 'cp {0} {1}'.format(l_path, path+Formats.FilePath(l_path).name())
 					commands.append(command)
 			if len(commands) > 0:
@@ -4306,14 +4340,14 @@ class Files():
 			else:
 				for name in os.listdir(path):
 					l_path = gfp.clean(path=f"{path}/{name}")
-					if not dirs_only and not os.path.isdir(l_path):
+					if not dirs_only and not Files.directory(l_path):
 						if name not in banned_names and ("*" in extensions or gfp.extension(name=name) in extensions ):
 							l_banned = False
 							for i in banned_basenames:
 								if f"/{i}/" in l_path: l_banned = True ; break
 							if l_path not in banned and not l_banned and l_path+"/" not in banned:
 								paths.append(l_path)
-					if not files_only and os.path.isdir(l_path):
+					if not files_only and Files.directory(l_path):
 						l_path += "/"
 						if name not in banned_names and (dirs_only or "*" in extensions or "dir" in extensions ):
 							l_banned = False
@@ -4474,7 +4508,7 @@ class Files():
 					info["size"] = gfp.size(path=path, format=int)
 				directory = None
 				if "directory" in metcics:
-					directory = info["directory"] = os.path.isdir(str(path))
+					directory = info["directory"] = Files.directory(str(path))
 				if "content" in metrics:
 					if directory == None: raise Exceptions.InvalidUsage("Metric [directory] is required when obtaining metric [content].")
 					if not directory:
@@ -4525,7 +4559,7 @@ class Files():
 			for string in matches:
 				if not os.path.exists(path):
 					raise ValueError(f"Path {path} does not exist.")
-				elif not os.path.isdir(path):
+				elif not Files.directory(path):
 					raise ValueError(f"Path {path} is not a directory.")
 				for i_path in self.paths(recursive=recursive, files_only=True, banned_names=[".DS_Store", ".git"], path=path):
 					data = None
@@ -4563,10 +4597,10 @@ class Files():
 			for from_, to in replacements:
 				if not os.path.exists(path):
 					raise ValueError(f"Path {path} does not exist.")
-				elif not os.path.isdir(path):
+				elif not Files.directory(path):
 					raise ValueError(f"Path {path} is not a directory.")
 				for path in self.paths(recursive=recursive, banned_names=[".DS_Store", ".git"], path=path):
-					if not os.path.isdir(path):
+					if not Files.directory(path):
 						try:
 							data = Files.load(path)
 						except UnicodeDecodeError: a=1
