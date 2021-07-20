@@ -328,44 +328,9 @@ class Formats():
 			back=1,
 		):
 			if path == None: path = self.path
-			base = path.replace('//','/')
-			if base[len(base)-1] == '/': base = base[:-1]
-			if len(base.split("/")) <= 1: raise ValueError("Path [{}] has no base.".format(base))
-			startslash = True
-			if base[0] != "/":
-				startslash = False
-			base = base.split("/")
-			m, c, s = len(base), 0, ""
-			for i in base:
-				if c >= m-back: break
-				if c == 0:
-					s = f"/{i}/"
-				else:
-					s += f"{i}/"
-				c += 1
-			if startslash:
-				return s
-			else:
-				return s[1:]
-			###### OLD.
-			base = path.replace('//','/')
-			if len(base.split("/")) <= 1: raise ValueError("Path [{}] has no base.".format(base))
-			if base[len(base)-1] == '/': base = base[:-1]
-			for x in range(back, back+1):
-				last = (base.split('/')[len(base.split('/'))-1]).replace('//','/')
-				base = base[:-len("/"+last)]
-			while True:
-				if '//' in base: base = base.replace('//','/')
-				else: break
-			if base[len(base)-1] != "/": base += '/'
-			return FilePath(base)
-			"""splitted, result, count = path.split('/'), "", 0
-			for i in splitted:
-				if count < len(splitted) - 1 - back:
-					result += '/' + i
-				else: result += "/"
-				count += 1
-			"""
+			return Files.base(path=path, back=back)
+
+			#
 		def basename(self, back=1, path=None):
 			if path == None: path = self.path
 			return self.name(path=self.base(back=back, path=path))
@@ -1870,6 +1835,9 @@ class Formats():
 				return math.ceil(self.value)
 			factor = 10 ** decimals
 			return math.floor(self.value * factor) / factor
+
+			#
+			
 		def generate(self, length=6):
 			return utils.generate.pincode(length=length)
 			#
@@ -2169,13 +2137,21 @@ class Formats():
 			#   options 2:
 			#     initialize by seconds.
 			seconds=None,
+			# 	option 3:
+			#     define the datetime object.
+			datetime_obj=None,
 		):
 
 			# defaults.
 			#self.__class__.__name__ = "Date"
 
+			# by datetime_obj
+			if datetime_obj != None:
+				seconds = time.mktime(datetime_obj.timetuple())
+				today = datetime.fromtimestamp(float(seconds))
+
 			# by timestamp & format.
-			if timestamp != None:
+			elif timestamp != None:
 				if format == None: 
 					format = self.parse_format(timestamp)
 					if format == None: 
@@ -2281,12 +2257,14 @@ class Formats():
 				format = self.default_format
 			return Date().initialize(timestamp=datetime.fromtimestamp(float(seconds)).strftime(format))
 			#
-		def convert(self, string=None, input="%d-%m-%y %H:%M", output="%Y%m%d"):
+		def convert(self, string=None, datetime_obj=None, input="%d-%m-%y %H:%M", output="%Y%m%d"):
 			if string == None: string = str(self)
 			if isinstance(string, Formats.Date):
 				string = str(string)
-			string = datetime.strptime(str(string), str(input))
-			return string.strftime(str(output))
+			if datetime_obj == None:
+				if string == None: raise ValueError("Define either parameter [string] or [datetime_obj].")
+				datetime_obj = datetime.strptime(str(string), str(input))
+			return datetime_obj.strftime(str(output))
 		def parse_format(self, string):
 			if isinstance(string, Formats.Date):
 				return self.default_format
@@ -2317,6 +2295,7 @@ class Formats():
 			formats += [
 				"%d-%m-%y %H:%M.%S", # old default.
 				"%Y-%m-%d %H:%M:%S", # stock market
+				"%d-%m-%Y", # dd-mm-yyyy.
 			]
 			for format in formats:
 				try:
@@ -2358,6 +2337,35 @@ class Formats():
 				return f'{round(seconds/(60*60*24*30),1)}m'
 			else:
 				return f'{round(seconds/(60*60*24*30*12),1)}y'
+
+		# convert to datetime object.
+		def datetime(self, timestamp=None):
+
+			# set defaults.
+			if timestamp == None: timestamp = str(self)
+
+			# parse format.
+			seconds = isinstance(timestamp, (int, float))
+
+			# by timestamp & format.
+			if not seconds:
+				format = self.parse_format(timestamp)
+				if format == None: 
+					raise Exceptions.ParseError(f"Unable to parse the date format from timestamp [{timestamp}]. Find out what the required format is and request a commit that updates the Date().parse_format() function with the required format (https://github.com/vandenberghinc/dev0s/).")
+				seconds = time.mktime(datetime.strptime(str(timestamp), str(format)).timetuple())
+				return datetime.fromtimestamp(float(seconds))
+
+			# by seconds.
+			else:
+				return datetime.fromtimestamp(float(seconds))
+
+		# convert to rfc_3339 format.
+		def rfc_3339(self, timestamp=None):
+
+			# convert.
+			return self.datetime(timestamp=timestamp).isoformat('T')
+
+			#
 
 		# support default iteration.
 		def __iter__(self):
@@ -2784,6 +2792,35 @@ class Files():
 		to_ = gfp.clean(to_)
 		if not Files.exists(gfp.base(to_), sudo=sudo): Files.create(gfp.base(to_), sudo=sudo, directory=directory)
 		os.system(f"{Boolean(sudo).string(true='sudo ', false='')}mv {from_} {to_}")
+	def base( 
+		# the path (str, FilePath) (#1).
+		path=None,
+		# the dirs back.
+		back=1,
+	):
+		if path == None: raise ValueError("Define parameter: path:str.")
+		path = str(path)
+		base = path.replace('//','/')
+		if base[len(base)-1] == '/': base = base[:-1]
+		if len(base.split("/")) <= 1: raise ValueError("Path [{}] has no base.".format(base))
+		startslash = True
+		if base[0] != "/":
+			startslash = False
+		base = base.split("/")
+		m, c, s = len(base), 0, ""
+		for i in base:
+			if c >= m-back: break
+			if c == 0:
+				s = f"/{i}/"
+			else:
+				s += f"{i}/"
+			c += 1
+		if startslash:
+			return s
+		else:
+			return s[1:]
+		#
+
 	#
 	# the file object class.
 	class File(object):
