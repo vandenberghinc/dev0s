@@ -2257,12 +2257,13 @@ class Formats():
 				format = self.default_format
 			return Date().initialize(timestamp=datetime.fromtimestamp(float(seconds)).strftime(format))
 			#
-		def convert(self, string=None, datetime_obj=None, input="%d-%m-%y %H:%M", output="%Y%m%d"):
-			if string == None: string = str(self)
-			if isinstance(string, Formats.Date):
-				string = str(string)
+		def convert(self, string=None, datetime_obj=None, input=None, output="%Y%m%d"):
 			if datetime_obj == None:
-				if string == None: raise ValueError("Define either parameter [string] or [datetime_obj].")
+				if string == None: string = str(self)
+				if isinstance(string, Formats.Date):
+					string = str(string)
+				if input == None:
+					input = self.parse_format(string)
 				datetime_obj = datetime.strptime(str(string), str(input))
 			return datetime_obj.strftime(str(output))
 		def parse_format(self, string):
