@@ -5012,22 +5012,19 @@ class Files():
 	#
 	#
 
-# some default objects.
-class Objects():
+# some default classes.
+class Classes():
 
-	# the speed object class.
-	class Speed(object):
-		def __init__(self):
-			a=1
-			#
+	# the speed class.
+	class Speed():
 
 		# the mark function, returns a timestamp used for calculation.
-		def mark(self):
+		def mark():
 			return Date().seconds_timestamp
 			#
 
 		# calculate the difference between the marked timestamp & the current.
-		def calculate(self, 
+		def calculate( 
 			# the marked timestamp from self.mark().
 			stamp, 
 			# the current timestamp (leave None to use Date().seconds_timestamp)
@@ -5035,6 +5032,9 @@ class Objects():
 		):
 			if current == None: current = Date().seconds_timestamp
 			return (Date(current) - Date(stamp)).to_seconds()
+
+# some default objects.
+class Objects():
 
 	# the generate object class.
 	class Generate(object):
@@ -5048,6 +5048,7 @@ class Objects():
 				"chapter": "Defaults", }
 			
 			#
+
 		def int(self, length=6):
 			charset = Array(Formats.digits).string(joiner="")
 			return ''.join(random.choice(charset) for x in range(length))
@@ -5112,10 +5113,10 @@ Bytes = Files.Bytes
 Dictionary = Files.Dictionary
 Array = Files.Array
 
+Speed = Classes.Speed
+
 Generate = Objects.Generate
 Interval = Objects.Interval
-Speed = Objects.Speed
-speed = Objects.Speed()
 
 # initialized objects.
 gfp = Formats.FilePath("") # is required (do not remove).

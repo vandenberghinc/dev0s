@@ -50,11 +50,10 @@ Bytes = dev0s.files.Bytes
 Dictionary = dev0s.files.Dictionary
 Array = dev0s.files.Array
 
+Speed = dev0s.files.Speed
+
 Generate = dev0s.files.Generate
 Interval = dev0s.files.Interval
-Speed = dev0s.files.Speed
-speed = dev0s.files.Speed()
-
 
 # response.
 ResponseObject = dev0s.response.ResponseObject
