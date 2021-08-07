@@ -12,6 +12,7 @@ from dev0s.classes import console
 from dev0s.classes.defaults.exceptions import Exceptions
 
 # pip.
+from datetime import datetime, timezone
 import shutil, math
 from PIL import Image as _Image_
 
@@ -2297,6 +2298,9 @@ class Formats():
 				"%d-%m-%y %H:%M.%S", # old default.
 				"%Y-%m-%d %H:%M:%S", # stock market
 				"%d-%m-%Y", # dd-mm-yyyy.
+				"%d-%m-%y %H:%M:%S", # dd-mm-yy hh:mm:ss.
+				"%d-%m-%Y %H:%M:%S", # dd-mm-yyyy hh:mm:ss.
+				"%Y-%m-%dT%H:%M:%SZ" # rfc-3339.
 			]
 			for format in formats:
 				try:
@@ -2364,7 +2368,15 @@ class Formats():
 		def rfc_3339(self, timestamp=None):
 
 			# convert.
-			return self.datetime(timestamp=timestamp).isoformat('T')
+			return self.datetime(timestamp=timestamp).isoformat('T') + "Z"
+
+			#
+
+		# convert to utc format.
+		def utc(self, timestamp=None):
+
+			# convert.
+			return self.datetime(timestamp=timestamp).replace(tzinfo=timezone.utc)
 
 			#
 
@@ -5121,5 +5133,6 @@ Interval = Objects.Interval
 # initialized objects.
 gfp = Formats.FilePath("") # is required (do not remove).
 gd = gdate = Formats.Date()
+
 
 #
