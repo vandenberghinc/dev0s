@@ -5032,18 +5032,23 @@ class Classes():
 
 		# the mark function, returns a timestamp used for calculation.
 		def mark():
-			return Date().seconds_timestamp
+			return time.time()
 			#
 
 		# calculate the difference between the marked timestamp & the current.
 		def calculate( 
-			# the marked timestamp from self.mark().
+			# the marked timestamp from Speed.mark.
 			stamp, 
-			# the current timestamp (leave None to use Date().seconds_timestamp)
+			# the current timestamp (leave None to use Speed.mark)
 			current=None,
+			# round to decimals (Leave None to ignore).
+			decimals=None,
 		):
-			if current == None: current = Date().seconds_timestamp
-			return (Date(current) - Date(stamp)).to_seconds()
+			if current == None: current = Speed.mark()
+			diff = current - stamp
+			if decimals != None:
+				diff = round(diff, decimals)
+			return diff
 
 # some default objects.
 class Objects():
