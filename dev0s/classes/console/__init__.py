@@ -1,7 +1,7 @@
 
 # imports
 from dev0s.classes.config import *
-from dev0s.classes.defaults.files import Date
+from dev0s.classes.defaults.files import Date, Speed
 from dev0s.classes.defaults.color import color, symbol
 import getpass
 _input_ = input
@@ -266,7 +266,7 @@ class ProgressLoader(object):
 	# next index.
 	def next(self, increment=1, decimals=2):
 		if self.calc_finish and self.start_stamp == None:
-			self.start_stamp = Date()
+			self.start_stamp = Speed.mark()
 		if self.memory in [None, False]:
 			self.index += increment
 			try:
@@ -288,7 +288,7 @@ class ProgressLoader(object):
 			else:
 				self.last_message = f"{self.message} ... {self.progress}%"
 			if self.calc_finish and self.progress > 0:
-				diff = (Date() - self.start_stamp).to_seconds()
+				diff = Speed.calculate(self.start_stamp)
 				duration = Date().normalize_seconds( (diff / (self.progress/100)) * (1.0 - (self.progress/100)) )
 				self.last_message += f" ({duration})"
 			if self.log_level >= 0:
@@ -312,7 +312,7 @@ class ProgressLoader(object):
 			if success:
 				s = f"{message} ... done"
 				if self.log_duration:
-					duration = Date().normalize_seconds(Date().to_seconds() - self.start_stamp.to_seconds())
+					duration = Date().normalize_seconds(Speed.calculate(self.start_stamp))
 					s += f" (duration: {duration})"
 			else:
 				s = f"{message} ... {color.red}failed{color.end}"
