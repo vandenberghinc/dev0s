@@ -2091,7 +2091,7 @@ class Formats():
 			self.minute_format = '%M'
 			self.hour_format = '%H'
 			self.day_format = '%d'
-			self.day_name_format = '%a'
+			self.day_name_format = '%A'
 			self.week_format = '%V'
 			self.month_format = '%m'
 			self.month_name_format = '%h'
@@ -2256,7 +2256,7 @@ class Formats():
 				seconds = float(seconds)
 			if format == None:
 				format = self.default_format
-			return Date().initialize(timestamp=datetime.fromtimestamp(float(seconds)).strftime(format))
+			return Date(datetime.fromtimestamp(float(seconds)).strftime(format))
 			#
 		def convert(self, string=None, datetime_obj=None, input=None, output="%Y%m%d"):
 			if datetime_obj == None:
@@ -2427,7 +2427,7 @@ class Formats():
 				add = add.to_seconds()
 			elif not isinstance(array, self.__class__):
 				raise Exceptions.FormatError(f"Can not add object {self.__class__} & {add.__class__}.")
-			return Date().initialize(seconds=self.to_seconds() + add)
+			return Date(self.to_seconds() + add)
 		def __iadd__(self, add):
 			if isinstance(add, (int,float)):
 				add = float(add)
@@ -2435,7 +2435,7 @@ class Formats():
 				add = add.to_seconds()
 			elif not isinstance(add, self.__class__):
 				raise Exceptions.FormatError(f"Can not iadd object {self.__class__} & {add.__class__}.")
-			self = Date().initialize(seconds=self.to_seconds() + add)
+			self = Date(self.to_seconds() + add)
 			return self
 		def __sub__(self, add):
 			if isinstance(add, (int,float)):
@@ -2444,7 +2444,7 @@ class Formats():
 				add = add.to_seconds()
 			elif not isinstance(add, self.__class__):
 				raise Exceptions.FormatError(f"Can not sub object {self.__class__} & {add.__class__}.")
-			return Date().initialize(seconds=self.to_seconds() - add)
+			return Date(self.to_seconds() - add)
 		def __isub__(self, add):
 			if isinstance(add, (int,float)):
 				add = float(add)
@@ -2452,7 +2452,7 @@ class Formats():
 				add = add.to_seconds()
 			elif not isinstance(add, self.__class__):
 				raise Exceptions.FormatError(f"Can not isub object {self.__class__} & {add.__class__}.")
-			self = Date().initialize(seconds=self.to_seconds() - add)
+			self = Date(self.to_seconds() - add)
 			return self
 		# support +.
 		def __concat__(self, add):
@@ -2462,7 +2462,7 @@ class Formats():
 				add = add.to_seconds()
 			elif not isinstance(add, self.__class__):
 				raise Exceptions.FormatError(f"Can not sub object {self.__class__} & {add.__class__}.")
-			return Date().initialize(seconds=self.to_seconds() - add)
+			return Date(self.to_seconds() - add)
 		# representation.
 		def __repr__(self):
 			return str(self)
@@ -3821,6 +3821,10 @@ class Files():
 		):
 			if dictionary == None: dictionary = self.dictionary
 			if descending:
+				new = {}
+				for key in sorted(dictionary, key=dictionary.get, reverse=True):
+					new[key] = dictionary[key]
+				"""
 				return self.reversed(
 					update=update,
 					dictionary=self.sort(
@@ -3830,6 +3834,11 @@ class Files():
 						sort=sort,
 					),
 				)
+				"""
+			elif ascending:
+				new = {}
+				for key in sorted(dictionary, key=dictionary.get, reverse=False):
+					new[key] = dictionary[key]
 			else:
 				new, reversed_dict = {}, {}
 				if alphabetical or ascending:
@@ -3848,9 +3857,9 @@ class Files():
 						new[Formats.denitialize(key)] = reversed_dict[Formats.denitialize(key)]
 				if sort == "values":
 					new = self.__reverse_keys_and_values__(dictionary=new)
-				if update:
-					self.dictionary = new
-				return new
+			if update:
+				self.dictionary = new
+			return new
 		# dump json string.
 		def json(self, sorted=False, reversed=False, indent=4, dictionary=None, ):
 			if dictionary == None: dictionary = self.dictionary
@@ -5043,12 +5052,35 @@ class Classes():
 			current=None,
 			# round to decimals (Leave None to ignore).
 			decimals=None,
+			# normalize seconds.
+			normalize=False,
 		):
 			if current == None: current = Speed.mark()
 			diff = current - stamp
 			if decimals != None:
 				diff = round(diff, decimals)
+			if normalize:
+				diff = Speed.normalize_seconds(diff)
 			return diff
+
+		# normalize seconds to 10s or 1m etc.
+		def normalize_seconds(seconds:(int,float), decimals=1):
+			if seconds < 0:
+				raise ValueError("Can not normalize negative seconds.")
+			if seconds < 0.01:
+				return f'{int(seconds*1000)}ms'
+			elif seconds <= 60:
+				return f'{int(seconds)}s'
+			elif seconds <= 60*60:
+				return f'{round(seconds/60, decimals)}m'
+			elif seconds <= 60*60*24:
+				return f'{round(seconds/(60*60), decimals)}h'
+			elif seconds <= 60*60*24*30:
+				return f'{round(seconds/(60*60*24), decimals)}d'
+			elif seconds <= 60*60*24*30*12:
+				return f'{round(seconds/(60*60*24*30), decimals)}m'
+			else:
+				return f'{round(seconds/(60*60*24*30*12), decimals)}y'
 
 # some default objects.
 class Objects():
@@ -5138,6 +5170,5 @@ Interval = Objects.Interval
 # initialized objects.
 gfp = Formats.FilePath("") # is required (do not remove).
 gd = gdate = Formats.Date()
-
 
 #
