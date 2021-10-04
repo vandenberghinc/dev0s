@@ -2300,7 +2300,7 @@ class Formats():
 				"%d-%m-%Y", # dd-mm-yyyy.
 				"%d-%m-%y %H:%M:%S", # dd-mm-yy hh:mm:ss.
 				"%d-%m-%Y %H:%M:%S", # dd-mm-yyyy hh:mm:ss.
-				"%Y-%m-%dT%H:%M:%SZ" # rfc-3339.
+				"%Y-%m-%dT%H:%M:%SZ", # rfc-3339.
 				"%Y-%m-%d",
 			]
 			for format in formats:
