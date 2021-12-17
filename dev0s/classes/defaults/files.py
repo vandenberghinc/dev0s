@@ -3276,14 +3276,24 @@ class Files():
 
 		# sum numerical array.
 		def sum(self):
-			summed = 0
-			for item in self.array: summed += item
-			return summed
+			return sum(self.array)
 
 		# mean of numerical array.
-		def mean(self):
+		def mean(self, window=None):
 			return self.sum() / len(self.array)
 			#
+
+		# variance of numerical array.
+		def variance(self):
+			mean = self.mean()
+			deviations = []
+			for x in self.array:
+				deviations.append((x - mean) ** 2)
+			return sum(deviations) / len(self.array)
+
+		# standard deviation of numerical array.
+		def stdev(self):
+			return math.sqrt(self.variance())
 
 		# copy.
 		def copy(self):
