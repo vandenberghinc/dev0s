@@ -3861,36 +3861,15 @@ class Files():
 			dictionary=None,
 		):
 			if dictionary == None: dictionary = dict(self.dictionary)
-			if sort == "keys":
+			if sort == "values":
 				new = {}
 				for key in sorted(dictionary, key=dictionary.get, reverse=reversed):
 					new[key] = dictionary[key]
-			elif sort == "values":
-				array = list(dictionary.values())
-				reversed_dict = self.__reverse_keys_and_values__(dictionary=dictionary)
+			elif sort == "keys":
 				new = {}
-				for key in Array(array).sort(reversed=reversed):
+				for key in sorted(dictionary, reverse=reversed):
 					new[key] = dictionary[key]
-				new = self.__reverse_keys_and_values__(dictionary=new)
 			else: raise ValueError(f"Selected an invalid sort mode [{sort}].")
-			"""
-			else:
-				new, reversed_dict = {}, {}
-				if sort == "keys":
-					array = list(dictionary.keys())
-				elif sort == "values":
-					array = list(dictionary.values())
-					reversed_dict = self.__reverse_keys_and_values__(dictionary=dictionary)
-				else: raise ValueError(f"Selected an invalid sort mode [{sort}].")
-				_sorted_ = Array().sort(ascending=ascending, reversed=reversed, array=array)
-				for key in _sorted_:
-					if sort == "keys":
-						new[Formats.denitialize(key)] = dictionary[Formats.denitialize(key)]
-					elif sort == "values":
-						new[Formats.denitialize(key)] = reversed_dict[Formats.denitialize(key)]
-				if sort == "values":
-					new = self.__reverse_keys_and_values__(dictionary=new)
-			"""
 			return Dictionary(new, path=self.__path__)
 
 		# dump json string.
@@ -5212,3 +5191,9 @@ gfp = Formats.FilePath("") # is required (do not remove).
 gd = gdate = Formats.Date()
 
 #
+print(Dictionary({
+	"a":1,
+	"b":0,
+	"c":1,
+	"d":2,
+}).sort(sort="values"))
