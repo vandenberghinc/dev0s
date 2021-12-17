@@ -5191,9 +5191,3 @@ gfp = Formats.FilePath("") # is required (do not remove).
 gd = gdate = Formats.Date()
 
 #
-print(Dictionary({
-	"a":1,
-	"b":0,
-	"c":1,
-	"d":2,
-}).sort(sort="values"))
