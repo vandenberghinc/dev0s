@@ -3000,23 +3000,37 @@ class Files():
 			#	array = array.array
 
 			# init.
-			if path == False: self.file_path = self.fp = None # used in local memory (not fysical)
-			else: self.file_path = self.fp = Formats.FilePath(path)
+			if path in [False, None]: 
+				self.file_path = self.fp = None # used in local memory (not fysical)
+				self.__path__ = None
+			else: 
+				self.file_path = self.fp = Formats.FilePath(path)
+				self.__path__ = self.file_path.path
 			self.array = array
-			if default != None and not os.path.exists(self.file_path.path): self.save(array=default)
+			if default != None and self.file_path != None and not os.path.exists(self.file_path.path): 
+				self.save(array=default)
+				self.array = default
 			if load: self.load()
+
+			#
+
+		# save to file.
 		def save(self, array=None, path=None, ensure_ascii=False, indent=4, sudo=False):
 			if array != None: array = self.array
 			if path == None: path = self.file_path.path
 			utils.__check_memory_only__(path)
 			self.array = array
 			return Files.save(path, Formats.denitialize(array), format="json", indent=indent, ensure_ascii=ensure_ascii, sudo=sudo)
+
+		# load from file.
 		def load(self, default=None, sudo=False):
 			utils.__check_memory_only__(self.file_path.path)
 			if not os.path.exists(self.file_path.path) and default != None: 
 				self.save(default, sudo=sudo)
 			self.array = Files.load(self.file_path.path, format="json", sudo=sudo)
 			return self.array
+
+		# convert to string.
 		def string(self, joiner=" ", sum_first=False):
 			string = ""
 			for x in self.array:
@@ -3024,6 +3038,8 @@ class Files():
 				elif string == '': string = str(x)
 				else: string += joiner + str(x)
 			return str(string)
+
+		# divide into several arrays.
 		def divide(self, into=2):
 			avg = len(self.array) / float(into)
 			out = []
@@ -3036,7 +3052,9 @@ class Files():
 					last = out.pop(len(out)-1)
 					out[len(out)-1] += last
 			return out
-		def remove(self, indexes=[], values=[], update=True, save=False):
+
+		# reomve indexes or values.
+		def remove(self, indexes=[], values=[]):
 			array = self.array
 			for i in indexes:
 				try: array.pop(i)
@@ -3046,14 +3064,15 @@ class Files():
 				for v in array:
 					if v not in values: new.append(v)
 				array = new
-			if update: self.array = array
-			if save: self.save()
-			return array
+			return Array(array, path=self.__path__)
+
 		# default list functions.
 		def append(self, var):
-			return self.array.append(var)
+			array = list(self.array)
+			return Array(array.append(var), path=self.__path__)
 		def pop(self, index):
-			return self.array.pop(index)
+			array = list(self.array)
+			return Array(array.pop(index), path=self.__path__)
 		def count(self, item=None):
 			if item == None:
 				return Formats.Integer(len(self.array))
@@ -3069,6 +3088,7 @@ class Files():
 						if x == y: c += 1
 				return Formats.Integer(c)
 			else: raise Exceptions.InstanceError("Parameter [item] must either be None, String or Array.")
+
 		# check.
 		def check(self, default=None, save=True):
 			if default != None and isinstance(default, (list, Array)):
@@ -3082,6 +3102,7 @@ class Files():
 							self.array.append(i)
 					if save:
 						self.save()
+
 		# clean content.
 		def clean(self, 
 			# the string replacements.
@@ -3104,7 +3125,7 @@ class Files():
 			# the dicionary (leave None to use self.array).
 			array=None, 
 		):
-			if array == None: array = self.array
+			if array == None: array = list(self.array)
 			if isinstance(remove_first, (str, Formats.String)):
 				remove_first = [remove_first]
 			if isinstance(remove_last, (str, Formats.String)):
@@ -3140,42 +3161,41 @@ class Files():
 								edits = True
 						if not edits: break
 					new.append(item)
-			if update: self.array = list(new)
-			return new
+			return Array(new, path=self.__path__)
+
 		# iterations.
 		def iterate(self, sorted=False, reversed=False, array=None):
-			if array == None: array = self.array
+			if array == None: array = list(self.array)
 			return self.items(reversed=reversed, sorted=sorted, array=array)
+
+		# iterate items.
 		def items(self, sorted=False, reversed=False, array=None):
-			if array == None: array = self.array
+			if array == None: array = list(self.array)
 			if sorted: array = self.sort(array=array)
 			if reversed: return self.reversed(array=array)
-			else: return array
-		def keys(self, sorted=False, reversed=False, array=None):
-			if array == None: array = self.array
-			if sorted:
-				return self.sort(self.keys(sorted=False, reversed=reversed, array=array))
-			if reversed: 
-				reversed_keys = []
-				c = len(array)-1
-				for _ in range(len(array)):
-					reversed_keys.append(array[c])
-					c -= 1
-				return reversed_keys
-			else: return self.array
+			else: return Array(array, path=self.__path__)
+
+		# reserse array.
 		def reversed(self, array=None):
 			if array == None: array = self.array
-			return self.keys(reversed=True, array=array)
-		def sort(self, alphabetical=True, ascending=False, reversed=False, array=None):
+			reversed_keys = []
+			c = len(array)-1
+			for _ in range(len(array)):
+				reversed_keys.append(array[c])
+				c -= 1
+			return Array(reversed_keys, path=self.__path__)
+
+		# sort array.
+		def sort(self, reversed=False, array=None):
 			if array == None: array = self.array
-			if alphabetical or ascending:
-				return sorted(array, reverse=reversed)
-			else: raise ValueError("Unknown behaviour, alphabetical=False.")
+			return Array(sorted(array, reverse=reversed), path=self.__path__)
+
 		# dump json string.
 		def json(self, sorted=False, reversed=False, indent=4, array=None, ):
 			#return json.dumps(Formats.denitialize(self), indent=indent)
 			if array == None: array = self.array
 			return json.dumps(self.serialize(json=False, sorted=sorted, reversed=reversed, array=array), indent=indent)
+
 		# serialize array.
 		def serialize(self, sorted=False, reversed=False, json=False, array=None):
 			if array == None: array = self.array
@@ -3218,12 +3238,12 @@ class Files():
 			array=None,
 		):
 			if array == None: array = list(self.array)
-			randomized = Array([])
+			randomized = []
 			while len(array) > 0:
 				index = random.randrange(0, len(array))
 				item = array.pop(index)
 				randomized.append(item)
-			return randomized
+			return Array(randomized, path=self.__path__)
 			#
 
 		# limit the content of the array.
@@ -3232,20 +3252,44 @@ class Files():
 			limit:int,
 			# the index to start from.
 			start=0,
-			# randomize the content before applying the limit.
-			randomize=False,
 			# optionally pass the array (leave None to use self.array).
 			array=None,
 		):
 			if array == None: array = list(self.array)
-			if randomize: array = self.randomize(array=array)
-			return Array(array[start:start+limit])
+			return Array(array[start:start+limit], path=self.__path__)
 
-		
+		# min of numerical array.
+		def min(self):
+			min = self.array[0]
+			for item in self.array:
+				if item < min:
+					min = item
+			return min
+
+		# max of numerical array.
+		def max(self):
+			max = self.array[0]
+			for item in self.array:
+				if item > max:
+					max = item
+			return max
+
+		# sum numerical array.
+		def sum(self):
+			summed = 0
+			for item in self.array: summed += item
+			return summed
+
+		# mean of numerical array.
+		def mean(self):
+			return self.sum() / len(self.array)
+			#
+
 		# copy.
 		def copy(self):
-			return Files.Array(self.array, path=path)
+			return Files.Array(self.array, path=self.__path__)
 			#
+
 		# support "+", -, =-, =+" .
 		def __add__(self, array):
 			if isinstance(array, list):
@@ -3254,7 +3298,7 @@ class Files():
 				array = array.array
 			elif not isinstance(array, self.__class__):
 				raise Exceptions.FormatError(f"Can not add object {self.__class__} & {array.__class__}.")
-			return self.array + array
+			return Array(self.array + array)
 		def __iadd__(self, array):
 			if isinstance(array, list):
 				a=1
@@ -3263,7 +3307,6 @@ class Files():
 			elif not isinstance(array, self.__class__):
 				raise Exceptions.FormatError(f"Can not add object {self.__class__} & {array.__class__}.")
 			self.array += array
-			return self
 		def __sub__(self, array):
 			if isinstance(array, list):
 				a=1
@@ -3275,7 +3318,7 @@ class Files():
 			for i in self.array:
 				if i not in array:
 					new.append(i)
-			return new
+			return Array(new)
 		def __isub__(self, array):
 			if isinstance(array, list):
 				a=1
@@ -3288,7 +3331,6 @@ class Files():
 				if i not in array:
 					new.append(i)
 			self.array = new
-			return self
 		
 		# support +.
 		def __concat__(self, array):
@@ -3298,7 +3340,7 @@ class Files():
 				array = array.array
 			elif not isinstance(array, self.__class__):
 				raise Exceptions.FormatError(f"Can not add object {self.__class__} & {array.__class__}.")
-			return self.array + array
+			return Array(self.array + array)
 		
 		# support default iteration.
 		def __iter__(self):
@@ -3404,13 +3446,18 @@ class Files():
 		def instance(self):
 			return "Array"
 			#
+		
 		# support self assignment.
-		def assign(self, array, save=False):
+		def assign(self, array):
 			if isinstance(array, self.__class__):
 				array = array.array
 			self.array = array
-			if save: self.save()
-			return self
+
+		# assign a new path.
+		def assign_path(self, path):
+			self.file_path = FilePath(path)
+			self.__path__ = path
+
 		# return raw data.
 		def raw(self):
 			return self.array
@@ -3439,6 +3486,9 @@ class Files():
 			if isinstance(dictionary, Files.Dictionary):
 				dictionary = dictionary.dictionary
 			elif not isinstance(dictionary, dict):
+				raise Exceptions.InstanceError(f"Parameter [{self.__class__.__name__}.dictionary] must be a [Dictionary] or [dict], not [{dictionary.__class__.__name__}].")
+			
+			"""elif not isinstance(dictionary, dict):
 				max_attempts = 2
 				for attempt in range(max_attempts):
 					try:
@@ -3451,6 +3501,7 @@ class Files():
 					except:
 						if 1+attempt >= max_attempts:
 							raise Exceptions.InstanceError(f"Parameter [{self.__class__.__name__}.dictionary] must be a [Dictionary] or [dict], not [{dictionary.__class__.__name__}].")
+			"""
 
 			# initialize dictionary recursive.
 			#for key in list(dictionary.keys()): 
@@ -3463,34 +3514,41 @@ class Files():
 			self.path = gfp.clean(path=path)
 			self.default = default
 			self.file_path = self.fp = None
+			self.__path__ = None
 
 			# checks.
-			if path != False:
+			if path not in [False, None]:
 				self.file_path = self.fp = Formats.FilePath(path)
-			if load: self.load(default=self.default)
+				self.__path__ = self.file_path.path
 			if self.default != None:
-				self.load(default=self.default)
-				self.check(default=self.default, save=True)
+				self.dictionary = self.check(default=self.default).dictionary
+				if self.file_path != None and not self.file_path.exists(): self.save()
+			if load: self.load()
 		   
-
 			#
-			# can be filled with executing [self.x = x()]:
+
+		# save to file.
 		def save(self, dictionary=None, path=None, ensure_ascii=False, indent=4, sudo=False):
 			utils.__check_memory_only__(self.file_path.path)
-			if dictionary == None: dictionary = self.dictionary
+			if dictionary == None: dictionary = dict(self.dictionary)
 			if path == None: path = self.file_path.path
-			self.dictionary = dictionary
 			return Files.save(path, Formats.denitialize(dictionary), format="json", indent=indent, ensure_ascii=ensure_ascii, sudo=sudo)
+
+		# load from file.
 		def load(self, default=None, sudo=False):
 			utils.__check_memory_only__(self.file_path.path)
 			if not os.path.exists(self.file_path.path) and default != None: 
 				self.save(default, sudo=sudo)
 			self.dictionary = Files.load(self.file_path.path, format="json", sudo=sudo)
 			return self.dictionary
+
+		# load a single line from file.
 		def load_line(self, line_number, sudo=False):
 			utils.__check_memory_only__(self.file_path.path)
 			data = Files.load(str(self.file_path.path, sudo=sudo))
 			return data.split('\n')[line_number]
+
+		# check the dictionary.
 		def check(self, 
 			#   Option 1:
 			key=None, # check a certain key, it appends if not present
@@ -3520,7 +3578,7 @@ class Files():
 				return dictionary
 
 			# init.
-			if dictionary == None: dictionary = self.dictionary
+			if dictionary == None: dictionary = dict(self.dictionary)
 			if not isinstance(dictionary, (dict, Dictionary)):
 				raise Exceptions.InvalidUsage(f"<Dictionary.check> parameter [dicionary] requires to be a [dict, Dictionary] not [{dictionary.__class__.__name__}].")
 			
@@ -3536,12 +3594,12 @@ class Files():
 			if default == None: default = self.default
 			if default == None: raise ValueError("Define both parameters: [key & value] or parameter [default].")
 			dictionary = __iterate_dict__(dictionary, default)
-			if save:
-				self.dictionary = dictionary
-				self.save()
-			return dictionary
+			return Dictionary(dictionary, path=self.__path__)
+
+			#
+
+		# divide dictionary into multiple arrays.
 		def divide(self, into=2):
-			"Splits dict by keys. Returns a list of dictionaries."
 			return_list = [dict() for idx in range(into)]
 			idx = 0
 			for k,v in self.dictionary.items():
@@ -3550,7 +3608,9 @@ class Files():
 					idx += 1
 				else:
 					idx = 0
-			return return_list
+			return Array(return_list)
+
+		# append to dict.
 		def append(self, 
 			# by default it only overwrites if a key does not exist and sums the key if it is a str / int.
 			#
@@ -3562,20 +3622,14 @@ class Files():
 			sum=["int", "float"], 
 			# the banned dictionary keys.
 			banned=[],
-			# update the self dict.
-			update=True,
-			# save the new dict.
-			save=False,
 			# do not use.
 			dictionary_=None,
 		):
-			if dictionary_ == None: dictionary_ = self.dictionary
-			else: dictionary_ = self.dictionary
+			if dictionary_ == None: dictionary_ = dict(self.dictionary)
 			if dictionary == dictionary_: return dictionary
 			if dictionary_ == {}: return dictionary
 			for key, value in dictionary.items():
 				if key not in banned:
-					#print(f"Append: [{key}] [{value.__class__.__name__}]")
 					if isinstance(value, (dict, Dictionary)):
 						found = True
 						try: dictionary_[key]
@@ -3597,11 +3651,8 @@ class Files():
 						else:
 							try: dictionary_[key]
 							except KeyError: dictionary_[key] = value
-			if update: self.dictionary = dictionary_
-			if save: 
-				self.dictionary = dictionary_
-				self.save()
-			return dictionary_
+			return Dictionary(dictionary_, path=self.__path__)
+
 		# edit.
 		def edit(self, 
 			# the dictionary (leave None to use self.dictionary).
@@ -3617,8 +3668,6 @@ class Files():
 			overwite=["missing"],
 			# the instances to combine (list[str]) (dict is always recursive).
 			combine=["int", "float", "Integer", "list", "Array"],
-			# save the edits.
-			save=True,
 			# the log level.
 			log_level=-1,
 		):
@@ -3653,12 +3702,10 @@ class Files():
 				return dictionary, c
 			
 			# check specific.
-			if dictionary == None: dictionary = self.dictionary
+			if dictionary == None: dictionary = dict(self.dictionary)
 			dictionary, c = edit_dict(dictionary=dictionary, edits=edits)
-			if (edit_count > 0 or c > 0) and save:
-				self.dictionary = dictionary
-				if self.fp != None: self.save()
-			return dictionary
+			return Dictionary(dictionary, path=self.__path__)
+
 		# unpack attribute(s).
 		def unpack(self, 
 			# the key / keys / defaults parameter (#1).
@@ -3697,6 +3744,7 @@ class Files():
 				return unpacked[0]
 			else:
 				return unpacked
+
 		# remove.
 		def remove(self, keys=[], values=[], update=True, save=False, dictionary=None):
 			if dictionary == None:
@@ -3709,13 +3757,9 @@ class Files():
 				for k,v in dictionary.items():
 					if v not in values: new[k] = v
 				dictionary = new
-			if update:
-				self.dictionary = dictionary
-			if save: 
-				self.dictionary = dictionary
-				self.save()
-			return dictionary
-		# default dict functions.
+			return Dictionary(dictionary, path=self.__path__)
+
+		# count keys or values.
 		def count(self, item=None, values=False):
 			if item == None:
 				return Formats.Integer(len(self.dictionary))
@@ -3739,12 +3783,11 @@ class Files():
 						if x == y: c += 1
 				return Formats.Integer(c)
 			else: raise Exceptions.InstanceError(f"Parameter [item] must either be [None], [String] or [Array], not [{item.__class__}].")
+
 		# insert new keys & values.
 		def insert(self, dictionary={}, __dictionary__=None):
-			update = False
 			if __dictionary__ == None: 
-				__dictionary__ = self.dictionary
-				update = True
+				__dictionary__ = dict(self.dictionary)
 			for key,value in dictionary.items():
 				if isinstance(value, (dict, Dictionary)):
 					if key in __dictionary__:
@@ -3759,10 +3802,9 @@ class Files():
 						__dictionary__[key] = value
 				else:
 					__dictionary__[key] = value
-			if update:
-				self.dictionary = __dictionary__
-			return __dictionary__
-		# iterations.
+			return Dictionary(__dictionary__, path=self.__path__)
+
+		# iterate keys and values.
 		def iterate(self, sorted=False, reversed=False, dictionary=None):
 			if dictionary == None: dictionary = self.dictionary
 			return self.items(reversed=reversed, sorted=sorted, dictionary=dictionary)
@@ -3771,35 +3813,35 @@ class Files():
 			if sorted: dictionary = self.sort(dictionary=dictionary)
 			if reversed: return self.reversed(dictionary=dictionary).items()
 			else: return dictionary.items()
-		def keys(self, sorted=False, reversed=False, dictionary=None):
+
+		# iterate keys.
+		def keys(self, dictionary=None):
 			if dictionary == None: dictionary = self.dictionary
-			if sorted:
-				return self.sort(self.keys(sorted=False, reversed=reversed, dictionary=dictionary))
-			if reversed: 
-				keys = list(dictionary.keys())
-				reversed_keys = []
-				c = len(keys)-1
-				for _ in range(len(keys)):
-					reversed_keys.append(keys[c])
-					c -= 1
-				return reversed_keys
-			else: return list(dictionary.keys())
-		def values(self, sorted=False, reversed=False, dictionary=None):
-			if dictionary == None: dictionary = self.dictionary
-			if sorted:
-				return self.sort(self.values(sorted=False, reversed=reversed, dictionary=dictionary))
+			return Array(list(dictionary.keys()))
+
+		# iterate values.
+		def values(self, dictionary=None):
+			if dictionary == None: dictionary = dict(self.dictionary)
 			values = []
-			for key, value in self.items(reversed=reversed, dictionary=dictionary):
+			for key, value in dictionary.items():
 				values.append(value)
-			return values
-		def reversed(self, update=True, dictionary=None):
-			if dictionary == None: dictionary = self.dictionary
+			return Array(values)
+
+		# reverse dictionary.
+		def reversed(self, dictionary=None):
+			if dictionary == None: dictionary = dict(self.dictionary)
+			keys = list(dictionary.keys())
+			reversed_keys = []
+			c = len(keys)-1
+			for _ in range(len(keys)):
+				reversed_keys.append(keys[c])
+				c -= 1
 			reversed_dict = {}
-			for key in self.keys(reversed=True, dictionary=dictionary):
+			for key in reversed_keys:
 				reversed_dict[key] = dictionary[key]
-			if update:
-				self.dictionary = reversed_dict
-			return reversed_dict
+			return Dictionary(reversed_dict, path=self.__path__)
+
+		# sort dictionary.
 		def sort(self, 
 			# option 1:
 			# sort alphabetically.
@@ -3813,29 +3855,16 @@ class Files():
 			# option 4:
 			# sort reversed.
 			reversed=False, 
-			# update the self variable.
-			update=True, 
 			# sort the keys or sort the values.
 			sort="keys",
 			# system parameters.
 			dictionary=None,
 		):
-			if dictionary == None: dictionary = self.dictionary
+			if dictionary == None: dictionary = dict(self.dictionary)
 			if descending:
 				new = {}
 				for key in sorted(dictionary, key=dictionary.get, reverse=True):
 					new[key] = dictionary[key]
-				"""
-				return self.reversed(
-					update=update,
-					dictionary=self.sort(
-						ascending=True, 
-						dictionary=dictionary, 
-						update=False,
-						sort=sort,
-					),
-				)
-				"""
 			elif ascending:
 				new = {}
 				for key in sorted(dictionary, key=dictionary.get, reverse=False):
@@ -3858,28 +3887,25 @@ class Files():
 						new[Formats.denitialize(key)] = reversed_dict[Formats.denitialize(key)]
 				if sort == "values":
 					new = self.__reverse_keys_and_values__(dictionary=new)
-			if update:
-				self.dictionary = new
-			return new
+			return Dictionary(new, path=self.__path__)
+
 		# dump json string.
-		def json(self, sorted=False, reversed=False, indent=4, dictionary=None, ):
+		def json(self, indent=4, dictionary=None, ):
 			if dictionary == None: dictionary = self.dictionary
-			return json.dumps(self.serialize(json=False, sorted=sorted, reversed=reversed, dictionary=dictionary), indent=indent)
+			return json.dumps(self.serialize(json=False, dictionary=dictionary), indent=indent)
+
 		# serialize dict.
-		def serialize(self, sorted=False, reversed=False, json=False, dictionary=None):
-			if dictionary == None: dictionary = self.dictionary
+		def serialize(self, json=False, dictionary=None):
+			if dictionary == None: dictionary = dict(self.dictionary)
 			if isinstance(dictionary, Files.Dictionary):
 				dictionary = dictionary.dictionary
-			if sorted:
-				items = self.items(reversed=reversed, dictionary=self.sort(alphabetical=True, dictionary=dictionary))
-			else:
-				items = self.items(reversed=reversed, dictionary=dictionary)
+			items = self.items(dictionary=dictionary)
 			dictionary = {}
 			for key, value in items:
 				if isinstance(value, (dict, Files.Dictionary)):
-					value = self.serialize(json=json, sorted=sorted, reversed=reversed, dictionary=value)
+					value = self.serialize(json=json, dictionary=value)
 				elif isinstance(value, (list, Files.Array)):
-					value = Files.Array(value).serialize(json=json, sorted=sorted, reversed=reversed)
+					value = Files.Array(value).serialize(json=json)
 				elif isinstance(value, object):
 					value = str(value)
 				elif isinstance(value, str) or isinstance(value, bool) or value == None:
@@ -3900,10 +3926,12 @@ class Files():
 							value = None
 				dictionary[key] = value
 			return dictionary
+
 		# copy.
 		def copy(self):
-			return Files.Dictionary(self.dictionary, path=path)
+			return Files.Dictionary(self.dictionary, path=self.__path__)
 			#
+
 		# system functions.
 		def __reverse_keys_and_values__(self, dictionary=None):
 			if dictionary == None: dictionary = self.dictionary
@@ -3951,6 +3979,7 @@ class Files():
 				else:
 					_response_[s_key] = value
 			return _response_
+		
 		# support "+", -, =-, =+" .
 		def __add__(self, dictionary):
 			if isinstance(dictionary, dict):
@@ -3959,7 +3988,7 @@ class Files():
 				dictionary = dictionary.dictionary
 			elif not isinstance(dictionary, self.__class__):
 				raise Exceptions.FormatError(f"Can not add object {self.__class__} & {dictionary.__class__}.")
-			return self.append(dictionary=dictionary, overwrite=["*"], sum=[], update=False)
+			return self.append(dictionary=dictionary, overwrite=["*"], sum=[])
 		def __iadd__(self, dictionary):
 			if isinstance(dictionary, dict):
 				a=1
@@ -3967,8 +3996,7 @@ class Files():
 				dictionary = dictionary.dictionary
 			elif not isinstance(dictionary, self.__class__):
 				raise Exceptions.FormatError(f"Can not add object {self.__class__} & {dictionary.__class__}.")
-			self.append(dictionary=dictionary, overwrite=["*"], sum=[], update=True)
-			return self
+			self.dictionary = self.append(dictionary=dictionary, overwrite=["*"], sum=[]).dictionary
 		def __sub__(self, dictionary):
 			if isinstance(dictionary, dict):
 				keys = list(dictionary.keys())
@@ -3980,7 +4008,7 @@ class Files():
 				keys = dictionary.keys()
 			elif not isinstance(dictionary, self.__class__):
 				raise Exceptions.FormatError(f"Can not add object {self.__class__} & {dictionary.__class__}.")
-			return self.remove(keys=keys, update=False)
+			return self.remove(keys=keys)
 		def __isub__(self, dictionary):
 			if isinstance(dictionary, dict):
 				keys = list(dictionary.keys())
@@ -3992,8 +4020,8 @@ class Files():
 				keys = dictionary.keys()
 			elif not isinstance(dictionary, self.__class__):
 				raise Exceptions.FormatError(f"Can not add object {self.__class__} & {dictionary.__class__}.")
-			self.remove(keys=keys, update=True)
-			return self
+			self.dictionary = self.remove(keys=keys, update=True).dictionary
+
 		# support +.
 		def __concat__(self, string):
 			if isinstance(dictionary, dict):
@@ -4002,7 +4030,8 @@ class Files():
 				dictionary = dictionary.dictionary
 			elif not isinstance(dictionary, self.__class__):
 				raise Exceptions.FormatError(f"Can not add object {self.__class__} & {dictionary.__class__}.")
-			return self.append(dictionary=dictionary, sum=[], overwrite=["*"], update=False)
+			return self.append(dictionary=dictionary, sum=[], overwrite=["*"])
+
 		# support default iteration.
 		def __iter__(self):
 			return iter(self.dictionary)
@@ -4102,16 +4131,22 @@ class Files():
 		@property
 		def __name__(self):
 			return self.instance()
+		
 		# support self assignment.
-		def assign(self, dictionary, save=False):
+		def assign(self, dictionary):
 			if isinstance(dictionary, self.__class__):
 				dictionary = dictionary.dictionary
 			self.dictionary = dictionary
-			if save: self.save()
-			return self
+
+		# assign a new path.
+		def assign_path(self, path):
+			self.file_path = FilePath(path)
+			self.__path__ = path
+
 		# return raw data.
 		def raw(self):
 			return self.dictionary
+			
 		#  
 	#
 	# the directory object class.
