@@ -3851,45 +3851,38 @@ class Files():
 				reversed_dict[key] = dictionary[key]
 			return Dictionary(reversed_dict, path=self.__path__)
 
-		# sort dictionary.
+		# sort ascending dictionary.
 		def sort(self, 
-			# option 1:
-			# sort alphabetically.
-			alphabetical=True, 
-			# option 2:
-			# sort ascending.
-			ascending=False, 
-			# option 3:
-			# sort descending.
-			descending=False, 
-			# option 4:
-			# sort reversed.
-			reversed=False, 
+			# reverse ascending to descending.
+			reversed=False,
 			# sort the keys or sort the values.
 			sort="keys",
 			# system parameters.
 			dictionary=None,
 		):
 			if dictionary == None: dictionary = dict(self.dictionary)
-			if descending:
+			if sort == "keys":
 				new = {}
-				for key in sorted(dictionary, key=dictionary.get, reverse=True):
+				for key in sorted(dictionary, key=dictionary.get, reverse=reversed):
 					new[key] = dictionary[key]
-			elif ascending:
+			elif sort == "values":
+				array = list(dictionary.values())
+				reversed_dict = self.__reverse_keys_and_values__(dictionary=dictionary)
 				new = {}
-				for key in sorted(dictionary, key=dictionary.get, reverse=False):
+				for key in Array(array).sort(reversed=reversed):
 					new[key] = dictionary[key]
+				new = self.__reverse_keys_and_values__(dictionary=new)
+			else: raise ValueError(f"Selected an invalid sort mode [{sort}].")
+			"""
 			else:
 				new, reversed_dict = {}, {}
-				if alphabetical or ascending:
-					if sort == "keys":
-						array = list(dictionary.keys())
-					elif sort == "values":
-						array = list(dictionary.values())
-						reversed_dict = self.__reverse_keys_and_values__(dictionary=dictionary)
-					else: raise ValueError("Selected an invalid sort mode [{sort}].")
-					_sorted_ = Array().sort(alphabetical=alphabetical, ascending=ascending, reversed=reversed, array=array)
-				else: raise ValueError("Unknown behaviour, alphabetical=False.")
+				if sort == "keys":
+					array = list(dictionary.keys())
+				elif sort == "values":
+					array = list(dictionary.values())
+					reversed_dict = self.__reverse_keys_and_values__(dictionary=dictionary)
+				else: raise ValueError(f"Selected an invalid sort mode [{sort}].")
+				_sorted_ = Array().sort(ascending=ascending, reversed=reversed, array=array)
 				for key in _sorted_:
 					if sort == "keys":
 						new[Formats.denitialize(key)] = dictionary[Formats.denitialize(key)]
@@ -3897,6 +3890,7 @@ class Files():
 						new[Formats.denitialize(key)] = reversed_dict[Formats.denitialize(key)]
 				if sort == "values":
 					new = self.__reverse_keys_and_values__(dictionary=new)
+			"""
 			return Dictionary(new, path=self.__path__)
 
 		# dump json string.

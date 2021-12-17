@@ -747,11 +747,11 @@ class ResponseObject(object):
 		for key in self.keys(reversed=True, dictionary=dictionary):
 			reversed_dict[key] = dictionary[key]
 		return reversed_dict
-	def sort(self, alphabetical=True, ascending=False, reversed=False, dictionary=None):
+	def sort(self, ascending=False, reversed=False, dictionary=None):
 		if dictionary == None: dictionary = self.dict()
 		new = {}
-		if alphabetical or ascending:
-			_sorted_ = Array(path=False, array=list(dictionary.keys())).sort(alphabetical=alphabetical, ascending=ascending, reversed=reversed)
+		if ascending:
+			_sorted_ = Array(path=False, array=list(dictionary.keys())).sort(ascending=ascending, reversed=reversed)
 		else: raise ValueError("Unknown behaviour, alphabetical=False.")
 		for key in _sorted_:
 			new[Formats.denitialize(key)] = dictionary[Formats.denitialize(key)]
