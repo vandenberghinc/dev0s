@@ -747,14 +747,11 @@ class ResponseObject(object):
 		for key in self.keys(reversed=True, dictionary=dictionary):
 			reversed_dict[key] = dictionary[key]
 		return reversed_dict
-	def sort(self, ascending=False, reversed=False, dictionary=None):
+	def sort(self, reversed=False, dictionary=None):
 		if dictionary == None: dictionary = self.dict()
-		new = {}
-		if ascending:
-			_sorted_ = Array(path=False, array=list(dictionary.keys())).sort(ascending=ascending, reversed=reversed)
-		else: raise ValueError("Unknown behaviour, alphabetical=False.")
-		for key in _sorted_:
-			new[Formats.denitialize(key)] = dictionary[Formats.denitialize(key)]
+		return Dictionary(dictionary).sort(reversed=reversed).raw()
+		#for key in _sorted_:
+		#	new[Formats.denitialize(key)] = dictionary[Formats.denitialize(key)]
 		return new
 	# return self as dict.
 	def dict(self, sorted=False, reversed=False, json=False, safe=False):
@@ -773,7 +770,7 @@ class ResponseObject(object):
 			dictionary = dictionary.dictionary
 		if sorted:
 			d = {}
-			for key, value in self.items(reversed=reversed, dictionary=self.sort(alphabetical=True, dictionary=dictionary)):
+			for key, value in self.items(reversed=reversed, dictionary=self.sort(dictionary=dictionary)):
 				d[key] = value
 			dictionary = d
 		else:
